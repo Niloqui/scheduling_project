@@ -2,14 +2,15 @@
 #define Solution_hpp
 
 #include "graphw.hpp"
-#include <iostream>
-#include <string>
-#include <string.h>
 
 class Solution{
 private:
 	int* sol;
-	int n, tmax;
+	/* L'indice di un elemento del vettore sol indica l'esame
+	 * Il valore di un elemento del vettore sol indica il suo time slot
+	 * ex. sol[4] = 7; L'esame 4 si trova nel time slot 7
+	 */
+	int n, tmax; // n = lunghezza del vettore
 	int distance(int i, int j);
 
 public:

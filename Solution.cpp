@@ -1,7 +1,5 @@
 #include "Solution.hpp"
 
-#include <stdio.h>
-#include <iostream>
 #include <fstream>
 #include "graphw.hpp"
 #include "Utility.hpp"
