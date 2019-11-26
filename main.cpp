@@ -1,21 +1,21 @@
 #include <iostream>
 #include "rd.hpp"
 #include "graphw.hpp"
+#include "Solution.hpp"
 #include <boost/graph/adjacency_list.hpp>
 
 using namespace std;
 using namespace boost;
 
 int main(int argc, const char * argv[]) {
-    
-    if(argc!=2){
-        std::cout <<"Wrong number of arguments passed"<< std::endl ;
-        return -1;
-    }
-    
-    Reader r = Reader(argv[1]);
-    G::Graph c = r.read(); //ritorna la matrice dei conlitti
-    
+	if(argc!=2){
+		std::cout <<"Wrong number of arguments passed"<< std::endl ;
+		return -1;
+	}
+
+	Reader r = Reader(argv[1]);
+	G::Graph c = r.read(); //ritorna la matrice dei conlitti
+
     /*
     pair<G::Edge,bool> e = edge(3,13,c); //arco fra i vertici 3 e 13
      if(pair.second){ //vedere che il valore di second sia true, altrimenti non esiste l'arco!
@@ -38,8 +38,24 @@ int main(int argc, const char * argv[]) {
 		cout << "\b\b\n";
 	}
 	*/
+	
+	// Nome del file in uscita 
+	string filename(argv[1]);
+	filename += "_DMOgroup01.sol";
 
+	/*
+	if (strcmp(argv[1], "test") == 0) {
+		Solution sol = Solution(r.getExamN(), r.getTmax());
+		int* vect = new int[4];
+		vect[0] = 1;
+		vect[1] = 3;
+		vect[2] = 6;
+		vect[3] = 1;
+		sol.setSolution(vect);
 
+		sol.printSolution(filename);
+	}
+	*/
 
 	cout << "Fine.";
 

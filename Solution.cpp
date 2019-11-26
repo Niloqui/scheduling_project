@@ -1,14 +1,12 @@
 #include "Solution.hpp"
 
-
 #include <stdio.h>
 #include <iostream>
+#include <fstream>
 #include "graphw.hpp"
 #include "Utility.hpp"
 
-
 using namespace std;
-
 
 Solution::Solution(int n, int tmax) {
 	this->n = n;
@@ -124,8 +122,18 @@ int Solution::distance(int i, int j) {
 	return num1 > num2 ? num1 - num2 : num2 - num1;
 }
 
+void Solution::printSolution(string filename) { // Esporta la soluzione su file
+	string output = "";
+	for (int i = 0; i < this->n; i++) {
+		output += to_string(i + 1) + " " + to_string(sol[i]);
+		if (i < (this->n - 1))
+			output += "\n";
+	}
 
-
+	ofstream file(filename);
+	file << output;
+	file.close();
+}
 
 
 

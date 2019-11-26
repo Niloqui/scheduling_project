@@ -2,6 +2,9 @@
 #define Solution_hpp
 
 #include "graphw.hpp"
+#include <iostream>
+#include <string>
+#include <string.h>
 
 class Solution{
 private:
@@ -22,6 +25,7 @@ public:
 	int calculatePenalty(G::Graph g, int* indexvector, int nsub);
 	// tutte le funzioni calculatePenalty restituiscono -1 se la soluzione è unfeasible
 
+	void printSolution(std::string filename); // Esporta la soluzione su file
 
 };
 
