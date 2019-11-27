@@ -58,11 +58,12 @@ int main(int argc, const char * argv[]) {
 
 		vect[0] = 0; vect[1] = 2; vect[2] = 5; vect[3] = 0;
 		sol.setSolution(vect);
-		cout << "penalità: " + to_string(sol.calculatePenalty(c));
+		cout << "penalitï¿½: " + to_string(sol.calculatePenalty(c));
 
 		vect[0] = 1; vect[1] = 3; vect[2] = 6; vect[3] = 1;
 		sol.setSolution(vect);
-		cout << "penalità: " + to_string(sol.calculatePenalty(c));
+		cout << "penalitï¿½: " + to_string(sol.calculatePenalty(c));
+
 
 		sol.printSolution(filename);
 	}

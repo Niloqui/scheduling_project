@@ -97,18 +97,24 @@ Graph Reader::read(){
         
     //Reading each line, separating it into the student part
     //and into the exam the student is taking
-      while ( getline (sturead,nextline) )
+        
+        bool flag = false; //ho finito a processare il corrente studente
+      while ( getline (sturead,nextline) || !flag)
       {
-
+          flag = false;
           stuExam = lineConvert(nextline);
           nextStudent = stuExam.first;
           nextExam = stuExam.second;
           
-          stuExams[i++]=exam;
+          stuExams[i++]=exam-1;
+          
+          //Per l'ultima iterazione
+          if(sturead.peek()==EOF)
+              stuExams[i++]=nextExam-1;
             
           //Whenever we pass onto a new student, start adding the edges
           //pertaining to the current student
-          if( nextStudent!=student){
+          if( nextStudent!=student || sturead.peek()==EOF){
               
               //ADD GRAPH STUFF
               for(int y=0; y<i-1; y++){
@@ -130,6 +136,7 @@ Graph Reader::read(){
                   }
               }
               
+              flag = true; // Segna che lo studente corrente è stato processato
               i=0;
           }
           
