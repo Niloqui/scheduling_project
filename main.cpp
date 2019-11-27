@@ -24,4 +24,6 @@ int main(int argc, const char * argv[]) {
      }
      */
     
+    cout << "Fine " << endl;
+    
 }
