@@ -51,16 +51,22 @@ int main(int argc, const char * argv[]) {
 	string filename(argv[1]);
 	filename += "_DMOgroup01.sol";
 
-	/*
+	
 	if (strcmp(argv[1], "test") == 0) {
 		Solution sol = Solution(r.getExamN(), r.getTmax());
 		int* vect = new int[4];
+
+		vect[0] = 0; vect[1] = 2; vect[2] = 5; vect[3] = 0;
+		sol.setSolution(vect);
+		cout << "penalità: " + to_string(sol.calculatePenalty(c));
+
 		vect[0] = 1; vect[1] = 3; vect[2] = 6; vect[3] = 1;
 		sol.setSolution(vect);
+		cout << "penalità: " + to_string(sol.calculatePenalty(c));
 
 		sol.printSolution(filename);
 	}
-	*/
+	
 
 
 

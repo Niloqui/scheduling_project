@@ -6,10 +6,21 @@
 
 using namespace std;
 
+/*
+int Solution::exam(int i) {
+	// Restituisce il time slot dell'esame i
+	// Assumo che i non venga passato in modo errato
+	// Valori validi per i: 1..tmax
+	return this->sol[i-1];
+}
+*/
+
 Solution::Solution(int n, int tmax) {
 	this->n = n;
 	this->tmax = tmax;
 	this->sol = new int[n];
+	indexexams = NULL;
+	mask = NULL;
 
 	for (int i = 0; i < n; i++)
 		this->sol[i] = -1;
@@ -19,8 +30,31 @@ Solution::Solution(int n, int tmax, int* newsol) {
 	this->n = n;
 	this->tmax = tmax;
 	this->sol = new int[n];
+	indexexams = NULL;
+	mask = NULL;
 
 	setSolution(newsol);
+}
+
+void Solution::setSolution(Solution newsol, char car) {
+	// car = ; 'm' -> mask; 'i' -> index
+	switch (car){
+	case 'a': // all
+		for (int i = 0; i < this->n; i++)
+			this->sol[i] = newsol.sol[i];
+		break;
+
+	case 'm': // mask
+		for (int i = 0; i < this->n; i++)
+			if (newsol.mask[i])
+				this->sol[i] = newsol.sol[i];
+		break;
+
+	case 'i': // index
+		for (int i = 0; i < newsol.n; i++)
+			this->sol[newsol.indexexams[i]] = newsol.sol[i];
+		break;
+	}
 }
 
 void Solution::setSolution(int* newsol) {
@@ -34,9 +68,9 @@ void Solution::setSolution(int* newsol, bool* mask) {
 			this->sol[i] = newsol[i];
 }
 
-void Solution::setSolution(int* newsol, int* indexvector, int nsub) {
+void Solution::setSolution(int* newsol, int* indexexams, int nsub) {
 	for (int i = 0; i < nsub; i++)
-		this->sol[indexvector[i]] = newsol[i];
+		this->sol[indexexams[i]] = newsol[i];
 }
 
 int Solution::calculatePenalty(G::Graph g){
@@ -44,11 +78,11 @@ int Solution::calculatePenalty(G::Graph g){
 	pair<G::Edge, bool> e;
 
 	for (i = 0; i < this->n && pen >= 0; i++) {
-		if (this->sol[i] < 0 || this->sol[i] >= tmax)
+		if (this->sol[i] < 1 || this->sol[i] > tmax)
 			pen = -1;
 
 		for (j = i+1; j < this->n && pen >= 0; j++) {
-			if (this->sol[j] < 0 || this->sol[j] >= tmax)
+			if (this->sol[j] < 1 || this->sol[j] > tmax)
 				pen = -1;
 
 			e = edge(i, j, g);
@@ -87,12 +121,12 @@ int Solution::calculatePenalty(G::Graph g, bool* mask) {
 
 	for (i = 0; i < this->n && pen>=0; i++) {
 		if (mask[i]) {
-			if (this->sol[i] < 0 || this->sol[i] >= tmax)
+			if (this->sol[i] < 1 || this->sol[i] > tmax)
 				pen = -1;
 
 			for (j = i+1; j < this->n && pen >= 0; j++) {
 				if (mask[j]){
-					if (this->sol[j] < 0 || this->sol[j] >= tmax)
+					if (this->sol[j] < 1 || this->sol[j] > tmax)
 						pen = -1;
 
 					e = edge(i, j, g);
@@ -111,6 +145,9 @@ int Solution::calculatePenalty(G::Graph g, bool* mask) {
 
 	return pen;
 }
+
+// (forse) TO-DO: provare a invertire la seconda e la terza calculatePenalty, ovvero la terza è un wrapper della seconda.
+// Controllare poi quale delle due versioni è più efficiente
 
 int Solution::distance(int i, int j) {
 	int num1, num2;
@@ -132,6 +169,11 @@ void Solution::printSolution(string filename) { // Esporta la soluzione su file
 	file << output;
 	file.close();
 }
+
+
+
+
+
 
 
 
