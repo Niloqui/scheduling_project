@@ -1,21 +1,29 @@
 #include <iostream>
 #include "rd.hpp"
 #include "graphw.hpp"
+#include "Solution.hpp"
 #include <boost/graph/adjacency_list.hpp>
+
+#include <ctime>
 
 using namespace std;
 using namespace boost;
 
 int main(int argc, const char * argv[]) {
-    
-    if(argc!=2){
-        std::cout <<"Wrong number of arguments passed"<< std::endl ;
-        return -1;
-    }
-    
-    Reader r = Reader(argv[1]);
-    G::Graph c = r.read(); //ritorna la matrice dei conlitti
-    
+	clock_t start;
+	double duration;
+	if(argc!=2){
+		std::cout <<"Wrong number of arguments passed"<< std::endl ;
+		return -1;
+	}
+
+	start = clock();
+
+	Reader r = Reader(argv[1]);
+	G::Graph c = r.read(); //ritorna la matrice dei conlitti
+
+	cout << "Tempo impiegato per leggere il file: " + to_string( ( (double)clock() - (double)start ) / CLOCKS_PER_SEC ) + " ms\n";
+
     /*
     pair<G::Edge,bool> e = edge(3,13,c); //arco fra i vertici 3 e 13
      if(pair.second){ //vedere che il valore di second sia true, altrimenti non esiste l'arco!
@@ -38,8 +46,34 @@ int main(int argc, const char * argv[]) {
 		cout << "\b\b\n";
 	}
 	*/
+	
+	// Nome del file in uscita 
+	string filename(argv[1]);
+	filename += "_DMOgroup01.sol";
+
+	
+	if (strcmp(argv[1], "test") == 0) {
+		Solution sol = Solution(r.getExamN(), r.getTmax());
+		int* vect = new int[4];
+
+		vect[0] = 0; vect[1] = 2; vect[2] = 5; vect[3] = 0;
+		sol.setSolution(vect);
+		cout << "penalit�: " + to_string(sol.calculatePenalty(c));
+
+		vect[0] = 1; vect[1] = 3; vect[2] = 6; vect[3] = 1;
+		sol.setSolution(vect);
+		cout << "penalit�: " + to_string(sol.calculatePenalty(c));
+
+
+		sol.printSolution(filename);
+	}
+	
+
+
+
+	// TO-DO (forse): aggiungere deallocazione memoria
+
 
 	cout << "Fine.";
-
 	return 0;
 }
