@@ -6,19 +6,11 @@
 
 using namespace std;
 
-/*
-int Solution::exam(int i) {
-	// Restituisce il time slot dell'esame i
-	// Assumo che i non venga passato in modo errato
-	// Valori validi per i: 1..tmax
-	return this->sol[i-1];
-}
-*/
-
 Solution::Solution(int n, int tmax) {
 	this->n = n;
 	this->tmax = tmax;
 	this->sol = new int[n];
+	optimum = false;
 	indexexams = NULL;
 	mask = NULL;
 
@@ -30,6 +22,7 @@ Solution::Solution(int n, int tmax, int* newsol) {
 	this->n = n;
 	this->tmax = tmax;
 	this->sol = new int[n];
+	optimum = false;
 	indexexams = NULL;
 	mask = NULL;
 
@@ -108,7 +101,7 @@ int Solution::calculatePenalty(G::Graph g, int* indexvector, int nsub) {
 		mask[i] = false;
 
 	for (int i = 0; i < nsub; i++)
-		mask[indexvector[1]] = true;
+		mask[indexvector[i]] = true;
 
 	pen = calculatePenalty(g, mask);
 	delete[] mask;
@@ -145,9 +138,6 @@ int Solution::calculatePenalty(G::Graph g, bool* mask) {
 
 	return pen;
 }
-
-// (forse) TO-DO: provare a invertire la seconda e la terza calculatePenalty, ovvero la terza è un wrapper della seconda.
-// Controllare poi quale delle due versioni è più efficiente
 
 int Solution::distance(int i, int j) {
 	int num1, num2;

@@ -22,7 +22,9 @@ int main(int argc, const char * argv[]) {
 	Reader r = Reader(argv[1]);
 	G::Graph c = r.read(); //ritorna la matrice dei conlitti
 
-	cout << "Tempo impiegato per leggere il file: " + to_string( ( (double)clock() - (double)start ) / CLOCKS_PER_SEC ) + " ms\n";
+	duration = (double)clock() - (double)start;
+	cout << "Tempo impiegato per leggere il file: " + to_string( duration / CLOCKS_PER_SEC ) + " s\n";
+
 
     /*
     pair<G::Edge,bool> e = edge(3,13,c); //arco fra i vertici 3 e 13
@@ -32,21 +34,26 @@ int main(int argc, const char * argv[]) {
      }
      */
 
-	/* Stampa della matrice test
+	/*
+	// Stampa della matrice test
 	pair<G::Edge, bool> e;
 	int w;
+	string str = "";
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			e = edge(i, j, c);
 			w = 0;
 			if (e.second)
 				w = get(edge_weight_t(), c, e.first);
-			cout << to_string(w) + ", ";
+			str += to_string(w);
+			if ( j < 3 )
+				str += ", ";
 		}
-		cout << "\b\b\n";
+		str += "\n";
 	}
+	cout << str;
 	*/
-	
+
 	// Nome del file in uscita 
 	string filename(argv[1]);
 	filename += "_DMOgroup01.sol";
@@ -58,17 +65,15 @@ int main(int argc, const char * argv[]) {
 
 		vect[0] = 0; vect[1] = 2; vect[2] = 5; vect[3] = 0;
 		sol.setSolution(vect);
-		cout << "penalit�: " + to_string(sol.calculatePenalty(c));
+		cout << "penalita': " + to_string(sol.calculatePenalty(c)) + "\n";
 
 		vect[0] = 1; vect[1] = 3; vect[2] = 6; vect[3] = 1;
 		sol.setSolution(vect);
-		cout << "penalit�: " + to_string(sol.calculatePenalty(c));
-
+		cout << "penalita': " + to_string(sol.calculatePenalty(c)) + "\n";
 
 		sol.printSolution(filename);
 	}
 	
-
 
 
 	// TO-DO (forse): aggiungere deallocazione memoria
