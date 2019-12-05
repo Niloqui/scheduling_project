@@ -1,84 +1,80 @@
 #include <iostream>
 #include "rd.hpp"
-#include "graphw.hpp"
-#include "Solution.hpp"
-#include <boost/graph/adjacency_list.hpp>
+//#include "graphw.hpp"
+//#include "Solution.hpp"
+//#include <boost/graph/adjacency_list.hpp>
+//#include "IlsOptimizer.hpp"
+#include "LsSolver.hpp"
+//#include "Perturbator.hpp"
 
-#include <ctime>
-
-using namespace std;
-using namespace boost;
+//#include <ctime>
+//#include <iostream>
 
 int main(int argc, const char * argv[]) {
-	clock_t start;
-	double duration;
-	if(argc!=2){
-		std::cout <<"Wrong number of arguments passed"<< std::endl ;
-		return -1;
-	}
+    // insert code here...
+    //std::cout << "Hello, World!\n";
+    
+    if(argc!=2){
+        std::cout <<"Wrong number of arguments passed"<< std::endl ;
+        return -1;
+    }
+    
+    Reader r = Reader(argv[1]);
+    G::Graph c = r.read();
+    
+   if (strcmp(argv[1], "test") == 0) {
+        Solution *sol = new Solution(r.getExamN(), r.getTmax());
+        int* vect = new int[4];
+       
+        vect[0] = 1; vect[1] = 3; vect[2] = 2; vect[3] = 1;
+        sol->setSolution(vect);
+        std::cout << "penalita': " + std::to_string(sol->calculatePenalty(c)) + "\n";
 
-	start = clock();
+        vect[0] = 0; vect[1] = 2; vect[2] = 5; vect[3] = 0;
+        sol->setSolution(vect);
+        std::cout << "penalita': " + std::to_string(sol->calculatePenalty(c)) + "\n";
 
-	Reader r = Reader(argv[1]);
-	G::Graph c = r.read(); //ritorna la matrice dei conlitti
+        vect[0] = 1; vect[1] = 3; vect[2] = 6; vect[3] = 1;
+        sol->setSolution(vect);
+        std::cout << "penalita': " + std::to_string(sol->calculatePenalty(c)) + "\n";
+        
+        LS *ls = new LS(c, -1, sol);
+        ls->getShuffledExams();
+        ls->firstImprovement();
 
-	duration = (double)clock() - (double)start;
-	cout << "Tempo impiegato per leggere il file: " + to_string( duration / CLOCKS_PER_SEC ) + " s\n";
+       
+      // non funzionano i distruttori
+       //delete ls;
+       //delete sol;
+       //delete[] vect;
+       
+       
 
+        //sol.printSolution(filename);
+    }
 
-    /*
-    pair<G::Edge,bool> e = edge(3,13,c); //arco fra i vertici 3 e 13
-     if(pair.second){ //vedere che il valore di second sia true, altrimenti non esiste l'arco!
-        int w = get(edge_weight_t(),c,e.first); //come ricavare il peso del arco
-        //peso = numero di studenti in comune
-     }
-     */
-
-	/*
-	// Stampa della matrice test
-	pair<G::Edge, bool> e;
-	int w;
-	string str = "";
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			e = edge(i, j, c);
-			w = 0;
-			if (e.second)
-				w = get(edge_weight_t(), c, e.first);
-			str += to_string(w);
-			if ( j < 3 )
-				str += ", ";
-		}
-		str += "\n";
-	}
-	cout << str;
-	*/
-
-	// Nome del file in uscita 
-	string filename(argv[1]);
-	filename += "_DMOgroup01.sol";
-
-	
-	if (strcmp(argv[1], "test") == 0) {
-		Solution sol = Solution(r.getExamN(), r.getTmax());
-		int* vect = new int[4];
-
-		vect[0] = 0; vect[1] = 2; vect[2] = 5; vect[3] = 0;
-		sol.setSolution(vect);
-		cout << "penalita': " + to_string(sol.calculatePenalty(c)) + "\n";
-
-		vect[0] = 1; vect[1] = 3; vect[2] = 6; vect[3] = 1;
-		sol.setSolution(vect);
-		cout << "penalita': " + to_string(sol.calculatePenalty(c)) + "\n";
-
-		sol.printSolution(filename);
-	}
-	
-
-
-	// TO-DO (forse): aggiungere deallocazione memoria
-
-
-	cout << "Fine.";
-	return 0;
+    /*std::vector<int> vect2;
+    
+    for (int i = 0; i < 30; i++) {
+        vect2.push_back(i);
+    }
+    
+    Perturbator *p = new Perturbator();
+    p->generate_childs(vect2, 10, 20, 30);*/
+    
+    /*int *prova = new int[4];
+    
+    prova[0] = 1;
+    prova[1] = 3;
+    prova[2] = 5;
+    prova[3] = 5;
+    
+    Solution *S = new Solution(4, 6, prova);
+    
+    LS ls = LS(-1, S);
+    
+    ls.getShuffledExams();*/
+    
+    
+    return 0;
 }

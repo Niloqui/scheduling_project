@@ -3,6 +3,7 @@
 
 #include "graphw.hpp"
 
+
 class Solution{
 private:
 	int distance(int i, int j);

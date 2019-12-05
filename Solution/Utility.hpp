@@ -1,5 +1,10 @@
 #pragma once
 
+
+#include <algorithm>
+#include <random>
+#include <iostream>
+
 int integerPower(int arg, int exp) {
 	if (exp < 0)
 		return 0;
@@ -10,6 +15,7 @@ int integerPower(int arg, int exp) {
 
 	return res;
 }
+
 
 
 
