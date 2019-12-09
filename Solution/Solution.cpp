@@ -84,7 +84,7 @@ int Solution::calculatePenalty(G::Graph g){
 				if (dist == 0)
 					pen = -1;
 				else if (dist <= 5)
-					pen += integerPower(2, dist) * get(edge_weight_t(), g, e.first);
+					pen += integerPower(2, (5-dist)) * get(edge_weight_t(), g, e.first);
 				// else if (dist > 5) {}
 			}
 		}
@@ -161,6 +161,11 @@ void Solution::printSolution(string filename) { // Esporta la soluzione su file
 }
 
 
+void Solution::printS() {
+    for (int i = 0; i < this->n; i++) {
+        std::cout << this->sol[i] << std::endl;
+    }
+}
 
 
 

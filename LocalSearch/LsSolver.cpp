@@ -1,14 +1,21 @@
 #include "LsSolver.hpp"
-//#include <algorithm>
-//#include <random>
-//include <iostream>
-#include "Utility2.hpp"
+#include <algorithm>
+#include <random>
+#include <iostream>
+//#include "Utility2.hpp"
+#include <math.h>
+#include <chrono>
 
 //class Solution;
 
 /*Solution *LS::GenerateBestNeighbour(const Solution &fatherSolution, int &evalsCounter, int maxNeighbourEvals) {
     return nullptr;
 }*/
+
+Solution *LS::getSol(){
+    return this->solution;
+}
+
 
 void LS::generateExams(int n){
     //int *exams = new int[n];
@@ -21,14 +28,14 @@ void LS::generateExams(int n){
 }
 
 void LS::getShuffledExams(){
-    /*unsigned seed = (unsigned) std::chrono::system_clock::now().time_since_epoch().count();
+    unsigned seed = (unsigned) std::chrono::system_clock::now().time_since_epoch().count();
     
-    shuffle (this->exams.begin(), this->exams.end(), std::default_random_engine(seed));*/
+    shuffle (this->exams.begin(), this->exams.end(), std::default_random_engine(seed));
 
-    this->exams = shuffle_vect(this->exams);
+    //this->exams = shuffle_vect(this->exams);
     
     for(int exam : this->exams)
-      std::cout << exam << std::endl;
+        std::cout << exam << std::endl;
 }
 
 
@@ -36,6 +43,7 @@ bool LS::generateNeighbors(int index){
     int timeSlots = this->solution->tmax;
     int n = this->solution->n;
     Solution *newsol = new Solution(n, timeSlots, this->solution->sol);
+    int currentPenalty = this->solution->calculatePenalty(this->graph);
     int i = 0;
     int penalty = -1;
     bool flag = false;
@@ -53,7 +61,7 @@ bool LS::generateNeighbors(int index){
         penalty = newsol->calculatePenalty(this->graph);
         
         if (penalty != -1) {
-            if (penalty < this->solution->calculatePenalty(this->graph)) {
+            if (penalty < currentPenalty) {
                 this->solution->sol[index] = newsol->sol[index];
                 flag = true;
                 break;
@@ -70,11 +78,19 @@ bool LS::generateNeighbors(int index){
 
 
 void LS::firstImprovement(){
-    
+    int maxNUmberOfNeighbors;
     bool better = false;
+    int betterCount = 0;
     
-    for(int i = 0; i < this->solution->n && !better; i++){
+    // Change the 10% of the elements of the array
+    maxNUmberOfNeighbors = ceil((this->solution->n) * (float)10/100);
+    
+    for(int i = 0; i < this->solution->n && betterCount < maxNUmberOfNeighbors; i++){
         better = generateNeighbors(this->exams[i]);
+        
+        if (better)
+            betterCount++;
+        
     }
     
 }

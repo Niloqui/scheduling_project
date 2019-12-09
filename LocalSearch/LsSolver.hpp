@@ -35,8 +35,12 @@ class LS{
     void getShuffledExams();
     void firstImprovement();
     
+    Solution *getSol();
+    
     // Destructor
-    ~LS() { delete[] solution; }
+    ~LS() { delete solution; }
+    //oppure?
+   // ~LS() { delete[] solution; }
 
 };
 

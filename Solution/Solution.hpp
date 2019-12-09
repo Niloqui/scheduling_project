@@ -45,6 +45,7 @@ public:
 	// Controllare poi quale delle due versioni è più efficiente
 
 	void printSolution(std::string filename); // Esporta la soluzione su file
+    void printS();
 
 	~Solution() { delete[] sol; delete[] mask; delete[] indexexams; }
 
