@@ -6,47 +6,36 @@
 
 using namespace std;
 
+Solution::Solution() {
+	tmax = n = -1;
+	sol = NULL;
+}
+
 Solution::Solution(int n, int tmax) {
 	this->n = n;
 	this->tmax = tmax;
-	this->sol = new int[n];
-	optimum = false;
-	indexexams = NULL;
-	mask = NULL;
+	sol = new int[n];
 
 	for (int i = 0; i < n; i++)
-		this->sol[i] = -1;
+		sol[i] = -1;
 }
 
 Solution::Solution(int n, int tmax, int* newsol) {
 	this->n = n;
 	this->tmax = tmax;
-	this->sol = new int[n];
-	optimum = false;
-	indexexams = NULL;
-	mask = NULL;
+	sol = new int[n];
 
 	setSolution(newsol);
 }
 
-void Solution::setSolution(Solution newsol, char car) {
-	// car = ; 'm' -> mask; 'i' -> index
-	switch (car){
-	case 'a': // all
-		for (int i = 0; i < this->n; i++)
-			this->sol[i] = newsol.sol[i];
-		break;
-
-	case 'm': // mask
-		for (int i = 0; i < this->n; i++)
-			if (newsol.mask[i])
-				this->sol[i] = newsol.sol[i];
-		break;
-
-	case 'i': // index
+void Solution::setSolution(Solution newsol, bool indexes) {
+	if (indexes) {
 		for (int i = 0; i < newsol.n; i++)
 			this->sol[newsol.indexexams[i]] = newsol.sol[i];
-		break;
+	}
+	else {
+		for (int i = 0; i < this->n; i++)
+			this->sol[i] = newsol.sol[i];
 	}
 }
 
@@ -84,7 +73,7 @@ int Solution::calculatePenalty(G::Graph g){
 				if (dist == 0)
 					pen = -1;
 				else if (dist <= 5)
-					pen += integerPower(2, dist) * get(edge_weight_t(), g, e.first);
+					pen += integerPower(2, 5 - dist) * get(edge_weight_t(), g, e.first);
 				// else if (dist > 5) {}
 			}
 		}
@@ -93,6 +82,7 @@ int Solution::calculatePenalty(G::Graph g){
 	return pen;
 }
 
+/*
 int Solution::calculatePenalty(G::Graph g, int* indexvector, int nsub) {
 	bool* mask = new bool[this->n];
 	int pen;
@@ -105,6 +95,33 @@ int Solution::calculatePenalty(G::Graph g, int* indexvector, int nsub) {
 
 	pen = calculatePenalty(g, mask);
 	delete[] mask;
+	return pen;
+}
+*/
+int Solution::calculatePenalty(G::Graph g, int* indexvector, int nsub){
+	int i, j, pen = 0, dist;
+	pair<G::Edge, bool> e;
+
+	for (i = 0; i < nsub && pen >= 0; i++) {
+		if (this->sol[indexvector[i]] < 1 || this->sol[indexvector[i]] > tmax)
+			pen = -1;
+
+		for (j = i + 1; j < nsub && pen >= 0; j++) {
+			if (this->sol[indexvector[j]] < 1 || this->sol[indexvector[j]] > tmax)
+				pen = -1;
+
+			e = edge(indexvector[i], indexvector[j], g);
+			if (e.second) {
+				dist = distance(indexvector[i], indexvector[j]);
+				if (dist == 0)
+					pen = -1;
+				else if (dist <= 5)
+					pen += integerPower(2, 5 - dist) * get(edge_weight_t(), g, e.first);
+				// else if (dist > 5) {}
+			}
+		}
+	}
+
 	return pen;
 }
 
@@ -128,7 +145,7 @@ int Solution::calculatePenalty(G::Graph g, bool* mask) {
 						if (dist == 0)
 							pen = -1;
 						else if (dist <= 5)
-							pen += integerPower(2, dist) * get(edge_weight_t(), g, e.first);
+							pen += integerPower(2, 5 - dist) * get(edge_weight_t(), g, e.first);
 						// else if (dist > 5) {}
 					}
 				}
@@ -139,6 +156,41 @@ int Solution::calculatePenalty(G::Graph g, bool* mask) {
 	return pen;
 }
 
+int Solution::calculatePenalty(G::Graph g, int* sol, int* indexvector, int nsub, int tmax) {
+	int i, j, pen = 0, dist;
+	pair<G::Edge, bool> e;
+
+	for (i = 0; i < nsub && pen >= 0; i++) {
+		if (sol[indexvector[i]] < 1 || sol[indexvector[i]] > tmax)
+			pen = -1;
+
+		for (j = i + 1; j < nsub && pen >= 0; j++) {
+			if (sol[indexvector[j]] < 1 || sol[indexvector[j]] > tmax)
+				pen = -1;
+
+			e = edge(indexvector[i], indexvector[j], g);
+			if (e.second) {
+				dist = Solution::distance(sol, indexvector[i], indexvector[j]);
+				if (dist == 0)
+					pen = -1;
+				else if (dist <= 5)
+					pen += integerPower(2, 5 - dist) * get(edge_weight_t(), g, e.first);
+				// else if (dist > 5) {}
+			}
+		}
+	}
+
+	return pen;
+}
+
+int Solution::distance(int* sol, int i, int j) {
+	int num1, num2;
+	num1 = sol[i];
+	num2 = sol[j];
+
+	return num1 > num2 ? num1 - num2 : num2 - num1;
+}
+
 int Solution::distance(int i, int j) {
 	int num1, num2;
 	num1 = this->sol[i];
@@ -147,7 +199,21 @@ int Solution::distance(int i, int j) {
 	return num1 > num2 ? num1 - num2 : num2 - num1;
 }
 
-void Solution::printSolution(string filename) { // Esporta la soluzione su file
+/*
+string Solution::printSolution(ofstream file) {
+	string output = "";
+	for (int i = 0; i < this->n; i++) {
+		output += to_string(i + 1) + " " + to_string(sol[i]);
+		if (i < (this->n - 1))
+			output += "\n";
+	}
+
+	file << output;
+	return output;
+}
+*/
+
+string Solution::printSolution(std::string filename) {
 	string output = "";
 	for (int i = 0; i < this->n; i++) {
 		output += to_string(i + 1) + " " + to_string(sol[i]);
@@ -158,10 +224,8 @@ void Solution::printSolution(string filename) { // Esporta la soluzione su file
 	ofstream file(filename);
 	file << output;
 	file.close();
+	return output;
 }
-
-
-
 
 
 
