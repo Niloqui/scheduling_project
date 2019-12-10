@@ -25,8 +25,10 @@ public:
 	// true => la soluzione è feasible
 	// false => la soluzione è infeasible
 
-
+	static std::pair<int, bool> squeakyWheel(G::Graph g, int* res, int* indexvector, int n, int tmax);
 	
+
+
 
 
 

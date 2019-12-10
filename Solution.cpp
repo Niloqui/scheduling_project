@@ -6,47 +6,36 @@
 
 using namespace std;
 
+Solution::Solution() {
+	tmax = n = -1;
+	sol = NULL;
+}
+
 Solution::Solution(int n, int tmax) {
 	this->n = n;
 	this->tmax = tmax;
-	this->sol = new int[n];
-	optimum = false;
-	indexexams = NULL;
-	mask = NULL;
+	sol = new int[n];
 
 	for (int i = 0; i < n; i++)
-		this->sol[i] = -1;
+		sol[i] = -1;
 }
 
 Solution::Solution(int n, int tmax, int* newsol) {
 	this->n = n;
 	this->tmax = tmax;
-	this->sol = new int[n];
-	optimum = false;
-	indexexams = NULL;
-	mask = NULL;
+	sol = new int[n];
 
 	setSolution(newsol);
 }
 
-void Solution::setSolution(Solution newsol, char car) {
-	// car = ; 'm' -> mask; 'i' -> index
-	switch (car){
-	case 'a': // all
-		for (int i = 0; i < this->n; i++)
-			this->sol[i] = newsol.sol[i];
-		break;
-
-	case 'm': // mask
-		for (int i = 0; i < this->n; i++)
-			if (newsol.mask[i])
-				this->sol[i] = newsol.sol[i];
-		break;
-
-	case 'i': // index
+void Solution::setSolution(Solution newsol, bool indexes) {
+	if (indexes) {
 		for (int i = 0; i < newsol.n; i++)
 			this->sol[newsol.indexexams[i]] = newsol.sol[i];
-		break;
+	}
+	else {
+		for (int i = 0; i < this->n; i++)
+			this->sol[i] = newsol.sol[i];
 	}
 }
 
@@ -210,6 +199,7 @@ int Solution::distance(int i, int j) {
 	return num1 > num2 ? num1 - num2 : num2 - num1;
 }
 
+/*
 string Solution::printSolution(ofstream file) {
 	string output = "";
 	for (int i = 0; i < this->n; i++) {
@@ -221,6 +211,7 @@ string Solution::printSolution(ofstream file) {
 	file << output;
 	return output;
 }
+*/
 
 string Solution::printSolution(std::string filename) {
 	string output = "";
@@ -235,8 +226,6 @@ string Solution::printSolution(std::string filename) {
 	file.close();
 	return output;
 }
-
-
 
 
 

@@ -10,7 +10,7 @@ void InitialSolver::greedy(G::Graph g, int* res, int* indexvector, int nsub, int
 	int i, j, newpen, minpen, jmin;
 
 	for (i = 0; i < nsub; i++) {
-		minpen = INT32_MAX / 2;
+		minpen = INT32_MAX;
 		jmin = -1;
 
 		for (j = 1; j <= tmax; j++) {
@@ -109,6 +109,34 @@ std::pair<int, bool> InitialSolver::firstPossiblePosition(G::Graph g, int* res, 
 	return max;
 }
 
+std::pair<int, bool> InitialSolver::squeakyWheel(G::Graph g, int* res, int* indexvector, int n, int tmax) {
+	int* blame = new int[n];
+	int* blametmp = new int[n];
+	int i, alpha = 1, beta = tmax/2;
+	std::pair<int, bool> temp;
+	temp.second = false;
 
+	for (i = 0; i < n; i++)
+		blame[i] = 0;
+
+	while (!temp.second) {
+		temp = InitialSolver::firstPossiblePosition(g, res, indexvector, n, tmax);
+
+		if (!temp.second) {
+			for (i = 0; i < n; i++) {
+				if (res[i] > tmax * alpha)
+					blame[i] += beta + res[i];
+				else
+					blame[i] += res[i]; // blame[i] += i;
+			}
+
+			mergeSort(indexvector, blame, n);
+			reverseVector(indexvector, n);
+			reverseVector(blame, n);
+		}
+	}
+
+	return temp;
+}
 
 
