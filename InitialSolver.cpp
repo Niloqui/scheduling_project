@@ -113,13 +113,12 @@ std::pair<int, bool> InitialSolver::squeakyWheel(G::Graph g, int* res, int* inde
 	int* blame = new int[n];
 	int i, alpha = 1, beta = tmax/2;
 	std::pair<int, bool> temp;
-
 	temp.second = false;
 
 	for (i = 0; i < n; i++)
 		blame[i] = 0;
 
-	while (!temp.second) ) {
+	while (!temp.second) {
 		temp = InitialSolver::firstPossiblePosition(g, res, indexvector, n, tmax);
 
 		if (!temp.second) {
