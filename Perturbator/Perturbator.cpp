@@ -2,6 +2,15 @@
 #include "Utility2.hpp"
 #include "Solution.hpp"
 
+
+/*
+*****************************ATTENTION*****************************
+ For debuggin purposes, uncomment only the
+ "print_i_v" or "printv" functions that are under the comment:
+ "// print for debugging"
+*****************************ATTENTION*****************************
+ */
+
 Perturbator::Perturbator(){
 
 }
@@ -12,17 +21,19 @@ void Perturbator::generate_childs(std::vector<int> previous,int small = 15,int m
     this->vect_size = previous.size();
     for(int i = 0; i < this->vect_size; i++)
         this->previous_indexes.push_back(i);
-    print_i_v(this->previous_indexes,this->previous,"vector 'previous '");
+    // print for debugging
+    //print_i_v(this->previous_indexes,this->previous,"vector 'previous '");
 
     this->shuffled_indexes = shuffle_v(this->previous_indexes);
     for(int i = 0; i < this->vect_size; i++){
         int rand_index = shuffled_indexes[i];
         this->shuffled.push_back(this->previous[rand_index]);
     }
-    print_i_v(this->shuffled_indexes,this->shuffled,"vector 'shuffled'");
-    this->s_perturbated=this->perturbate(ceil(this->vect_size*small/100));
-    this->m_perturbated=this->perturbate(ceil(this->vect_size*medium/100));
-    this->l_perturbated=this->perturbate(ceil(this->vect_size*large/100));
+    // print for debugging
+    //print_i_v(this->shuffled_indexes,this->shuffled,"vector 'shuffled'");
+    this->s_perturbated=this->perturbate(ceil(this->vect_size* (float)small/100));
+    this->m_perturbated=this->perturbate(ceil(this->vect_size* (float)medium/100));
+    this->l_perturbated=this->perturbate(ceil(this->vect_size* (float)large/100));
 }
 
 std::vector<int> Perturbator::perturbate(int size) {
@@ -33,7 +44,8 @@ std::vector<int> Perturbator::perturbate(int size) {
         sub_vect.push_back(this->shuffled[i]);
     }
     //printv(sub_indexes_vect,"vector 'sub_indexes_vect'");
-    print_i_v(sub_indexes_vect,sub_vect,"vector 'sub_vect'");
+    // print for debugging
+    //print_i_v(sub_indexes_vect,sub_vect,"vector 'sub_vect'");
     std::vector<int> sub_shuffled_indexes = shuffle_v(sub_indexes_vect);
     std::vector<int> sub_shuffled_vect;
     for(int i = 0; i < size; i++){
@@ -41,7 +53,8 @@ std::vector<int> Perturbator::perturbate(int size) {
         sub_shuffled_vect.push_back(sub_vect[i]);
     }
     //printv(sub_shuffled_indexes,"vector 'sub_shuffled_indexes_vect'");
-    print_i_v(sub_shuffled_indexes,sub_shuffled_vect,"vector 'sub_shuffled_vect'");
+    // print for debugging
+    //print_i_v(sub_shuffled_indexes,sub_shuffled_vect,"vector 'sub_shuffled_vect'");
 
     //recomposing original vector with shuffled items;
     std::vector<int> recomposed = this->previous;
@@ -50,7 +63,8 @@ std::vector<int> Perturbator::perturbate(int size) {
         int index = sub_shuffled_indexes[i];
         recomposed[index] = value;
     }
-    printv(recomposed,"vector 'recomposed'");
+    // print for debugging
+    //printv(recomposed,"vector 'recomposed'");
     //std::vector<int> sol = this->generate_feasible_solution(recomposed);
     return recomposed;
 

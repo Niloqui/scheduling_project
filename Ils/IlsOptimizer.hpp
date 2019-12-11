@@ -12,29 +12,36 @@ private:
     
     LS *localSearch;
     Perturbator *perturbator;
+    G::Graph graph;
     Solution *currentSol;
+    int currentPen;
     
 
 public:
     
     ILS(G::Graph graph, int maxEvals=-1, Solution *solution = nullptr){
+        this->graph = graph;
         this->currentSol = solution;
         this->localSearch = new LS(graph, maxEvals, solution);
         this->perturbator = new Perturbator();
     }
     
     
+    Solution *getCurrentSol();
+    int getCurrenPen();
+
+    
     //Solution *getInitialSol();
     
     void doLocalSearch();
     
-    void updateCurrentSol();
+    //void updateCurrentSol();
     
     void doPerturbation();
     
-    void acceptanceTest();
+    void acceptanceTest(int, int*);
     
-    void stoppingCriterion();
+    bool stoppingCriterion();
     
     // vari metodi per gestione metaeuristica:
     
@@ -50,7 +57,7 @@ public:
     // forse la ricerca locale ha bisogno di un suo criterio di stop per non iterare troppe volte
 
 
-    ~ILS() { delete this->localSearch; delete this->perturbator; }
+    ~ILS() { delete this->localSearch; delete this->perturbator; delete this->currentSol;}
     
 };
 

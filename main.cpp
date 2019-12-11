@@ -4,13 +4,14 @@
 //#include "Solution.hpp"
 //#include <boost/graph/adjacency_list.hpp>
 //#include "IlsOptimizer.hpp"
-#include "LsSolver.hpp"
-#include "Perturbator.hpp"
+//#include "LsSolver.hpp"
+//#include "Perturbator.hpp"
+#include "IlsOptimizer.hpp"
 
 #include <ctime>
 //#include <iostream>
 
-void initialSol(G::Graph g);
+//void initialSol(G::Graph g);
 
 int main(int argc, const char * argv[]) {
     // insert code here...
@@ -43,10 +44,31 @@ int main(int argc, const char * argv[]) {
         vect[0] = 1; vect[1] = 3; vect[2] = 2; vect[3] = 1;
         sol->setSolution(vect);
         std::cout << "penalita': " + std::to_string(sol->calculatePenalty(c)) + "\n";
+       
+       
+       ILS *ils = new ILS(c, -1, sol);
+       
+       int previousPen = -1;
+       int counter = 0;
+       
+       for (int i = 0; i < 50 && counter < 5; i++){
+           ils->doLocalSearch();
+           ils->doPerturbation();
+           
+           std::cout << "iteration: " << i+1 << ", penality: " << ils->getCurrenPen() << std::endl;
+           std::cout << std::endl;
+           
+           
+           if (previousPen == ils->getCurrenPen()) {
+               counter++;
+           }
+           
+           previousPen = ils->getCurrenPen();
+       }
         
-        LS *ls = new LS(c, -1, sol);
+        /*LS *ls = new LS(c, -1, sol);
         ls->getShuffledExams();
-        ls->firstImprovement();
+        ls->firstImprovement();*/
 
        
       // non funzionano i distruttori
@@ -79,6 +101,10 @@ int main(int argc, const char * argv[]) {
         ls->getShuffledExams();
         ls->firstImprovement();
     }
+    
+    
+    
+    
 
     /*std::vector<int> vect2;
     
@@ -104,7 +130,7 @@ int main(int argc, const char * argv[]) {
     
     //initialSol(c);
     
-    std::vector<int> viva_la_figa;
+    /*std::vector<int> viva_la_figa;
       for(int i = 0; i < 10; i++)
           viva_la_figa.push_back(i+10);
       Perturbator *p = new Perturbator();
@@ -124,13 +150,14 @@ int main(int argc, const char * argv[]) {
 
       duration = (double)clock() - (double)start;
       std::cout << "Tempo impiegato per leggere il file: " + std::to_string( duration / CLOCKS_PER_SEC ) + " s\n";
+    */
     
     return 0;
 }
 
 
 
-void initialSol(G::Graph g){
+/*void initialSol(G::Graph g){
     // time_slot-exams
     std::map<int, std::vector<int>> structure;
     std::vector<int> initial_sol;
@@ -160,4 +187,4 @@ void initialSol(G::Graph g){
     
     
     
-}
+}*/

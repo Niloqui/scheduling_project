@@ -34,8 +34,9 @@ void LS::getShuffledExams(){
 
     //this->exams = shuffle_vect(this->exams);
     
-    for(int exam : this->exams)
-        std::cout << exam << std::endl;
+    // print shuffled index
+    /*for(int exam : this->exams)
+        std::cout << exam << std::endl;*/
 }
 
 
