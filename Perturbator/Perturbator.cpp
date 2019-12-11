@@ -32,8 +32,8 @@ void Perturbator::generate_childs(std::vector<int> previous,int small = 15,int m
     // print for debugging
     //print_i_v(this->shuffled_indexes,this->shuffled,"vector 'shuffled'");
     this->s_perturbated=this->perturbate(ceil(this->vect_size* (float)small/100));
-    this->m_perturbated=this->perturbate(ceil(this->vect_size* (float)medium/100));
-    this->l_perturbated=this->perturbate(ceil(this->vect_size* (float)large/100));
+    //this->m_perturbated=this->perturbate(ceil(this->vect_size* (float)medium/100));
+    //this->l_perturbated=this->perturbate(ceil(this->vect_size* (float)large/100));
 }
 
 std::vector<int> Perturbator::perturbate(int size) {

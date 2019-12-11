@@ -33,7 +33,9 @@ void ILS::doPerturbation(){
         // non c'è shuffle in pratica
         this->perturbator->generate_childs(sol,20,40,60);
         
-        std::vector<int> tmp_vect = this->perturbator->getLPerturbated();
+        // Use "getLPerturbated()" for small vectors
+        //std::vector<int> tmp_vect = this->perturbator->getLPerturbated();
+        std::vector<int> tmp_vect = this->perturbator->getSPerturbated();
         
         for(int i = 0; i < this->currentSol->n; i++)
             vect[i] = tmp_vect[i];

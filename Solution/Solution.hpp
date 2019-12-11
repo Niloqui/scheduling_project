@@ -39,11 +39,14 @@ public:
 	int calculatePenalty(G::Graph g);
 	int calculatePenalty(G::Graph g, bool* mask);
 	int calculatePenalty(G::Graph g, int* indexvector, int nsub);
+    static int calculatePenalty(G::Graph g, int *sol, int* indexvector, int nsub, int tmax);
 	// Tutte le funzioni calculatePenalty restituiscono -1 se la soluzione è unfeasible
 
 	// (forse) TO-DO: provare a invertire la seconda e la terza calculatePenalty, ovvero la terza sarà un wrapper della seconda.
 	// Controllare poi quale delle due versioni è più efficiente
-
+    
+    static int distance(int *sol, int i, int j);
+    
 	void printSolution(std::string filename); // Esporta la soluzione su file
     void printS();
 

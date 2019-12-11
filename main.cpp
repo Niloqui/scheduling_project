@@ -7,6 +7,7 @@
 //#include "LsSolver.hpp"
 //#include "Perturbator.hpp"
 #include "IlsOptimizer.hpp"
+#include "InitialSolver.hpp"
 
 #include <ctime>
 //#include <iostream>
@@ -25,7 +26,7 @@ int main(int argc, const char * argv[]) {
     Reader r = Reader(argv[1]);
     G::Graph c = r.read();
     
-   if (strcmp(argv[1], "test") == 0) {
+   if (strcmp(argv[1], "yolo") == 0) {
         Solution *sol = new Solution(r.getExamN(), r.getTmax());
         int* vect = new int[4];
        
@@ -81,8 +82,8 @@ int main(int argc, const char * argv[]) {
     
     
     
-    if (strcmp(argv[1], "instance02") == 0) {
-        Solution *sol = new Solution(r.getExamN(), r.getTmax());
+    if (strcmp(argv[1], "test") == 0) {
+        /*Solution *sol = new Solution(r.getExamN(), r.getTmax());
         int* vect = new int[sol->n];
         
         unsigned seed = (unsigned) std::chrono::system_clock::now().time_since_epoch().count();
@@ -99,7 +100,44 @@ int main(int argc, const char * argv[]) {
         
         LS *ls = new LS(c, -1, sol);
         ls->getShuffledExams();
-        ls->firstImprovement();
+        ls->firstImprovement();*/
+        
+        std::pair<int, bool> tUsed_feasible;
+        
+        Solution *sol = new Solution(r.getExamN(), r.getTmax());
+        
+        int *indexvector = new int[sol->n];
+        
+        for (int i = 0; i < sol->n; i++) {
+            indexvector[i] = i;
+        }
+        
+        tUsed_feasible = InitialSolver::squeakyWheel(c, sol->sol, indexvector, sol->n, sol->tmax);
+        
+        ILS *ils = new ILS(c, -1, sol);
+        
+        int previousPen = -1;
+        int counter = 0;
+        
+        for (int i = 0; i < 50 && counter < 5; i++){
+            ils->doLocalSearch();
+            ils->doPerturbation();
+            
+            std::cout << "iteration: " << i+1 << ", penality: " << ils->getCurrenPen() << std::endl;
+            std::cout << std::endl;
+            
+            
+            if (previousPen == ils->getCurrenPen()) {
+                counter++;
+            }
+            
+            previousPen = ils->getCurrenPen();
+        }
+        
+        delete[] indexvector;
+        delete sol;
+        
+        
     }
     
     
