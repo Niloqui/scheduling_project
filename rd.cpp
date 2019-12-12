@@ -9,8 +9,10 @@ using namespace std;
 using namespace boost;
 
 typedef property<edge_weight_t, int> EdgeWeightProperty;
-typedef adjacency_list<listS, vecS,undirectedS,no_property,EdgeWeightProperty> Graph;
+typedef property<vertex_color_t,int> VertexColorProperty;
+typedef adjacency_list<listS, vecS,undirectedS,VertexColorProperty,EdgeWeightProperty> Graph;
 typedef Graph::edge_descriptor Edge;
+typedef Graph::vertex_descriptor Vertex;
 
 pair<int,int> lineConvert(string line);
 

@@ -7,6 +7,9 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/connected_components.hpp>
 
+//Tabu search
+#include "tabugroup/Tabu.hpp"
+
 #include <ctime>
 
 using namespace std;
@@ -178,6 +181,8 @@ int main(int argc, const char * argv[]) {
 	reverseVector(indexvector, n);
 
 	pair<int, bool> coso = InitialSolver::squeakyWheel(c, res, indexvector, n, tmax);
+    
+    
 	sol.setSolution(res, indexvector, n);
 	cout << "\n\n" << sol.printSolution(filename) << "\n\nPenalita': " << to_string(sol.calculatePenalty(c)) << "\n\n";
 
@@ -190,22 +195,16 @@ int main(int argc, const char * argv[]) {
 
 
 
-
-
-
-
-
-
-
-	////////////////////
-	// RISOLUZIONE
-	////////////////////
-
 	if (num_components > 1)
 		for (int i = 0; i < num_components; i++)
 			master.setSolution(subsol[i], true);
-
-	// master.printSolution(filename);
+    
+    
+    /*--------------------------------------------**/
+    /*----------Soluzione tabu search-------------**/
+    Tabu t = Tabu();
+    t.colorGraph(c,sol);
+    printGraphDot(c);
 
 
 	// TO-DO (forse): aggiungere deallocazione memoria
