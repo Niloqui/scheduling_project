@@ -12,6 +12,17 @@ int integerPower(int arg, int exp) {
 	return res;
 }
 
+int64_t integerPower64(int arg, int exp) {
+	if (exp < 0)
+		return 0;
+
+	int64_t res = 1;
+	for (int i = 0; i < exp; i++)
+		res *= arg;
+
+	return res;
+}
+
 void mergeSortFin(int* A, int* B, int n, int a, int b) {
 	int m = (a + b) / 2, i = a, j = m + 1;
 
