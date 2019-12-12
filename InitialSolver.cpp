@@ -111,7 +111,7 @@ std::pair<int, bool> InitialSolver::firstPossiblePosition(G::Graph g, int* res, 
 
 std::pair<int, bool> InitialSolver::squeakyWheel(G::Graph g, int* res, int* indexvector, int n, int tmax) {
 	int* blame = new int[n];
-	int i, alpha = 1, beta = tmax/2;
+	int i, alpha = 1, beta = tmax / 2;
 	std::pair<int, bool> temp;
 	temp.second = false;
 
@@ -123,7 +123,7 @@ std::pair<int, bool> InitialSolver::squeakyWheel(G::Graph g, int* res, int* inde
 
 		if (!temp.second) {
 			for (i = 0; i < n; i++) {
-				if (res[i] > tmax * alpha)
+				if (res[i] > tmax* alpha)
 					blame[i] += beta + res[i];
 				else
 					blame[i] += res[i]; // blame[i] += i;
@@ -135,6 +135,45 @@ std::pair<int, bool> InitialSolver::squeakyWheel(G::Graph g, int* res, int* inde
 		}
 	}
 
+	delete[] blame;
+	return temp;
+}
+
+std::pair<int, bool> InitialSolver::squeakyWheel(G::Graph g, Solution* sol) {
+	int* blame = new int[sol->n];
+	int* indexvector = NULL;
+	int i, alpha = 1, beta = sol->tmax / 2;
+	std::pair<int, bool> temp;
+	temp.second = false;
+
+	for (i = 0; i < sol->n; i++)
+		blame[i] = 0;
+
+	if (sol->indexexams == NULL)
+		indexvector = new int[sol->n];
+	else
+		indexvector = sol->indexexams;
+
+	while (!temp.second) {
+		temp = InitialSolver::firstPossiblePosition(g, sol->sol, indexvector, sol->n, sol->tmax);
+
+		if (!temp.second) {
+			for (i = 0; i < sol->n; i++) {
+				if (sol->sol[i] > sol->tmax* alpha)
+					blame[i] += beta + sol->sol[i];
+				else
+					blame[i] += sol->sol[i]; // blame[i] += i;
+			}
+
+			mergeSort(indexvector, blame, sol->n);
+			reverseVector(indexvector, sol->n);
+			reverseVector(blame, sol->n);
+		}
+	}
+
+	if (indexvector != sol->indexexams)
+		delete[] indexvector;
+	delete[] blame;
 	return temp;
 }
 
