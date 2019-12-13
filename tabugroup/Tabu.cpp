@@ -3,6 +3,7 @@
 #include "Solution.hpp"
 #include "graphw.hpp"
 #include <boost/graph/adjacency_list.hpp>
+#include "Utility.hpp"
 
 using namespace boost;
 
@@ -26,3 +27,89 @@ void Tabu::colorGraph(G::Graph& g,Solution& s){
         put(vertex_color_t(),g,*v,s.sol[id]);
     }
 }
+
+void Tabu::setSolution(G::Graph& g, Solution& s){
+    long int id;
+    int color;
+        
+    
+    G::Graph::vertex_iterator v, vend;
+    for (boost::tie(v, vend) = vertices(g); v != vend; ++v) {
+        id = get(vertex_index_t(),g,*v);
+        color = get(vertex_color_t(),g,*v);
+        s.sol[id]=color;
+    }
+    
+}
+
+void Tabu::simpleKempe(G::Graph& g ,G::Vertex v, int color){
+    int myColor = get(vertex_color_t(),g,v);
+    
+    //Bisogna iterare sui vertici adiacenti
+    //Ritorna l'iterator range
+    //G::Graph::adjacency_iterator iterator =  adjacent_vertices(v, g);
+    
+    //Per evitare i cicli, e quindi una ricorsione infinita, nei vertici già
+    //Visitati si segna un colore fittizio -1 che non esiste, in questo modo
+    //Nei cicli si evita di rivisitare sempre lo stesso cammino
+    put(vertex_color_t(),g,v,-1);
+    G::Graph::adjacency_iterator vit, vend;
+    for (boost::tie(vit, vend) = adjacent_vertices(v, g); vit != vend; ++vit) {
+        //Cerco il colore relativo allo swap desiderato
+        if (get(vertex_color_t(),g,*vit) == color){
+            simpleKempe(g,*vit,myColor);
+        }
+    }
+    
+    put(vertex_color_t(),g,v,color);
+    return;
+}
+
+
+//Color, il colore che diventerà il vertice 1
+//V2 è un vertice adiacente
+static int colorDistance(G::Graph& g,int color, G::Vertex v2){
+    return abs(color-get(vertex_color_t(),g,v2));
+}
+//Overload per calcolare la distanza fra due nodi
+static int colorDistance(G::Graph& g,G::Vertex v1, G::Vertex v2){
+    return abs(get(vertex_color_t(),g,v1)-get(vertex_color_t(),g,v2));
+}
+
+//Ritorna la penalità associata a due vertici
+//Data la loro distanza,che non è detto sia quella contenuta nei colori
+//Poichè potremmo voler testare delle possibili mosse
+static int penaltyFunction(int distance, G::Vertex v1, G::Vertex v2, G::Graph& g){
+    int penalty = 0;
+    std::pair<G::Edge,bool> p = edge(v1,v2,g);
+    
+    if (distance <= 5 && p.second){
+        int commonStudents = get(edge_weight_t(),g,p.first);
+        penalty = integerPower(2, 5-distance);
+        penalty = penalty * commonStudents;
+    }
+    
+    return penalty;
+}
+
+
+//Non si tiene in considerazione la penalità fra elementi della catena
+//In quanto la distanza relativa fra gli esami rimane invariata
+//Per cui non c'è contributo alla delta nella penalità
+int Tabu::nodeMovePenalty(G::Graph& g, G::Vertex v, int color){
+    int nodePenalty=0;
+    
+    //Iterazione sui nodi adiacenti
+    G::Graph::adjacency_iterator vit,vend;
+    for(boost::tie(vit,vend) = adjacent_vertices(v,g); vit!=vend; ++vit){
+        
+        
+        
+    }
+    
+    return nodePenalty;
+}
+
+
+
+
