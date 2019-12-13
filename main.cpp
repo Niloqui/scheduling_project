@@ -138,7 +138,7 @@ int main(int argc, const char * argv[]) {
     Tabu t = Tabu();
     t.colorGraph(c,sol);
     G::Vertex v = vertex(0, c);
-    cout << "Penalità mossa: " << t.kempeMovePenalty(c, v, 10) << endl;
+    cout << "Penalità mossa: " << t.kempeMovePenaltyWrapper(c, v, 10) << endl;
     
     t.simpleKempe(c,v,10);
     t.setSolution(c, sol);

@@ -128,11 +128,15 @@ int Tabu::nodeMovePenalty(G::Graph& g, G::Vertex v, int color){
     return nodePenalty-originalCost;
 }
 
-int Tabu::kempeMovePenalty(G::Graph& g, G::Vertex v, int color){
+int Tabu::kempeMovePenalty(G::Graph& g, G::Vertex v, int color,  unordered_set<long int>& visitedNodes){
     int penalty = 0;
     //Colore originale da resettare alla fine della funzione
     int originalColor = get(vertex_color_t(),g,v);
     int iteratedColor;
+    long int iteratedId;
+    
+    //Memorizing that the current node has been visited
+    visitedNodes.insert(get(vertex_index_t(),g,v));
     
     penalty += nodeMovePenalty(g, v, color);
     
@@ -143,8 +147,9 @@ int Tabu::kempeMovePenalty(G::Graph& g, G::Vertex v, int color){
     for (boost::tie(vit, vend) = adjacent_vertices(v, g); vit != vend; ++vit) {
         //Cerco il colore relativo alla potenziale mossa da effettura
         iteratedColor = get(vertex_color_t(),g,*vit);
-        if (iteratedColor == color){
-            penalty += kempeMovePenalty(g, *vit, originalColor);
+        iteratedId = get(vertex_index_t(),g,*vit);
+        if (iteratedColor == color && visitedNodes.count(iteratedId) == 0 ){
+            penalty += kempeMovePenalty(g, *vit, originalColor,visitedNodes);
         }
     }
     
@@ -153,5 +158,10 @@ int Tabu::kempeMovePenalty(G::Graph& g, G::Vertex v, int color){
     return penalty;
 }
 
+int Tabu::kempeMovePenaltyWrapper(G::Graph& g, G::Vertex v, int color){
+    unordered_set<long int> visitedNodes;
+    int answer = kempeMovePenalty(g, v, color,visitedNodes);
+    return answer;
+}
 
 
