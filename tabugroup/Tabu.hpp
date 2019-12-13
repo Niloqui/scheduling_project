@@ -24,6 +24,10 @@ class Tabu{
     //attraverso il kempe swap, quindi prende in considerazione la trasformazione
     //dei vicini di colore = color
     int nodeMovePenalty(G::Graph& g, G::Vertex v, int color);
+    int kempeMovePenalty(G::Graph& g, G::Vertex v, int color);
+    
+private:
+
         
 
     

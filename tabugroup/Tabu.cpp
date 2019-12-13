@@ -4,6 +4,7 @@
 #include "graphw.hpp"
 #include <boost/graph/adjacency_list.hpp>
 #include "Utility.hpp"
+#define PREDECESSOR -1
 
 using namespace boost;
 
@@ -52,7 +53,7 @@ void Tabu::simpleKempe(G::Graph& g ,G::Vertex v, int color){
     //Per evitare i cicli, e quindi una ricorsione infinita, nei vertici già
     //Visitati si segna un colore fittizio -1 che non esiste, in questo modo
     //Nei cicli si evita di rivisitare sempre lo stesso cammino
-    put(vertex_color_t(),g,v,-1);
+    put(vertex_color_t(),g,v,PREDECESSOR);
     G::Graph::adjacency_iterator vit, vend;
     for (boost::tie(vit, vend) = adjacent_vertices(v, g); vit != vend; ++vit) {
         //Cerco il colore relativo allo swap desiderato
@@ -98,18 +99,59 @@ static int penaltyFunction(int distance, G::Vertex v1, G::Vertex v2, G::Graph& g
 //Per cui non c'è contributo alla delta nella penalità
 int Tabu::nodeMovePenalty(G::Graph& g, G::Vertex v, int color){
     int nodePenalty=0;
+    int distance = 0;
+    int originalDistance = 0;
+    int originalColor = get(vertex_color_t(),g,v);
+    int originalCost=0;
+
+    int iteratedColor;
     
     //Iterazione sui nodi adiacenti
     G::Graph::adjacency_iterator vit,vend;
     for(boost::tie(vit,vend) = adjacent_vertices(v,g); vit!=vend; ++vit){
         
-        
+        //La mossa non ha effetto nel costo relativo ai nodi
+        //Appartenenti alla medesima catena Kempe
+        iteratedColor = get(vertex_color_t(),g,*vit);
+        //Quel PREDECESSOR rappresenta un nodo già visitato e che quindi non deve essere processato
+        if(iteratedColor != color && iteratedColor != PREDECESSOR){
+            distance = colorDistance(g, color, *vit);
+            nodePenalty += penaltyFunction(distance,v,*vit,g);
+            
+            originalDistance = colorDistance(g, originalColor, *vit);
+            originalCost += penaltyFunction(originalDistance, v, *vit, g);
+        }
         
     }
     
-    return nodePenalty;
+    //Se Negativo vuol dire che la mossa mi migliora la soluzione
+    return nodePenalty-originalCost;
 }
 
+int Tabu::kempeMovePenalty(G::Graph& g, G::Vertex v, int color){
+    int penalty = 0;
+    //Colore originale da resettare alla fine della funzione
+    int originalColor = get(vertex_color_t(),g,v);
+    int iteratedColor;
+    
+    penalty += nodeMovePenalty(g, v, color);
+    
+    //Nuovamente, vogliamo evitare di ciclare infinitamente
+    put(vertex_color_t(),g,v,PREDECESSOR);
+    
+    G::Graph::adjacency_iterator vit, vend;
+    for (boost::tie(vit, vend) = adjacent_vertices(v, g); vit != vend; ++vit) {
+        //Cerco il colore relativo alla potenziale mossa da effettura
+        iteratedColor = get(vertex_color_t(),g,*vit);
+        if (iteratedColor == color){
+            penalty += kempeMovePenalty(g, *vit, originalColor);
+        }
+    }
+    
+    put(vertex_color_t(),g,v,originalColor);
+    
+    return penalty;
+}
 
 
 
