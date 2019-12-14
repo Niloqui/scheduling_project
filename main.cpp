@@ -3,12 +3,13 @@
 #include "graphw.hpp"
 #include "Solution.hpp"
 #include "Utility.hpp"
+#include "Tabu.hpp"
 #include "InitialSolver.hpp"
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/connected_components.hpp>
 
 //Kempe search
-#include "kempegroup/Kempe.hpp"
+#include "Kempe.hpp"
 
 #include <ctime>
 
@@ -38,8 +39,6 @@ int main(int argc, const char * argv[]) {
 	Reader r = Reader(argv[1]);
 	G::Graph c = r.read(); //ritorna la matrice dei conlitti
 
-	duration = (double)clock() - (double)start;
-	cout << "Tempo impiegato per leggere il file: " + to_string( duration / CLOCKS_PER_SEC ) + " s\n\n";
 
 	//////////////////// Componenti connesse
 	start = clock();
@@ -48,50 +47,12 @@ int main(int argc, const char * argv[]) {
 	int num_components = connected_components(c, &component[0]);
 	cout << "Numero di vertici: " + to_string(num_vertices(c)) + "\n\n";
 
-	duration = (double)clock() - (double)start;
-	cout << "Tempo impiegato per ottenere le componenti connesse: " + to_string(duration / CLOCKS_PER_SEC) + " s\n\n";
-
-
-
 	//////////////////// Inizio soluzione
 	n = r.getExamN();
 	tmax = r.getTmax();
 	Solution master(n, tmax); // Soluzione dell'intera istanza
 	Solution* subsol;
 
-	//////////////////// Sottosoluzioni delle componenti connesse
-	if (num_components > 1) {
-		subsol = new Solution[num_components];
-		int** indexvectors = new int* [num_components];
-		int* counters = new int[num_components];
-		int i, j;
-
-		for (i = 0; i < num_components; i++) {
-			counters[i] = 0;
-			indexvectors[i] = new int[n];
-		}
-
-		for (j = 0; j < n; j++) {
-			i = component[j];
-			indexvectors[i][counters[i]] = j;
-			counters[i]++;
-		}
-
-		for (i = 0; i < num_components; i++) {
-			subsol[i].n = counters[i];
-			subsol[i].tmax = tmax;
-			subsol[i].indexexams = new int[counters[i]];
-			subsol[i].sol = new int[counters[i]];
-
-			for (j = 0; j < counters[i]; j++) {
-				subsol[i].sol[j] = -1;
-				subsol[i].indexexams[j] = indexvectors[i][j];
-			}
-		}
-	}
-	else { // num_components == 1
-		subsol = &master;
-	}
 	
 	//////////////////////////////////
 	//////////////////////////////////
@@ -117,7 +78,7 @@ int main(int argc, const char * argv[]) {
     
     
 	sol.setSolution(res, indexvector, n);
-	cout << "\n\n" << sol.printSolution(filename) << "\n\nPenalita': " << to_string(sol.calculatePenalty(c)) << "\n\n";
+	cout << "Penalita': " << to_string(sol.calculatePenalty(c)) << "\n\n";
 
 	string output = "Numero di time slot utilizzati = " + to_string(coso.first) + "\n";
 	output += "tmax = " + to_string(r.getTmax()) + "\t\tn = " + to_string(r.getExamN()) + "\n";
@@ -125,20 +86,19 @@ int main(int argc, const char * argv[]) {
 
 	duration = (double)clock() - (double)start;
 	cout << "\n\nTempo impiegato per leggere lo squeakyWheel: " + to_string(duration / CLOCKS_PER_SEC) + " s\n\n";
-
-
+    
     
     /*--------------------------------------------**/
-    /*----------Soluzione tabu search-------------**/
-    colorGraph(c,sol);
-    G::Vertex v = vertex(2, c);
-    cout << "Penalità mossa: " << kempeMovePenaltyWrapper(c, v, 12) << endl;
+    /*----------Soluzione tabu search-------------**/    
+    int iterations = 2;
+    Tabu tabu(iterations);
+    tabu.solveFI(c, sol);
+    sol.printSolution(filename);
     
-    simpleKempe(c,v,12);
-    setSolution(c, sol);
-    
+    //printGraphDot(c);
+    int penalita = sol.calculatePenalty(c);
     cout << "\n\nPenalita': " <<
-    to_string(sol.calculatePenalty(c)) << "\n\n";
+    to_string(penalita) << "\n\n";
 
 
 

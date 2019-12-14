@@ -1,12 +1,11 @@
-#ifndef Tabu_hpp
-#define Tabu_hpp
+#ifndef Kempe_hpp
+#define Kempe_hpp
 
 #include <stdio.h>
 #include "Solution.hpp"
 #include "graphw.hpp"
 #include <boost/graph/adjacency_list.hpp>
 
-    
     
 //Colora il grafo con il vettore soluzione
 void colorGraph(G::Graph& g,Solution& s);
@@ -20,7 +19,7 @@ void setSolution(G::Graph& g, Solution& s);
 //Ovvero i nodi che sono adiacenti a v e sono di colore color
 //diventano adesso del colore originale di v. Questo cambio
 //viene propagato lungo tutta la catena in maniera da rimanere nella feasibility.
-void simpleKempe(G::Graph& g ,G::Vertex v, int color);
+void simpleKempeWrapper(G::Graph& g ,G::Vertex v, int color);
 
 //Calcola la penalità associata nel far diventare v di colore = color
 //attraverso il kempe swap, quindi prende in considerazione la trasformazione
@@ -32,9 +31,6 @@ int nodeMovePenalty(G::Graph& g, G::Vertex v, int color);
 //una penalità negativa indica che quella mossa diminuirebbe il valore della
 //funzione obiettivo
 int kempeMovePenaltyWrapper(G::Graph& g, G::Vertex v, int color);
-
-
-        
 
 
 
