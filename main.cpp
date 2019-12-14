@@ -127,11 +127,6 @@ int main(int argc, const char * argv[]) {
 	cout << "\n\nTempo impiegato per leggere lo squeakyWheel: " + to_string(duration / CLOCKS_PER_SEC) + " s\n\n";
 
 
-
-	if (num_components > 1)
-		for (int i = 0; i < num_components; i++)
-			master.setSolution(subsol[i], true);
-    
     
     /*--------------------------------------------**/
     /*----------Soluzione tabu search-------------**/
@@ -145,7 +140,6 @@ int main(int argc, const char * argv[]) {
     cout << "\n\nPenalita': " <<
     to_string(sol.calculatePenalty(c)) << "\n\n";
 
-	// TO-DO (forse): aggiungere deallocazione memoria
 
 
 	return 0;
