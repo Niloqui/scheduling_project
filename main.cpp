@@ -7,8 +7,8 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/connected_components.hpp>
 
-//Tabu search
-#include "tabugroup/Tabu.hpp"
+//Kempe search
+#include "kempegroup/Kempe.hpp"
 
 #include <ctime>
 
@@ -135,13 +135,12 @@ int main(int argc, const char * argv[]) {
     
     /*--------------------------------------------**/
     /*----------Soluzione tabu search-------------**/
-    Tabu t = Tabu();
-    t.colorGraph(c,sol);
-    G::Vertex v = vertex(0, c);
-    cout << "Penalità mossa: " << t.kempeMovePenaltyWrapper(c, v, 10) << endl;
+    colorGraph(c,sol);
+    G::Vertex v = vertex(2, c);
+    cout << "Penalità mossa: " << kempeMovePenaltyWrapper(c, v, 12) << endl;
     
-    t.simpleKempe(c,v,10);
-    t.setSolution(c, sol);
+    simpleKempe(c,v,12);
+    setSolution(c, sol);
     
     cout << "\n\nPenalita': " <<
     to_string(sol.calculatePenalty(c)) << "\n\n";

@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Tabu.hpp"
+#include "Kempe.hpp"
 #include "Solution.hpp"
 #include "graphw.hpp"
 #include <boost/graph/adjacency_list.hpp>
@@ -8,10 +8,8 @@
 
 using namespace boost;
 
-Tabu::Tabu(){}
-Tabu::~Tabu(){/*delete something*/}
 
-void Tabu::colorGraph(G::Graph& g,Solution& s){
+void colorGraph(G::Graph& g,Solution& s){
     long int id;
     int color;
         
@@ -29,7 +27,7 @@ void Tabu::colorGraph(G::Graph& g,Solution& s){
     }
 }
 
-void Tabu::setSolution(G::Graph& g, Solution& s){
+void setSolution(G::Graph& g, Solution& s){
     long int id;
     int color;
         
@@ -43,7 +41,7 @@ void Tabu::setSolution(G::Graph& g, Solution& s){
     
 }
 
-void Tabu::simpleKempe(G::Graph& g ,G::Vertex v, int color){
+void simpleKempe(G::Graph& g ,G::Vertex v, int color){
     int myColor = get(vertex_color_t(),g,v);
     
     //Bisogna iterare sui vertici adiacenti
@@ -97,7 +95,7 @@ static int penaltyFunction(int distance, G::Vertex v1, G::Vertex v2, G::Graph& g
 //Non si tiene in considerazione la penalità fra elementi della catena
 //In quanto la distanza relativa fra gli esami rimane invariata
 //Per cui non c'è contributo alla delta nella penalità
-int Tabu::nodeMovePenalty(G::Graph& g, G::Vertex v, int color){
+int nodeMovePenalty(G::Graph& g, G::Vertex v, int color){
     int nodePenalty=0;
     int distance = 0;
     int originalDistance = 0;
@@ -128,7 +126,7 @@ int Tabu::nodeMovePenalty(G::Graph& g, G::Vertex v, int color){
     return nodePenalty-originalCost;
 }
 
-int Tabu::kempeMovePenalty(G::Graph& g, G::Vertex v, int color,  unordered_set<long int>& visitedNodes){
+int kempeMovePenalty(G::Graph& g, G::Vertex v, int color,  unordered_set<long int>& visitedNodes){
     int penalty = 0;
     //Colore originale da resettare alla fine della funzione
     int originalColor = get(vertex_color_t(),g,v);
@@ -158,7 +156,7 @@ int Tabu::kempeMovePenalty(G::Graph& g, G::Vertex v, int color,  unordered_set<l
     return penalty;
 }
 
-int Tabu::kempeMovePenaltyWrapper(G::Graph& g, G::Vertex v, int color){
+int kempeMovePenaltyWrapper(G::Graph& g, G::Vertex v, int color){
     unordered_set<long int> visitedNodes;
     int answer = kempeMovePenalty(g, v, color,visitedNodes);
     return answer;
