@@ -126,7 +126,7 @@ int nodeMovePenalty(G::Graph& g, G::Vertex v, int color){
     return nodePenalty-originalCost;
 }
 
-int kempeMovePenalty(G::Graph& g, G::Vertex v, int color,  unordered_set<long int>& visitedNodes){
+static int kempeMovePenalty(G::Graph& g, G::Vertex v, int color,  unordered_set<long int>& visitedNodes){
     int penalty = 0;
     //Colore originale da resettare alla fine della funzione
     int originalColor = get(vertex_color_t(),g,v);
