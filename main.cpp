@@ -20,7 +20,7 @@ clock_t start;
 
 int main(int argc, const char * argv[]) {
 	double duration;
-	int tmax, n;
+	int tmax, n,studentNum;
 
 	if(argc!=2){
 		// TO-DO: In totale si riceveranno 3 parametri, non 1 solo
@@ -38,6 +38,7 @@ int main(int argc, const char * argv[]) {
 
 	Reader r = Reader(argv[1]);
 	G::Graph c = r.read(); //ritorna la matrice dei conlitti
+    studentNum = r.getStudents();
 
 
 	//////////////////// Componenti connesse
@@ -78,7 +79,7 @@ int main(int argc, const char * argv[]) {
     
     
 	sol.setSolution(res, indexvector, n);
-	cout << "Penalita': " << to_string(sol.calculatePenalty(c)) << "\n\n";
+	cout << "Penalita': " << to_string(sol.calculatePenaltyFull(c,studentNum)) << "\n\n";
 
 	string output = "Numero di time slot utilizzati = " + to_string(coso.first) + "\n";
 	output += "tmax = " + to_string(r.getTmax()) + "\t\tn = " + to_string(r.getExamN()) + "\n";
@@ -90,13 +91,14 @@ int main(int argc, const char * argv[]) {
     
     /*--------------------------------------------**/
     /*----------Soluzione tabu search-------------**/    
-    int iterations = 2;
+    int iterations = 201;
     Tabu tabu(iterations);
-    tabu.solveFI(c, sol);
+    tabu.steepestDescent(c, sol);
     sol.printSolution(filename);
+    //printGraphDot(c);
     
     //printGraphDot(c);
-    int penalita = sol.calculatePenalty(c);
+    double penalita = sol.calculatePenaltyFull(c,studentNum);
     cout << "\n\nPenalita': " <<
     to_string(penalita) << "\n\n";
 

@@ -39,7 +39,10 @@ public:
 	static int calculatePenalty(G::Graph g, int *sol, int* indexvector, int nsub, int tmax);
 	// Tutte le funzioni calculatePenalty restituiscono -1 se la soluzione è infeasible
 	// La penalità non viene divisa per il numero di studenti
-
+    
+    //Calcola la penalitˆ dividendo per il numero di studenti
+    double calculatePenaltyFull(G::Graph g,int studentNum);
+    
 	std::string printSolution(std::string filename);
 	// std::string printSolution(std::ofstream file);
 	// Esporta la soluzione su file e ritorna l'intero output che viene stampato a video

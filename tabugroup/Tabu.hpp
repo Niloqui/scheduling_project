@@ -10,6 +10,7 @@ public:
     Tabu(int);
     //Risolutore First improvement
     void solveFI(G::Graph& g, Solution& s);
+    void steepestDescent(G::Graph& g, Solution& s);
 
 private:
     int iterations;
