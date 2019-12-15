@@ -92,12 +92,16 @@ int main(int argc, const char * argv[]) {
     /*--------------------------------------------**/
     /*----------Soluzione tabu search-------------**/    
     int iterations = 201;
-    Tabu tabu(iterations);
-    tabu.steepestDescent(c, sol);
-    sol.printSolution(filename);
-    //printGraphDot(c);
+    Tabu tabu(iterations,r.getTmax());
+    //tabu.steepestDescent(c, sol);
+    //sol.printSolution(filename);
+    
+    colorGraph(c, sol);
+    tabu.perturbate(c, 3, 3);
+    setSolution(c, sol);
     
     //printGraphDot(c);
+    
     double penalita = sol.calculatePenaltyFull(c,studentNum);
     cout << "\n\nPenalita': " <<
     to_string(penalita) << "\n\n";

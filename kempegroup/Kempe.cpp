@@ -178,3 +178,22 @@ int kempeMovePenaltyWrapper(G::Graph& g, G::Vertex v, int color){
 }
 
 
+int nodeCurrentPenalty(G::Graph& g, G::Vertex v){
+    int originalDistance = 0;
+    int originalColor = get(vertex_color_t(),g,v);
+    int originalCost=0;
+    int iteratedColor;
+    
+    //Iterazione sui nodi adiacenti
+    G::Graph::adjacency_iterator vit,vend;
+    for(boost::tie(vit,vend) = adjacent_vertices(v,g); vit!=vend; ++vit){
+        
+        iteratedColor = get(vertex_color_t(),g,*vit);
+        originalDistance = colorDistance(g, originalColor, *vit);
+        originalCost += penaltyFunction(originalDistance, v, *vit, g);
+        
+    }
+    
+    //Se Negativo vuol dire che la mossa mi migliora la soluzione
+    return originalCost;
+}

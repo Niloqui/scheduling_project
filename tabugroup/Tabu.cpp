@@ -1,8 +1,15 @@
 #include "Tabu.hpp"
 #include "Kempe.hpp"
+#include <algorithm>
+#include <iostream>
+
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>       /* time */
 
 
-Tabu::Tabu(int iterations):iterations(iterations){}
+using namespace std;
+
+Tabu::Tabu(int iterations,int tmax):iterations(iterations),tmax(tmax){}
 
 void Tabu::solveFI(G::Graph& g, Solution& s){
     int i = this->iterations;
@@ -90,4 +97,56 @@ void Tabu::steepestDescent(G::Graph& g, Solution& s){
     }
     
     setSolution(g, s);
+}
+
+static bool compare(const pair<long int, int>&i, const pair<long int, int>&j)
+{
+    return i.second > j.second;
+}
+
+void Tabu::perturbate(G::Graph& g, int q,int eta){
+    long int iteratedId;
+    
+    //Il primo elemento è l'id, il secondo è la penalità associata
+    long int n = num_vertices(g);
+    pair<long int,int>* idPenalty  = new pair<long int,int>[n];
+    
+    if(q>=n){
+        cout << "ERROR: Please input a q smaller than the number of vertices" << endl;
+        return;
+    }
+    
+    //Bisogna iterare sui vertici
+    G::Graph::vertex_iterator v, vend;
+    for (boost::tie(v, vend) = vertices(g); v != vend; ++v) {
+        iteratedId = get(vertex_index_t(),g,*v);
+
+        idPenalty[iteratedId].first = iteratedId;
+        idPenalty[iteratedId].second = nodeCurrentPenalty(g, *v);
+    }
+    
+    //Vertici posti in ordine discendente per penalità
+    sort(idPenalty, idPenalty + n, compare);
+    
+    //Adesso si effettuano eta mosse randomiche sui q più grandi
+    //Effettiamo eta mosse randomiche
+     srand (int(time(NULL))); //Seed randomica
+    int randomNode;
+    int randomColor;
+    G::Vertex randomVertex;
+    for(int j=0; j<eta; j++){
+        //Index che sceglie uno dei q più grandi
+        randomNode = rand() % q; //Nodo da cambiare
+        randomColor = rand() % (this->tmax) + 1; //Colore al quale cambiare
+        randomVertex = vertex(randomNode,g);
+        
+        if(randomColor == get(vertex_color_t(),g,randomVertex))
+            randomColor = ((randomColor + 1) % (this->tmax)) + 1;
+        
+        simpleKempeWrapper(g, randomVertex, randomColor);
+    }
+    
+    
+    delete [] idPenalty;
+    return;
 }

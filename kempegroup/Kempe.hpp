@@ -32,6 +32,9 @@ int nodeMovePenalty(G::Graph& g, G::Vertex v, int color);
 //funzione obiettivo
 int kempeMovePenaltyWrapper(G::Graph& g, G::Vertex v, int color);
 
+//Calcola la penalità associata al nodo corrente
+int nodeCurrentPenalty(G::Graph& g, G::Vertex v);
+
 
 
 #endif /* Kempe */
