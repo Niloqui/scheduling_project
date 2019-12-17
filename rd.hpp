@@ -12,6 +12,7 @@ class Reader {
         const char* fname;
         int tmax;
         int exams;
+        int students;
     
     
     public:
@@ -19,6 +20,7 @@ class Reader {
         G::Graph read();
         int getTmax();
         int getExamN();
+        int getStudents();
     
     };
 

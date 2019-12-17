@@ -228,7 +228,33 @@ string Solution::printSolution(std::string filename) {
 }
 
 
+double Solution::calculatePenaltyFull(G::Graph g,int studentNum){
+    int i, j, dist;
+    double pen = 0;
+    pair<G::Edge, bool> e;
 
+    for (i = 0; i < this->n && pen >= 0; i++) {
+        if (this->sol[i] < 1 || this->sol[i] > tmax)
+            pen = -1;
+
+        for (j = i+1; j < this->n && pen >= 0; j++) {
+            if (this->sol[j] < 1 || this->sol[j] > tmax)
+                pen = -1;
+
+            e = edge(i, j, g);
+            if (e.second) {
+                dist = distance(i, j);
+                if (dist == 0)
+                    pen = -1;
+                else if (dist <= 5)
+                    pen += double(integerPower(2, 5 - dist)) * double(get(edge_weight_t(), g, e.first))/double(studentNum);
+                // else if (dist > 5) {}
+            }
+        }
+    }
+
+    return pen;
+}
 
 
 

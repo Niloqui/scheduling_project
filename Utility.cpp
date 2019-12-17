@@ -1,4 +1,26 @@
 #include "Utility.hpp"
+#include "graphw.hpp"
+#include <boost/graph/connected_components.hpp>
+#include <boost/graph/graphviz.hpp>
+
+void printGraphDot(G::Graph g){
+    property_map<G::Graph, vertex_index_t>::type idmap = get(vertex_index_t(), g);
+    property_map<G::Graph, edge_weight_t>::type weightmap = get(edge_weight_t(), g);
+    property_map<G::Graph, vertex_color_t>::type colormap = get(vertex_color_t(), g);
+    
+    /*
+    boost::write_graphviz(std::cout, g,
+    boost::make_label_writer(colormap),
+    boost::make_label_writer(weightmap)
+    );*/
+    
+    boost::dynamic_properties dp;
+    dp.property("node_id", idmap);
+    dp.property("color", colormap);
+    dp.property("label",weightmap);
+    write_graphviz_dp(std::cout, g, dp);
+    
+}
 
 
 int integerPower(int arg, int exp) {

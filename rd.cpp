@@ -9,12 +9,14 @@ using namespace std;
 using namespace boost;
 
 typedef property<edge_weight_t, int> EdgeWeightProperty;
-typedef adjacency_list<listS, vecS,undirectedS,no_property,EdgeWeightProperty> Graph;
+typedef property<vertex_color_t,int> VertexColorProperty;
+typedef adjacency_list<listS, vecS,undirectedS,VertexColorProperty,EdgeWeightProperty> Graph;
 typedef Graph::edge_descriptor Edge;
+typedef Graph::vertex_descriptor Vertex;
 
 pair<int,int> lineConvert(string line);
 
-Reader::Reader (const char* name):fname(name), tmax(-1), exams(0){}
+Reader::Reader (const char* name):fname(name), tmax(-1), exams(0),students(-1){}
 
 int Reader::getExamN(){
     
@@ -74,6 +76,7 @@ Graph Reader::read(){
     string exmFile = fName + ".exm";
     string line;
     string nextline;
+    int studentsNumber = 0;
     int tmax = getTmax();
     int exams = getExamN();
     int *stuExams ;
@@ -115,7 +118,7 @@ Graph Reader::read(){
           //Whenever we pass onto a new student, start adding the edges
           //pertaining to the current student
           if( nextStudent!=student || sturead.peek()==EOF){
-              
+              studentsNumber++;
               //ADD GRAPH STUFF
               for(int y=0; y<i-1; y++){
                   int exam1 = stuExams[y];
@@ -145,9 +148,12 @@ Graph Reader::read(){
       }
       sturead.close();
     }
-
+    
     else cout << "Unable to open " << stuFile << endl;
     delete [] stuExams;
+    
+    this->students = studentsNumber;
+
     
     return conflicts;
     
@@ -174,3 +180,13 @@ pair<int,int> lineConvert(string line){
     
     return stuExm;
 }
+
+int Reader::getStudents(){
+    
+    if(this->students == -1){
+        cout << "Please call reader function first" << endl;
+    }
+    
+    return this->students;
+}
+

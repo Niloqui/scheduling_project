@@ -3,12 +3,18 @@
 #include "graphw.hpp"
 #include "Solution.hpp"
 #include "Utility.hpp"
+#include "Tabu.hpp"
 #include "InitialSolver.hpp"
 #include "OptimalSolver.hpp"
 #include <thread>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/connected_components.hpp>
 
+//Kempe search
+#include "Kempe.hpp"
+
+//Local search
+#include "LocalSearch.hpp"
 #include <ctime>
 
 #define MAX_O 1000000000
@@ -27,20 +33,26 @@ const clock_t start = clock();
 int main(int argc, const char * argv[]) {
 	int tmax, n, i, tlim;
 
-	if (argc != 2) {
-		// TO-DO: In totale si riceveranno 3 parametri, non 1 solo
+	if(argc!=4){
+		// In totale si riceveranno 3 parametri
 		// ETPsolver_DMOgroup01.exe instancename -t tlim
-		cout << "Wrong number of arguments passed\n";
-		return -1;
-	}
+		cout <<"Wrong number of arguments passed. Please call the program with the format:\tETPsolver DMOgroupXX.exe instancename -t tlim" << endl;
+    return -1;
+  }
+  // Tempo limite
+  // argv[2] è semplicemente -t
+  tlim = atoi(argv[3]);
 
-	//// Nome del file in uscita 
+	//// Nome del file in uscita
 	string filename(argv[1]);
 	filename += "_DMOgroup01.sol";
 
 	//// Lettura file
 	Reader r = Reader(argv[1]);
 	G::Graph c = r.read(); // Ritorna la matrice dei conlitti
+  studentNum = r.getStudents();
+	n = r.getExamN();
+	tmax = r.getTmax();
 
 	/*
 	int n = num_vertices(c);
@@ -60,8 +72,6 @@ int main(int argc, const char * argv[]) {
 	*/
 
 	//// Inizio soluzione
-	n = r.getExamN();
-	tmax = r.getTmax();
 	Solution mothersolution(n, tmax); // Soluzione dell'intera istanza
 
 	//// Creazione sottoproblemi
@@ -79,7 +89,24 @@ int main(int argc, const char * argv[]) {
 	for (int i = 0; i < num_components; i++)
 		mothersolution.setSolution(subsol[i], true);
 	mothersolution.printSolution(filename);
-	
+
+  
+    /*--------------------------------------------**/
+    /*----------Soluzione tabu search-------------**/    
+    //int iterations = 201;
+    //Tabu tabu(iterations,r.getTmax());
+    //tabu.steepestDescent(c, sol);
+    //sol.printSolution(filename);
+    
+    int tollerance=20;
+    iteratedLocalSearch(c, mothersolution,tollerance,start,tlim);
+    mothersolution.printSolution(filename);
+
+    
+    double penalita = mothersolution.calculatePenaltyFull(c,studentNum);
+    cout << "\n\nPenalita': " <<
+    to_string(penalita) << "\n\n";
+
 
 	//// Deallocazione memoria
 	// TO-DO (forse): aggiungere deallocazione memoria
@@ -101,7 +128,7 @@ void solver(G::Graph g, Solution *sol, int tlim) {
 		output = "Piccolo " + to_string(sol->n) + "\n";
 		cout << output;
 	}
-	else { // Il problema non � piccolo
+	else { // Il problema non è piccolo
 		InitialSolver::squeakyWheel(g, sol); // Soluzione iniziale
 		
 		///////////////
@@ -150,7 +177,6 @@ int getSubProblem(G::Graph g, Solution** subsol, int n, int tmax) {
 
 	return num_components;
 }
-
 
 
 
