@@ -79,7 +79,7 @@ void steepestDescent(G::Graph& g, Solution& s,int iterations){
                 continue;
                 
             penalty = kempeMovePenaltyWrapper(g, *v, iteratedColor);
-            if (penalty < bestMovePenalty){
+            if (penalty <= bestMovePenalty){
                 bestMovePenalty = penalty;
                 bestMove = iteratedColor;
             }

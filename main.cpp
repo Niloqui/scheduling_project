@@ -107,7 +107,7 @@ int main(int argc, const char * argv[]) {
     //tabu.steepestDescent(c, sol);
     //sol.printSolution(filename);
     
-    int tollerance=10;
+    int tollerance=20;
     iteratedLocalSearch(c, sol,tollerance,begin,tlim);
     sol.printSolution(filename);
 
