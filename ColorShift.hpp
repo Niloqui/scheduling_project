@@ -7,7 +7,7 @@ class ColorShift {
 public:
 	int tabu[TABU_LENGTH];
 
-
+	ColorShift(); // Costruttore
 
 
 

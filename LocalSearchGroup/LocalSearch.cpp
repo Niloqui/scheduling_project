@@ -1,8 +1,8 @@
 #include "LocalSearch.hpp"
 
-#include "Kempe.hpp"
+#include "../kempegroup/Kempe.hpp"
 #include <iostream>
-#include "graphw.hpp"
+#include "../graphw.hpp"
 #include <ctime>
 
 
