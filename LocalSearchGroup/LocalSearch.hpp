@@ -2,6 +2,7 @@
 #define LocalSearch_hpp
 #include "Solution.hpp"
 #include "graphw.hpp"
+#include <ctime>
 
 #include <stdio.h>
 
@@ -18,7 +19,13 @@ void perturbate(G::Graph& g, int q,int eta, int tmax);
 //il non miglioramento della soluzione
 //se non c'è un miglioramento dopo un numero tollerance di steepestDescent allora
 //si procede nella perturbation
-void iteratedLocalSearch(G::Graph& g, Solution& s,int iterations,int tollerance);
+void iteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock_t start,int tlim);
+
+//Fa lo swap dei colori 1 e 2, ma non li segna sulla soluzione
+void swapColors(G::Graph& g, Solution& s,int color1, int color2);
+
+//Calcola quanto potrebbe cambiare la penalità uno swap fra colore1 e colore2
+int swapColorsPenalty(G::Graph& g,Solution& s ,int color1, int color2);
 
 
 #endif /* LocalSearch_hpp */

@@ -23,16 +23,23 @@ using namespace boost;
 clock_t start;
 
 int main(int argc, const char * argv[]) {
+    clock_t begin;
 	double duration;
-	int tmax, n,studentNum;
+	int tmax, n,studentNum,tlim;
+    begin = clock();
 
-	if(argc!=2){
+	if(argc!=4){
 		// TO-DO: In totale si riceveranno 3 parametri, non 1 solo
 		// ETPsolver_DMOgroup01.exe instancename -t tlim
 		cout <<"Wrong number of arguments passed"<< endl ;
+        cout <<"Please call the program with the format:"<< endl;
+        cout <<"ETPsolver DMOgroupXX.exe instancename -t tlim"<< endl;
 		return -1;
 	}
-
+    //tempo limite
+    //argv[2] è semplcemente -t
+    tlim = atoi(argv[3]);
+    
 	// Nome del file in uscita 
 	string filename(argv[1]);
 	filename += "_DMOgroup01.sol";
@@ -100,9 +107,10 @@ int main(int argc, const char * argv[]) {
     //tabu.steepestDescent(c, sol);
     //sol.printSolution(filename);
     
-    int iterations=50,tollerance=10;
-    iteratedLocalSearch(c, sol, iterations, tollerance);
-    
+    int tollerance=10;
+    iteratedLocalSearch(c, sol,tollerance,begin,tlim);
+    sol.printSolution(filename);
+
     
     double penalita = sol.calculatePenaltyFull(c,studentNum);
     cout << "\n\nPenalita': " <<

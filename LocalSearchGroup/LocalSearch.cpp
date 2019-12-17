@@ -3,9 +3,17 @@
 #include "Kempe.hpp"
 #include <iostream>
 #include "graphw.hpp"
+#include <ctime>
 
 
 using namespace std;
+
+
+
+/*Implicitamente si esplorano i vertici adiacenti se si esplora un vertice
+ Quindi tenere conto di questo per velocizzare l'esplorazione della miglior mossa
+ */
+
 
 void solveFI(G::Graph& g, Solution& s,int iterations){
     int i = iterations;
@@ -133,7 +141,9 @@ void perturbate(G::Graph& g, int q,int eta, int tmax){
     for(int j=0; j<eta; j++){
         //Index che sceglie uno dei q più grandi
         randomNode = rand() % q; //Nodo da cambiare
-        randomColor = rand() % (tmax) + 1; //Colore al quale cambiare
+        //Questa è la maniera in cui scegliamo il colore per rendere più probabile
+        //ottenere i numeri con maggior penalità
+        randomColor = rand() % tmax + 1; //Colore al quale cambiare
         randomVertex = vertex(randomNode,g);
         
         if(randomColor == get(vertex_color_t(),g,randomVertex))
@@ -147,17 +157,19 @@ void perturbate(G::Graph& g, int q,int eta, int tmax){
     return;
 }
 
-void iteratedLocalSearch(G::Graph& g, Solution& s, int iterations,int tollerance){
+void iteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock_t start, int tlim){
+    clock_t current = clock();
+    double margin = 2 * ((double)current-(double)start)/CLOCKS_PER_SEC;
     //Coloriamo il grafo con la soluzione corrente
     Solution newSol(s.n,s.tmax);
     colorGraph(g, s);
     setSolution(g, newSol);
     int pastPenalty = s.calculatePenalty(g); //Penalità iniziale
     int newPenalty,bestPenalty;
-    int q=30,eta=10*tollerance;
+    int q=30,eta=100;
     
     bestPenalty = pastPenalty;
-    for(int n=0; n<iterations; n++){
+    while(((double)clock() - (double)start)/CLOCKS_PER_SEC + margin < tlim){
         
         steepestDescent(g,newSol, tollerance);
         newPenalty = newSol.calculatePenalty(g);
@@ -177,4 +189,33 @@ void iteratedLocalSearch(G::Graph& g, Solution& s, int iterations,int tollerance
         pastPenalty = newPenalty;
     }
     
+}
+
+
+//Cambia i colori e li segna sul grafo ma non sulla soluzione
+void swapColors(G::Graph& g, Solution& s,int color1, int color2){
+    int iteratedColor;
+        
+    //Iterazione sui vertici
+    G::Graph::vertex_iterator v, vend;
+    for (boost::tie(v, vend) = vertices(g); v != vend; ++v){
+        iteratedColor = get(vertex_color_t(),g,*v);
+        if(iteratedColor == color1)//cambia a colore2
+            put(vertex_color_t(),g,*v,color2);
+        else if(iteratedColor == color2)//cambia a colore 3
+            put(vertex_color_t(),g,*v,color1);
+    }
+    
+    
+    
+}
+
+int swapColorsPenalty(G::Graph& g,Solution& s ,int color1, int color2){
+    int initialPenalty,lastPenalty;
+    initialPenalty = s.calculatePenalty(g);
+    swapColors(g, s, color1, color2);
+    lastPenalty = s.calculatePenalty(g);
+    swapColors(g, s, color1, color2);
+    
+    return lastPenalty - initialPenalty;
 }
