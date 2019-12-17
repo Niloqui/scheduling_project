@@ -55,10 +55,10 @@ void Solution::setSolution(int* newsol, int* indexexams, int nsub) {
 		this->sol[indexexams[i]] = newsol[i];
 }
 
-int Solution::calculatePenalty(G::Graph g){
+int Solution::calculatePenalty(G::Graph g) { // Usare adjacency_list per trovare i nodi adiacenti
 	int i, j, pen = 0, dist;
 	pair<G::Edge, bool> e;
-
+	
 	for (i = 0; i < this->n && pen >= 0; i++) {
 		if (this->sol[i] < 1 || this->sol[i] > tmax)
 			pen = -1;
@@ -98,7 +98,7 @@ int Solution::calculatePenalty(G::Graph g, int* indexvector, int nsub) {
 	return pen;
 }
 */
-int Solution::calculatePenalty(G::Graph g, int* indexvector, int nsub){
+int Solution::calculatePenalty(G::Graph g, int* indexvector, int nsub) {
 	int i, j, pen = 0, dist;
 	pair<G::Edge, bool> e;
 

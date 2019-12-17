@@ -20,12 +20,12 @@ using namespace boost;
 int getSubProblem(G::Graph g, Solution **subsol, int n, int tmax);
 // Restituisce il numero di sottoproblemi
 // Viene allocato il vettore sub
-void solver(G::Graph g, Solution* sol);
+void solver(G::Graph g, Solution* sol, int tlim);
 
 const clock_t start = clock();
 
 int main(int argc, const char * argv[]) {
-	int tmax, n, i;
+	int tmax, n, i, tlim;
 
 	if (argc != 2) {
 		// TO-DO: In totale si riceveranno 3 parametri, non 1 solo
@@ -62,14 +62,14 @@ int main(int argc, const char * argv[]) {
 	//// Inizio soluzione
 	n = r.getExamN();
 	tmax = r.getTmax();
-	Solution master(n, tmax); // Soluzione dell'intera istanza
+	Solution mothersolution(n, tmax); // Soluzione dell'intera istanza
 
 	//// Creazione sottoproblemi
 	Solution* subsol; // Vettore dei sottoproblemi
 	int num_components = getSubProblem(c, &subsol, n, tmax);
 	thread* tred = new thread[num_components]();
 	for (i = 0; i < num_components; i++)
-		tred[i] = thread(solver, c, &subsol[i]);
+		tred[i] = thread(solver, c, &subsol[i], -666); // implementare tlim
 	
 	//// Attesa della chiusura dei thread
 	for (i = 0; i < num_components; i++)
@@ -77,9 +77,9 @@ int main(int argc, const char * argv[]) {
 
 	//// Esport della soluzione
 	for (int i = 0; i < num_components; i++)
-		master.setSolution(subsol[i], true);
-	master.printSolution(filename);
-
+		mothersolution.setSolution(subsol[i], true);
+	mothersolution.printSolution(filename);
+	
 
 	//// Deallocazione memoria
 	// TO-DO (forse): aggiungere deallocazione memoria
@@ -88,7 +88,7 @@ int main(int argc, const char * argv[]) {
 	return 0;
 }
 
-void solver(G::Graph g, Solution *sol) {
+void solver(G::Graph g, Solution *sol, int tlim) {
 	string output;
 
 	if (OptimalSolver::problemIsReallySmall(sol)) {
@@ -103,7 +103,7 @@ void solver(G::Graph g, Solution *sol) {
 	}
 	else { // Il problema non è piccolo
 		InitialSolver::squeakyWheel(g, sol); // Soluzione iniziale
-
+		
 		///////////////
 		//////////////////////////////////////// Euristiche
 		///////////////
