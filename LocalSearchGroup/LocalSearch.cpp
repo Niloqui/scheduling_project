@@ -193,9 +193,9 @@ void iteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock_t start, 
 
 
 //Cambia i colori e li segna sul grafo ma non sulla soluzione
-void swapColors(G::Graph& g, Solution& s,int color1, int color2){
+void swapColors(G::Graph& g,int color1, int color2){
     int iteratedColor;
-        
+            
     //Iterazione sui vertici
     G::Graph::vertex_iterator v, vend;
     for (boost::tie(v, vend) = vertices(g); v != vend; ++v){
@@ -212,10 +212,11 @@ void swapColors(G::Graph& g, Solution& s,int color1, int color2){
 
 int swapColorsPenalty(G::Graph& g,Solution& s ,int color1, int color2){
     int initialPenalty,lastPenalty;
+    
     initialPenalty = s.calculatePenalty(g);
-    swapColors(g, s, color1, color2);
+    swapColors(g, color1, color2);
     lastPenalty = s.calculatePenalty(g);
-    swapColors(g, s, color1, color2);
+    swapColors(g, color1, color2);
     
     return lastPenalty - initialPenalty;
 }

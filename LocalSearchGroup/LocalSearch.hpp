@@ -22,7 +22,7 @@ void perturbate(G::Graph& g, int q,int eta, int tmax);
 void iteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock_t start,int tlim);
 
 //Fa lo swap dei colori 1 e 2, ma non li segna sulla soluzione
-void swapColors(G::Graph& g, Solution& s,int color1, int color2);
+void swapColors(G::Graph& g,int color1, int color2);
 
 //Calcola quanto potrebbe cambiare la penalità uno swap fra colore1 e colore2
 int swapColorsPenalty(G::Graph& g,Solution& s ,int color1, int color2);
