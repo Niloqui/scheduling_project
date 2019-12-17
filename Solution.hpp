@@ -13,7 +13,7 @@ public:
 	 * ex. sol[4] = 7; L'esame 5 (4 = 5 - 1) si trova nel time slot 7
 	 * Il reader diminuisce l'esame di 1, quindi non è necessario eseguire la sottrazione scritta sopra per accedere al vettore
 	 */
-	int n, tmax;
+	int n, tmax, penalty = -1;
 	// n = lunghezza del vettore
 	int* indexexams = NULL;
 	// indexexams può essere utilizzato in un sottografo per contenere la soluzione di quel sottografo
