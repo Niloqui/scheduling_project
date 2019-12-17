@@ -8,6 +8,9 @@ class OptimalSolver{
 	// Se un sottoproblema è piccolo, lo si può risolvere con un metodo esatto
 	// Il metodo esatto è O(tmax^n)
 
+private:
+	static void solveSmallProblemRec(G::Graph g, Solution* best, Solution* sol, int i);
+
 public:
 	static bool problemIsReallySmall(Solution* sol);
 	static bool problemIsReallySmall(int n, int tmax);

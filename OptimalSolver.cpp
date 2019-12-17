@@ -40,9 +40,19 @@ void OptimalSolver::solveReallySmallProblem(G::Graph g, Solution* sol) {
 
 void OptimalSolver::solveSmallProblem(G::Graph g, Solution* sol) {
 	
+
+
 	// TO-DO: implementare risolutore ottimo
 
 
 }
 
+void OptimalSolver::solveSmallProblemRec(G::Graph g, Solution* best, Solution* sol, int i) {
 
+
+
+	// TO-DO: implementare risolutore ottimo
+
+
+
+}
