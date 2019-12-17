@@ -2,8 +2,9 @@
 #define Kempe_hpp
 
 #include <stdio.h>
-#include "Solution.hpp"
-#include "graphw.hpp"
+
+#include "../Solution.hpp"
+#include "../graphw.hpp"
 #include <boost/graph/adjacency_list.hpp>
 
     

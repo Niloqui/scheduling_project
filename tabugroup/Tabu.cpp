@@ -1,5 +1,5 @@
 #include "Tabu.hpp"
-#include "Kempe.hpp"
+#include "../kempegroup/Kempe.hpp"
 #include <algorithm>
 #include <iostream>
 

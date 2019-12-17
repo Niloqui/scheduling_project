@@ -2,8 +2,9 @@
 #define Tabu_hpp
 
 #include <stdio.h>
-#include "graphw.hpp"
-#include "Solution.hpp"
+#include "../graphw.hpp"
+#include "../Solution.hpp"
+#include <ctime>
 
 class Tabu{
 public:

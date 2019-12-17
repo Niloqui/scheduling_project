@@ -1,9 +1,9 @@
 #include <iostream>
 #include "Kempe.hpp"
-#include "Solution.hpp"
-#include "graphw.hpp"
+#include "../Solution.hpp"
+#include "../graphw.hpp"
 #include <boost/graph/adjacency_list.hpp>
-#include "Utility.hpp"
+#include "../Utility.hpp"
 #define PREDECESSOR -1
 
 using namespace boost;

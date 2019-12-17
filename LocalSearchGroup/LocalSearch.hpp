@@ -1,7 +1,7 @@
 #ifndef LocalSearch_hpp
 #define LocalSearch_hpp
-#include "Solution.hpp"
-#include "graphw.hpp"
+#include "../Solution.hpp"
+#include "../graphw.hpp"
 #include <ctime>
 
 #include <stdio.h>

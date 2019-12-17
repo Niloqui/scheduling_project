@@ -3,19 +3,19 @@
 #include "graphw.hpp"
 #include "Solution.hpp"
 #include "Utility.hpp"
-#include "Tabu.hpp"
+#include "tabugroup/Tabu.hpp"
 #include "InitialSolver.hpp"
 #include "OptimalSolver.hpp"
 #include <thread>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/connected_components.hpp>
+#include <ctime>
 
 //Kempe search
-#include "Kempe.hpp"
+#include "kempegroup/Kempe.hpp"
 
 //Local search
-#include "LocalSearch.hpp"
-#include <ctime>
+#include "LocalSearchGroup/LocalSearch.hpp"
 
 #define MAX_O 1000000000
 // MAX_O serve come massimo numero di operazioni da eseguire in caso di risolutore ottimale
@@ -31,17 +31,17 @@ void solver(G::Graph g, Solution* sol, int tlim);
 const clock_t start = clock();
 
 int main(int argc, const char * argv[]) {
-	int tmax, n, i, tlim;
+	int tmax, n, i, tlim, studentNum;
 
 	if(argc!=4){
 		// In totale si riceveranno 3 parametri
 		// ETPsolver_DMOgroup01.exe instancename -t tlim
-		cout <<"Wrong number of arguments passed. Please call the program with the format:\tETPsolver DMOgroupXX.exe instancename -t tlim" << endl;
-    return -1;
-  }
-  // Tempo limite
-  // argv[2] è semplicemente -t
-  tlim = atoi(argv[3]);
+		cout <<"Wrong number of arguments passed.\nPlease call the program with the format:\tETPsolver DMOgroupXX.exe instancename -t tlim" << endl;
+	return -1;
+	}
+	// Tempo limite
+	// argv[2] è semplicemente -t
+	tlim = atoi(argv[3]);
 
 	//// Nome del file in uscita
 	string filename(argv[1]);
@@ -50,7 +50,7 @@ int main(int argc, const char * argv[]) {
 	//// Lettura file
 	Reader r = Reader(argv[1]);
 	G::Graph c = r.read(); // Ritorna la matrice dei conlitti
-  studentNum = r.getStudents();
+	studentNum = r.getStudents();
 	n = r.getExamN();
 	tmax = r.getTmax();
 
