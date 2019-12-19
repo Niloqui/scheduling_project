@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="Prova_1234_"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/xx1/Desktop/Prova_1234_/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/xx1/Desktop/Prova_1234_/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Prova_1234_">
+				<Option output="/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Prova_1234_" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/xx1/Desktop/Prova_1234_/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/xx1/Desktop/Prova_1234_/."/>
+					<Add directory="/home/xx1/Desktop/Prova_1234_/kempegroup"/>
+					<Add directory="/home/xx1/Desktop/Prova_1234_/LocalSearchGroup"/>
+					<Add directory="/home/xx1/Desktop/Prova_1234_/tabugroup"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.2.0/../../../../include/c++/9.2.0"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.2.0/../../../../include/c++/9.2.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.2.0/../../../../include/c++/9.2.0/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.2.0/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.2.0/include-fixed"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 Prova_1234_"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Prova_1234_/fast">
+				<Option output="/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Prova_1234_" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/xx1/Desktop/Prova_1234_/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/xx1/Desktop/Prova_1234_/."/>
+					<Add directory="/home/xx1/Desktop/Prova_1234_/kempegroup"/>
+					<Add directory="/home/xx1/Desktop/Prova_1234_/LocalSearchGroup"/>
+					<Add directory="/home/xx1/Desktop/Prova_1234_/tabugroup"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.2.0/../../../../include/c++/9.2.0"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.2.0/../../../../include/c++/9.2.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.2.0/../../../../include/c++/9.2.0/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.2.0/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.2.0/include-fixed"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 Prova_1234_/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/xx1/Desktop/Prova_1234_/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/xx1/Desktop/Prova_1234_/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/ColorShift.cpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/ColorShift.hpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/InitialSolver.cpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/InitialSolver.hpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/LocalSearchGroup/LocalSearch.cpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/LocalSearchGroup/LocalSearch.hpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/OptimalSolver.cpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/OptimalSolver.hpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/Solution.cpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/Solution.hpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/Utility.cpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/Utility.hpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/graphw.hpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/kempegroup/Kempe.cpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/kempegroup/Kempe.hpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/main.cpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/rd.cpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/rd.hpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/tabugroup/Tabu.cpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/tabugroup/Tabu.hpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/trolley.cpp">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/trolley.h">
+			<Option target="Prova_1234_"/>
+		</Unit>
+		<Unit filename="/home/xx1/Desktop/Prova_1234_/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

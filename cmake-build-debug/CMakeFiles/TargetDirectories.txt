@@ -1,0 +1,3 @@
+/home/xx1/Desktop/Prova_1234_/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/xx1/Desktop/Prova_1234_/cmake-build-debug/CMakeFiles/Prova_1234_.dir
+/home/xx1/Desktop/Prova_1234_/cmake-build-debug/CMakeFiles/edit_cache.dir

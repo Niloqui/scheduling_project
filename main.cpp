@@ -108,6 +108,7 @@ int main(int argc, const char * argv[]) {
     to_string(penalita) << "\n\n";
 
 
+
 	//// Deallocazione memoria
 	// TO-DO (forse): aggiungere deallocazione memoria
 

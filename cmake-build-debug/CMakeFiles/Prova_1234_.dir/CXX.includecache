@@ -1,0 +1,46 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../LocalSearchGroup/LocalSearch.hpp
+Solution.hpp
+../LocalSearchGroup/Solution.hpp
+graphw.hpp
+../LocalSearchGroup/graphw.hpp
+ctime
+-
+stdio.h
+-
+
+/home/xx1/Desktop/Prova_1234_/Solution.hpp
+graphw.hpp
+/home/xx1/Desktop/Prova_1234_/graphw.hpp
+fstream
+-
+
+/home/xx1/Desktop/Prova_1234_/graphw.hpp
+stdio.h
+-
+boost/graph/adjacency_list.hpp
+-
+
+/home/xx1/Desktop/Prova_1234_/trolley.cpp
+trolley.h
+/home/xx1/Desktop/Prova_1234_/trolley.h
+
+/home/xx1/Desktop/Prova_1234_/trolley.h
+Solution.hpp
+/home/xx1/Desktop/Prova_1234_/Solution.hpp
+graphw.hpp
+/home/xx1/Desktop/Prova_1234_/graphw.hpp
+ctime
+-
+LocalSearch.hpp
+/home/xx1/Desktop/Prova_1234_/LocalSearch.hpp
+stdio.h
+-
+
