@@ -11,6 +11,9 @@
 //Kempe search
 #include "Kempe.hpp"
 
+//Tabu search
+#include "tabugroup/Tabu.hpp"
+
 //Local search
 #include "LocalSearch.hpp"
 #include <ctime>
@@ -56,14 +59,12 @@ int main(int argc, const char * argv[]) {
 	start = clock();
 
 	vector<int> component(num_vertices(c));
-	int num_components = connected_components(c, &component[0]);
 	cout << "Numero di vertici: " + to_string(num_vertices(c)) + "\n\n";
 
 	//////////////////// Inizio soluzione
 	n = r.getExamN();
 	tmax = r.getTmax();
 	Solution master(n, tmax); // Soluzione dell'intera istanza
-	Solution* subsol;
 
 	
 	//////////////////////////////////
@@ -101,14 +102,13 @@ int main(int argc, const char * argv[]) {
     
     
     /*--------------------------------------------**/
-    /*----------Soluzione tabu search-------------**/    
-    //int iterations = 201;
-    //Tabu tabu(iterations,r.getTmax());
-    //tabu.steepestDescent(c, sol);
-    //sol.printSolution(filename);
+    /*----------Soluzione tabu-------------**/
     
-    int tollerance=20;
-    iteratedLocalSearch(c, sol,tollerance,begin,tlim);
+    colorGraph(c, sol);
+    Tabu tab(10);
+    int tollerance = 5;
+    tab.tabuIteratedLocalSearch(c, sol, tollerance, begin, tlim);
+    
     sol.printSolution(filename);
 
     
