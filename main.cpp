@@ -100,14 +100,19 @@ int main(int argc, const char * argv[]) {
 	duration = (double)clock() - (double)start;
 	cout << "\n\nTempo impiegato per leggere lo squeakyWheel: " + to_string(duration / CLOCKS_PER_SEC) + " s\n\n";
     
-    
     /*--------------------------------------------**/
     /*----------Soluzione tabu-------------**/
+    
     
     colorGraph(c, sol);
     Tabu tab(10);
     int tollerance = 5;
     tab.tabuIteratedLocalSearch(c, sol, tollerance, begin, tlim);
+    
+     
+    /*Soluzione iterated local search*/
+    //cout << "Tempo all'iterated: " << to_string(clock()/CLOCKS_PER_SEC) << endl;
+    //iteratedLocalSearch(c, sol, 1, begin, tlim);
     
     sol.printSolution(filename);
 

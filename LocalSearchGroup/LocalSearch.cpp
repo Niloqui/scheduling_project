@@ -204,7 +204,7 @@ void perturbate(G::Graph& g, int q,int eta, int tmax){
 
 void iteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock_t start, int tlim){
     clock_t current = clock();
-    double margin = 2 * ((double)current-(double)start)/CLOCKS_PER_SEC;
+    double margin = 2;//((double)current-(double)start)/CLOCKS_PER_SEC;
     //Coloriamo il grafo con la soluzione corrente
     Solution newSol(s.n,s.tmax);
     colorGraph(g, s);
@@ -261,8 +261,42 @@ int swapColorsPenalty(G::Graph& g,Solution& s ,int color1, int color2){
     
     initialPenalty = s.calculatePenalty(g);
     swapColors(g, color1, color2);
+    setSolution(g, s);
     lastPenalty = s.calculatePenalty(g);
     swapColors(g, color1, color2);
+    setSolution(g, s);
     
     return lastPenalty - initialPenalty;
 }
+
+//Miglioramento basato sullo scambio dei colori
+//Ritorna vero se c'è stato un miglioramento
+bool firstColorImprovement(G::Graph& g,Solution& s){
+    int i,j,penalita;
+    bool improvement=false;
+    colorGraph(g, s);
+    
+    for(i=1; i<s.tmax;i++){
+        for(j=i+1;j<=s.tmax;j++){
+            penalita = swapColorsPenalty(g, s, i, j);
+            if(penalita < 0 ){
+                swapColors(g, i,j);
+                improvement = true;
+            }
+        }
+    }
+    
+    
+    setSolution(g, s);
+    
+    return improvement;
+}
+
+void firstColorImprovementLoop(G::Graph& g,Solution &s, int iterations){
+    int i=0;
+    while(firstColorImprovement(g, s) && i < iterations){
+        //Mi interessa soltanto iterare
+        i++;
+    }
+}
+

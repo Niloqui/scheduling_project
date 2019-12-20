@@ -135,6 +135,10 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
         for (boost::tie(v, vend) = vertices(g); v != vend; ++v) {
             iteratedId = get(vertex_index_t(),g,*v);
             color = get(vertex_color_t(),g,*v);
+            
+            //A volte molte esplorazioni vengono ripetute
+            //Devo trovare una maniera di evitare queste ripetizioni
+            //Forse conviene segnarmi i colori già esplorati per ogni nodo
             for (iteratedColor = 1; iteratedColor<maxColor;iteratedColor++){
                 
                 penalty = kempeMovePenaltyWrapper(g, *v, iteratedColor);
@@ -194,7 +198,7 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
 void Tabu::tabuIteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock_t start,int tlim){
     clock_t current = clock();
     double margin = 3 * ((double)current-(double)start)/CLOCKS_PER_SEC;
-    int etamin = 15, etamax = 30;
+    int etamin = 15, etamax = 100;
     int nonImprovingTabus = 0;
     int q = min(30,s.n/3); //numero di nodi da perturbare
     int eta=etamin; //intensità della perturbazione

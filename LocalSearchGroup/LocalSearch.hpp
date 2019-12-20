@@ -27,5 +27,14 @@ void swapColors(G::Graph& g,int color1, int color2);
 //Calcola quanto potrebbe cambiare la penalità uno swap fra colore1 e colore2
 int swapColorsPenalty(G::Graph& g,Solution& s ,int color1, int color2);
 
+/*Improvement basato sullo swap di colori e non di catene**/
+//Potrebbe essere utile per una prima esplorazione dello spazio
+//Ritorna true se c'è stato un miglioramento
+bool firstColorImprovement(G::Graph& g,Solution& s);
+
+//Effettua un ciclo di first improvement finchè non ci sono
+//Più miglioramenti
+void firstColorImprovementLoop(G::Graph& g,Solution &s,int iterations);
+
 
 #endif /* LocalSearch_hpp */
