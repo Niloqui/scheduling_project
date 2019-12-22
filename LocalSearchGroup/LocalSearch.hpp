@@ -15,6 +15,8 @@ void steepestDescent(G::Graph& g, Solution& s, int iterations);
 //Eta è il numero di perturbazioni che subiscono in totale
 void perturbate(G::Graph& g, int q,int eta, int tmax);
 
+bool compare(const std::pair<long int, int>&i, const std::pair<long int, int>&j);
+
 //tollerance specifica il numero di iterazioni durante le quali si tollera
 //il non miglioramento della soluzione
 //se non c'è un miglioramento dopo un numero tollerance di steepestDescent allora

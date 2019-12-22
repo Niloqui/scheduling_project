@@ -105,7 +105,7 @@ int main(int argc, const char * argv[]) {
     
     
     colorGraph(c, sol);
-    Tabu tab(10);
+    Tabu tab(10,c,sol);
     int tollerance = 5;
     tab.tabuIteratedLocalSearch(c, sol, tollerance, begin, tlim);
     

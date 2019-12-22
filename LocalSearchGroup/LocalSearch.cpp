@@ -148,7 +148,7 @@ void steepestDescent(G::Graph& g, Solution& s,int iterations){
     setSolution(g, s);
 }
 
-static bool compare(const pair<long int, int>&i, const pair<long int, int>&j)
+bool compare(const pair<long int, int>&i, const pair<long int, int>&j)
 {
     return i.second > j.second;
 }
