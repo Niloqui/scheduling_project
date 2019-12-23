@@ -47,6 +47,19 @@ private:
     
     //Perturba ma anche si ricorda delle mosse precalcolate
     void tabuPerturbate(G::Graph& g, int q,int eta, int tmax);
+    
+    //Ritorna i due nodi i cui colori swappare,
+    //La scelta è fatta in maniera tale che questi due nodi appartengono a due catene
+    //Kempe diverse, per cui si effettua un doppio kempe
+    //tuple ritorna nodo1,nodo2, colore
+    std::tuple<long int,long int,int> bestDoubleKempe(G::Graph& g);
+    
+   //Accetta due nodi e il colore al quale devono venir swappati
+    int doubleKempeSwap(G::Graph&,long int,long int,int);
+    
+    //Possibilmente una implementazione più veloce del double kempe
+    std::pair<long int,long int> fastBestDouble(G::Graph& g);
+    int fastDoubleKempeSwap(G::Graph& g, long int id1, long int id2);
 
     
     /*-----DATI---**/
