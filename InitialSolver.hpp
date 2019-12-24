@@ -12,6 +12,7 @@ private:
 
 public:
 	static void greedy(G::Graph g, int* res, int* indexvector, int nsub, int tmax);
+	static void greedy(G::Graph g, Solution *sol);
 	// Non sermpre restituisce una soluzione feasible
 
 	static int *recursiveFirstSolution(G::Graph g, int* indexvector, int nsub, int tmax);

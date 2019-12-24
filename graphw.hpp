@@ -15,7 +15,8 @@ public:
         typedef adjacency_list<listS, vecS,undirectedS,VertexColorProperty,EdgeWeightProperty> Graph;
         typedef Graph::edge_descriptor Edge;
         typedef Graph::vertex_descriptor Vertex;
-    
+        typedef graph_traits<G::Graph>::adjacency_iterator AdjacencyIterator;
+
 };
 
 #endif /* graphw_hpp */

@@ -28,6 +28,29 @@ Solution::Solution(int n, int tmax, int* newsol) {
 	setSolution(newsol);
 }
 
+Solution::Solution(Solution* sol) {
+	int i;
+	
+	this->n = sol->n;
+	this->tmax = sol->tmax;
+	this->optimum = sol->optimum;
+	this->penalty = sol->penalty;
+	this->mat = sol->mat;
+
+	if (sol->indexexams == NULL) {
+		this->indexexams == NULL;
+	}
+	else {
+		this->indexexams = new int[sol->n];
+		for (i = 0; i < this->n; i++)
+			this->indexexams[i] = sol->indexexams[i];
+	}
+
+	this->sol = new int[sol->n];
+	for (i = 0; i < this->n; i++)
+		this->sol[i] = sol->sol[i];
+}
+
 void Solution::setSolution(Solution newsol, bool indexes) {
 	if (indexes) {
 		for (int i = 0; i < newsol.n; i++)
@@ -36,6 +59,17 @@ void Solution::setSolution(Solution newsol, bool indexes) {
 	else {
 		for (int i = 0; i < this->n; i++)
 			this->sol[i] = newsol.sol[i];
+	}
+}
+
+void Solution::setSolution(Solution *newsol, bool indexes) {
+	if (indexes) {
+		for (int i = 0; i < newsol->n; i++)
+			this->sol[newsol->indexexams[i]] = newsol->sol[i];
+	}
+	else {
+		for (int i = 0; i < this->n; i++)
+			this->sol[i] = newsol->sol[i];
 	}
 }
 
@@ -55,6 +89,30 @@ void Solution::setSolution(int* newsol, int* indexexams, int nsub) {
 		this->sol[indexexams[i]] = newsol[i];
 }
 
+int Solution::calculatePenalty() {
+	int i, j, pen = 0, dist;
+
+	for (i = 0; i < this->n && pen >= 0; i++) {
+		if (this->sol[i] < 1 || this->sol[i] > tmax)
+			pen = -1;
+
+		for (j = i + 1; j < this->n && pen >= 0; j++) {
+			if (this->sol[j] < 1 || this->sol[j] > tmax)
+				pen = -1;
+
+			if (mat[i][j] > 0) {
+				dist = distance(i, j);
+				if (dist == 0)
+					pen = -1;
+				else if (dist <= 5)
+					pen += integerPower(2, 5 - dist) * mat[i][j];
+			}
+		}
+	}
+
+	return penalty = pen;
+}
+
 int Solution::calculatePenalty(G::Graph g) { // Usare adjacency_list per trovare i nodi adiacenti
 	int i, j, pen = 0, dist;
 	pair<G::Edge, bool> e;
@@ -67,7 +125,7 @@ int Solution::calculatePenalty(G::Graph g) { // Usare adjacency_list per trovare
 			if (this->sol[j] < 1 || this->sol[j] > tmax)
 				pen = -1;
 
-			e = edge(i, j, g);
+			e = getEdge(i, j, &g);
 			if (e.second) {
 				dist = distance(i, j);
 				if (dist == 0)
@@ -79,7 +137,7 @@ int Solution::calculatePenalty(G::Graph g) { // Usare adjacency_list per trovare
 		}
 	}
 
-	return pen;
+	return penalty = pen;
 }
 
 /*
@@ -103,16 +161,16 @@ int Solution::calculatePenalty(G::Graph g, int* indexvector, int nsub) {
 	pair<G::Edge, bool> e;
 
 	for (i = 0; i < nsub && pen >= 0; i++) {
-		if (this->sol[indexvector[i]] < 1 || this->sol[indexvector[i]] > tmax)
+		if (this->sol[i] < 1 || this->sol[i] > tmax)
 			pen = -1;
 
 		for (j = i + 1; j < nsub && pen >= 0; j++) {
-			if (this->sol[indexvector[j]] < 1 || this->sol[indexvector[j]] > tmax)
+			if (this->sol[j] < 1 || this->sol[j] > tmax)
 				pen = -1;
 
 			e = edge(indexvector[i], indexvector[j], g);
-			if (e.second) {
-				dist = distance(indexvector[i], indexvector[j]);
+			if (e.second && pen >= 0) {
+				dist = distance(i, j);
 				if (dist == 0)
 					pen = -1;
 				else if (dist <= 5)
@@ -122,7 +180,7 @@ int Solution::calculatePenalty(G::Graph g, int* indexvector, int nsub) {
 		}
 	}
 
-	return pen;
+	return penalty = pen;
 }
 
 int Solution::calculatePenalty(G::Graph g, bool* mask) {
@@ -140,7 +198,7 @@ int Solution::calculatePenalty(G::Graph g, bool* mask) {
 						pen = -1;
 
 					e = edge(i, j, g);
-					if (e.second){
+					if (e.second && pen >= 0){
 						dist = distance(i, j);
 						if (dist == 0)
 							pen = -1;
@@ -153,7 +211,7 @@ int Solution::calculatePenalty(G::Graph g, bool* mask) {
 		}
 	}
 
-	return pen;
+	return penalty = pen;
 }
 
 int Solution::calculatePenalty(G::Graph g, int* sol, int* indexvector, int nsub, int tmax) {
@@ -161,16 +219,16 @@ int Solution::calculatePenalty(G::Graph g, int* sol, int* indexvector, int nsub,
 	pair<G::Edge, bool> e;
 
 	for (i = 0; i < nsub && pen >= 0; i++) {
-		if (sol[indexvector[i]] < 1 || sol[indexvector[i]] > tmax)
+		if (sol[i] < 1 || sol[i] > tmax)
 			pen = -1;
 
 		for (j = i + 1; j < nsub && pen >= 0; j++) {
-			if (sol[indexvector[j]] < 1 || sol[indexvector[j]] > tmax)
+			if (sol[j] < 1 || sol[j] > tmax)
 				pen = -1;
 
 			e = edge(indexvector[i], indexvector[j], g);
-			if (e.second) {
-				dist = Solution::distance(sol, indexvector[i], indexvector[j]);
+			if (e.second && pen>=0) {
+				dist = Solution::distance(sol, i, j);
 				if (dist == 0)
 					pen = -1;
 				else if (dist <= 5)
@@ -241,8 +299,8 @@ double Solution::calculatePenaltyFull(G::Graph g,int studentNum){
             if (this->sol[j] < 1 || this->sol[j] > tmax)
                 pen = -1;
 
-            e = edge(i, j, g);
-            if (e.second) {
+            e = getEdge(i, j, &g);
+            if (e.second && pen >= 0) {
                 dist = distance(i, j);
                 if (dist == 0)
                     pen = -1;
@@ -252,11 +310,40 @@ double Solution::calculatePenaltyFull(G::Graph g,int studentNum){
             }
         }
     }
-
+	penalty = pen * studentNum;
     return pen;
 }
 
+pair<G::Edge, bool> Solution::getEdge(int i, int j, G::Graph *g) {
+	if (this->indexexams != NULL)
+		return edge(this->indexexams[i], this->indexexams[j], *g);
+	else
+		return edge(i, j, *g);
+}
 
+int** Solution::buildMatrix(G::Graph *g) {
+	int i, j;
+	std::pair<G::Edge, bool> e;
+
+	mat = new int*[n];
+	for (i = 0; i < n; i++)
+		mat[i] = new int[n];
+
+	for (i = 0; i < n; i++) {
+		mat[i][i] = 0;
+
+		for (j = i + 1; j < n; j++) {
+			e = getEdge(i, j, g);
+
+			if (e.second)
+				mat[j][i] = mat[i][j] = get(edge_weight_t(), *g, e.first);
+			else
+				mat[j][i] = mat[i][j] = 0;
+		}
+	}
+
+	return mat;
+}
 
 
 
