@@ -6,30 +6,37 @@
 
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
+#include <ctime>
 #include <deque>
 #include <cmath>
 #define PREDECESSOR -1
+#define OBSOLETE LONG_MAX //Valore che indica che il valore non è più valido
 
 
 using namespace std;
 
 Tabu::Tabu(int teta,G::Graph& g,Solution& s):teta(teta),mu(0.6),exams(s.n),tmax(s.tmax){
-    this->moveMatrix = new int*[exams];
+    this->moveMatrix = new long*[exams];
     this->validityArray = new bool[exams]; //false se le mosse dell esame i val[i]
     //sono non aggiornate
     
     //Si presuppone che viene passata una soluzione già feasible
     colorGraph(g, s);
-    
+
     //Ogni nodo ha ha tmax - 1 possibili mosse
     for(int i=0; i<exams; i++)
-        this->moveMatrix[i] = new int[tmax+1];
+        this->moveMatrix[i] = new long[tmax+1];
         //+1 semplicemente per poter usare i veri nomi dei colori
         //senza dover stare ad aggiungere o sotrarre dopo
     
-    //Le mosse inizialmente non sono validit
-    for(int i=0; i<exams; i++)
-        this->validityArray[i] = false;
+    //Le mosse inizialmente non sono valide
+    for(int i=0; i<exams; i++){
+        this->validityArray[i]=false;
+        for(int j=1; j<=this->tmax; j++)
+            this->moveMatrix[i][j] = OBSOLETE;
+    }
+        
+        
     
     //Calcolo delle possibili mosse
     G::Graph::vertex_iterator v, vend;
@@ -41,8 +48,6 @@ Tabu::Tabu(int teta,G::Graph& g,Solution& s):teta(teta),mu(0.6),exams(s.n),tmax(
         updateNodePenalties(g, *v);
         this->validityArray[iteratedId] = true;
     }
-      
-    
 }
 
 /*Cerchiamo di scabiare colore con un kempe swap fra due nodi che appartengono
@@ -51,8 +56,8 @@ Tabu::Tabu(int teta,G::Graph& g,Solution& s):teta(teta),mu(0.6),exams(s.n),tmax(
 std::tuple<long int,long int,int> Tabu::bestDoubleKempe(G::Graph& g){
     int i,j,x;
     int color1,color2;
-    int penalty1, penalty2;
-    int bestPenalty = INT_MAX; //affinche possa venir migliorata da qualsiasi swap valido
+    long penalty1, penalty2;
+    long bestPenalty = INT_MAX; //affinche possa venir migliorata da qualsiasi swap valido
     std::tuple<long int,long int,int> bestTuple;
     
     for(i=0; i<this->exams-1; i++){
@@ -87,61 +92,19 @@ std::tuple<long int,long int,int> Tabu::bestDoubleKempe(G::Graph& g){
 
 int Tabu::doubleKempeSwap(G::Graph& g,long int id1,long int id2, int color){
     G::Vertex v1,v2;
-    int penalty;
+    long int penalty;
     v1 = vertex(id1, g);
     v2 = vertex(id2, g);
+    
+    //La penalita dev'essere calcolata prima dell'obsolescenza
+    penalty = this->moveMatrix[id1][color] + this->moveMatrix[id2][color];
     
     tabuSimpleKempeWrapper(g, v1, color);
     tabuSimpleKempeWrapper(g, v2, color);
 
-    penalty = this->moveMatrix[id1][color] + this->moveMatrix[id2][color];
-    return penalty;
+    return (int) penalty;
 }
 
-std::pair<long int,long int> Tabu::fastBestDouble(G::Graph& g){
-    pair<long int,long int> bestSwap;
-    int c1,c2;
-    int penalty1,penalty2;
-    int bestPenalty = INT_MAX;
-    
-    for(int i=0; i<this->exams-1; i++){
-        c1 = get(vertex_color_t(),g,vertex(i,g));
-        for(int j=i+1; j<this->exams; j++){
-            c2 = get(vertex_color_t(),g,vertex(j,g));
-            
-            penalty1 = this->moveMatrix[i][c2];
-            penalty2 = this->moveMatrix[j][c1];
-            
-            
-            if(c1==c2 || penalty1==penalty2 || isTabu(i, c2) || isTabu(j, c1))
-                continue;
-            
-            if(bestPenalty>penalty1+penalty2){
-                bestSwap.first = i;
-                bestSwap.second= j;
-                bestPenalty = penalty2+penalty1;
-            }
-        }
-    }
-    
-    return bestSwap;
-}
-
-int Tabu::fastDoubleKempeSwap(G::Graph& g, long int id1, long int id2){
-    G::Vertex v1,v2;
-    int c1,c2;
-    
-    v1 = vertex(id1,g);
-    v2 = vertex(id2,g);
-    c1 = get(vertex_color_t(),g,v1);
-    c2 = get(vertex_color_t(),g,v2);
-    
-    tabuSimpleKempeWrapper(g, v1, c2);
-    tabuSimpleKempeWrapper(g, v2, c1);
-    
-    int penalty = this->moveMatrix[v1][c2] + this->moveMatrix[v2][c1];
-    return penalty;
-}
 
 void Tabu::printMatrix(){
     int i,j;
@@ -171,9 +134,21 @@ void Tabu::updateMoveMatrix(G::Graph& g){
 }
 
 //Tutte le mosse associate a v sono false e vengono segnate come non aggiornate
+//Ma in quel caso pure i vertici adiacenti sono falsi
 void Tabu::renderFalseMoves(G::Graph& g,G::Vertex v){
     long int id = get(vertex_index_t(),g,v);
     this->validityArray[id]=false;
+    for(int color=1; color<=this->tmax; color++)
+        this->moveMatrix[id][color] = OBSOLETE;
+}
+
+//Rende il vertice e quelli adiacenti falsi
+void Tabu::renderFalseAndAdjacent(G::Graph& g, G::Vertex v){
+    G::Graph::adjacency_iterator vit, vend;
+    renderFalseMoves(g,v);
+    for (boost::tie(vit, vend) = adjacent_vertices(v, g); vit != vend; ++vit){
+        renderFalseMoves(g, *vit);
+    }
 }
 
 
@@ -244,8 +219,13 @@ void Tabu::updatePenaltyWrapper(G::Graph& g, G::Vertex v, int color, int penalty
 //Mentre le funzioni di arriva aggiornano le mosse relative solo ad un certo colore
 void Tabu::updateNodePenalties(G::Graph& g,G::Vertex v){
     int penalty;
+    long int index = get(vertex_index_t(),g,v);
 
+    //Modifico solo chi è obsoleto
     for(int color=1; color<=this->tmax; color++){
+        if(this->moveMatrix[index][color]!=OBSOLETE)
+            continue;
+        
         penalty = tabuKempeMovePenaltyWrapper(g, v, color);
         updatePenaltyWrapper(g, v, color, penalty);
     }
@@ -266,7 +246,7 @@ std::pair<long int,int> Tabu::bestMove(){
     int i,j;
     long int id = 0;
     int color = 1;
-    int bestPenalty = this->moveMatrix[0][1];
+    long bestPenalty = this->moveMatrix[0][1];
     
     for(i=0; i<this->exams; i++){
         for(j=1; j<=this->tmax; j++){
@@ -363,32 +343,31 @@ void Tabu::tabuSimpleKempeWrapper(G::Graph& g ,G::Vertex v, int color){
     std::unordered_set<long int> visitedNodes;
     tabuSimpleKempe(g, v, color,visitedNodes);
     return;
-    
 }
 
 //Retruns true if the aspiration criterion is satisfied, aka
 //That move would make the solution in the CURRENT NEIGHTBORHOOD better;
-static bool aspirationCriterion(int accumulatedPenalty, int movePenalty){
+static bool aspirationCriterion(int accumulatedPenalty, long movePenalty){
     return (0 > accumulatedPenalty + movePenalty);
 }
 
 
 //Copia una matrice in un 'altra, serve per tener conto delle mosse della miglior matrice
 //finora trovate
-static void matriscopy (int** destmat, int** srcmat,int ROWCOUNT,int COLUMNCOUNT)
+static void matriscopy (long int** destmat, long int** srcmat,int ROWCOUNT,int COLUMNCOUNT)
 {
     for(int i=0; i<ROWCOUNT; i++){
-        for(int j=1; j<=COLUMNCOUNT; j++){
+        for(int j=1; j<COLUMNCOUNT; j++){
             destmat[i][j] = srcmat[i][j];
         }
     }
 }
 
-static int** createMatrix(int ROWCOUNT,int COLUMNCOUNT){
-    int** newMatrix = new int*[ROWCOUNT];
+static long** createMatrix(int ROWCOUNT,int COLUMNCOUNT){
+    long int** newMatrix = new long*[ROWCOUNT];
     
     for(int j=0; j<ROWCOUNT; j++)
-        newMatrix[j] = new int[COLUMNCOUNT];
+        newMatrix[j] = new long[COLUMNCOUNT];
     
     
     return newMatrix;
@@ -400,16 +379,17 @@ static int** createMatrix(int ROWCOUNT,int COLUMNCOUNT){
 bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int bestGlobalPenalty,clock_t start,int tlim){
     clock_t current = clock();
     int initialTeta = this->teta;
-    int** bestMatrix = createMatrix(this->exams, this->tmax+1);
+    long** bestMatrix = createMatrix(this->exams, this->tmax+1);
     double margin =  2;
-    int bestMove=1,bestMovePenalty; //miglior penalità ottenuta,
+    int bestMove=1; //miglior penalità ottenuta,
+    long bestMovePenalty;
     G::Vertex bestVertex;
     int nonImprovingIterations = 0; //conta il numero di iterazioni senza miglioramenti
     Solution neighborhoodBestSolution(s.n,s.tmax);
     setSolution(g, neighborhoodBestSolution);
     
     //Correntemente la miglior matrice è quella di adesso
-    matriscopy(bestMatrix, this->moveMatrix, this->exams, (this->tmax+1));
+    matriscopy(bestMatrix, this->moveMatrix, this->exams, (this->tmax+1)); ///<-This somehow is MISTAKEN!!
     
     int neighborhoodBestPenalty = neighborhoodBestSolution.calculatePenalty(g);
     
@@ -419,8 +399,9 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
     
     //Si fa una tabu search finche il numero massimo di iterazioni non miglioranti
     //è minore ad un certo parametro (maxNonImprovingIterations) passato
+    double duration;
     while(nonImprovingIterations <= maxNonImprovingIterations &&
-          ((double)clock() - (double)start)/CLOCKS_PER_SEC + margin < tlim ){
+          (duration = (clock() - start)/(double)CLOCKS_PER_SEC) + margin < tlim ){
         
         
         //Applichiamo il simple kempe se il numero di esami è minore al numero di
@@ -438,7 +419,7 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
             std::pair<long int,int> pairMove = this->bestMove();
             bestVertex = vertex(pairMove.first,g);
             bestMove = pairMove.second;
-                bestMovePenalty = this->moveMatrix[bestVertex][bestMove];
+            bestMovePenalty = this->moveMatrix[bestVertex][bestMove];
 
             //Fra tutte le mosse possibili effettuo la migliore
             tabuSimpleKempeWrapper(g, bestVertex, bestMove);
@@ -457,11 +438,10 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
          if(aspirationCriterion(accumulatedPenalty, bestMovePenalty)){
              accumulatedPenalty = 0; //nuova
              nonImprovingIterations = 0; //resettato il numero di iterazioni
-             //senza miglioramenti
              setSolution(g, neighborhoodBestSolution);
              neighborhoodBestPenalty = neighborhoodBestSolution.calculatePenalty(g);
              matriscopy(bestMatrix, this->moveMatrix, this->exams, (this->tmax+1));
-             //cout << "Miglioramento ottenuto!" <<endl;
+             //cout << "Migliormento!" << endl;
          }
          else{
              accumulatedPenalty += bestMovePenalty;
@@ -481,9 +461,9 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
     //Alla fine utilizzare setSolution solo se la soluzione migliore del
     //corrente vicinato è migliore di quella trovata fino ad adesso
     if(neighborhoodBestPenalty < bestGlobalPenalty)
-    {   colorGraph(g, neighborhoodBestSolution);
-        setSolution(g, s);
-        
+    {
+        colorGraph(g, neighborhoodBestSolution); // <<---THIS IS THE MISTAKE!!!!
+        setSolution(g, s); //DO NOT DELETE
         matriscopy(this->moveMatrix, bestMatrix, this->exams, (this->tmax+1));
         
         return true;
@@ -526,8 +506,8 @@ void Tabu::tabuPerturbate(G::Graph& g, int q,int eta, int tmax){
     for(int j=0; j<eta; j++){
         //Index che sceglie uno dei q più grandi
         randomNode = rand() % q;
-        //mi segno che la mossa è stata modificata
-        renderFalseMoves(g, vertex(randomNode,g));
+        //mi segno che la mossa è stata modificata, e i vertici adiacenti
+        renderFalseAndAdjacent(g, vertex(randomNode,g));
         //Questa è la maniera in cui scegliamo il colore per rendere più probabile
         //ottenere i numeri con maggior penalità
         randomColor = rand() % tmax + 1; //Colore al quale cambiare
@@ -536,7 +516,7 @@ void Tabu::tabuPerturbate(G::Graph& g, int q,int eta, int tmax){
         if(randomColor == get(vertex_color_t(),g,randomVertex))
             randomColor = ((randomColor + 1) % (tmax)) + 1;
         
-        simpleKempeWrapper(g, randomVertex, randomColor);
+        tabuSimpleKempeWrapper(g, randomVertex, randomColor);
     }
     
     
@@ -557,7 +537,7 @@ void Tabu::tabuIteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock
     colorGraph(g, s);
     
     
-    while(((double)clock() - (double)start)/CLOCKS_PER_SEC + margin < tlim){
+    while((clock() - start)/CLOCKS_PER_SEC + margin < tlim){
         //L'intensità della perturbazione aumento più tabu ci sono
         //senza miglioramenti
         eta = min(etamin+nonImprovingTabus, etamax);
@@ -574,6 +554,7 @@ void Tabu::tabuIteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock
         //Dopo un numero tollerance di iterazioni del TS
         //si perturba il vicinato e si riparte con un nuovo TS
         //cout << "Perturbating.."<< endl;
+        setSolution(g, s);
         tabuPerturbate(g, q, eta, s.tmax);
         updateMoveMatrix(g);
         //this->printMatrix();

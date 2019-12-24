@@ -41,6 +41,9 @@ private:
     void updateMoveMatrix(G::Graph& g); //Aggiorna la matrice delle mosse
     void renderFalseMoves(G::Graph& g,G::Vertex v); //Renders all moves associated with
     //node v false
+    void renderFalseAndAdjacent(G::Graph& g, G::Vertex v);//REnde il vertice e
+    //Adiacenti falsi
+    
     //Aggiorna le penalita di un nodo
     void updateNodePenalties(G::Graph& g,G::Vertex v);
     std::pair<long int,int> bestMove();
@@ -57,13 +60,8 @@ private:
    //Accetta due nodi e il colore al quale devono venir swappati
     int doubleKempeSwap(G::Graph&,long int,long int,int);
     
-    //Possibilmente una implementazione più veloce del double kempe
-    std::pair<long int,long int> fastBestDouble(G::Graph& g);
-    int fastDoubleKempeSwap(G::Graph& g, long int id1, long int id2);
-
-    
     /*-----DATI---**/
-    int** moveMatrix;
+    long int** moveMatrix;
     bool* validityArray;
     //l'intero ci dice quanto la mossa costi verso quel colore, il booleano ci dice
     //Se la mossa è aggiornata e valida

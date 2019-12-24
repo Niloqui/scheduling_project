@@ -104,16 +104,9 @@ int main(int argc, const char * argv[]) {
     /*----------Soluzione tabu-------------**/
     
     
-    colorGraph(c, sol);
     Tabu tab(10,c,sol);
     int tollerance = 5;
     tab.tabuIteratedLocalSearch(c, sol, tollerance, begin, tlim);
-    
-     
-    /*Soluzione iterated local search*/
-    //cout << "Tempo all'iterated: " << to_string(clock()/CLOCKS_PER_SEC) << endl;
-    //iteratedLocalSearch(c, sol, 1, begin, tlim);
-    
     sol.printSolution(filename);
 
     
