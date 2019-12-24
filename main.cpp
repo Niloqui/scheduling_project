@@ -6,6 +6,7 @@
 #include "tabugroup/Tabu.hpp"
 #include "InitialSolver.hpp"
 #include "OptimalSolver.hpp"
+#include "NiloSearch.hpp"
 #include <thread>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/connected_components.hpp>
@@ -17,18 +18,13 @@
 //Local search
 #include "LocalSearchGroup/LocalSearch.hpp"
 
-#define MAX_O 1000000000
-// MAX_O serve come massimo numero di operazioni da eseguire in caso di risolutore ottimale
-
 using namespace std;
 using namespace boost;
 
-int getSubProblem(G::Graph g, Solution **subsol, int n, int tmax);
+int getSubProblem(G::Graph *g, Solution **subsol, int n, int tmax);
 // Restituisce il numero di sottoproblemi
 // Viene allocato il vettore sub
-void solver(G::Graph g, Solution* sol, int tlim);
-
-const clock_t start = clock();
+void solver(G::Graph *g, Solution* sol, int tlim);
 
 int main(int argc, const char * argv[]) {
 	int tmax, n, i, tlim, studentNum;
@@ -73,77 +69,107 @@ int main(int argc, const char * argv[]) {
 
 	//// Inizio soluzione
 	Solution mothersolution(n, tmax); // Soluzione dell'intera istanza
+	// srand(time(NULL) + (unsigned)&c + tlim);
+	// Se serve generare dei valori casuali, è utile usare srand solo una volta e all'inizio
+	// mothersolution.indexexams = new int[n];
+	// for (i = 0; i < n; i++)
+		// mothersolution.indexexams[i] = i;
+
+	/*
+	int esame = 0;
+	G::AdjacencyIterator ai, a_end;
+	tie(ai, a_end) = adjacent_vertices(esame, c); // Vertici adiacenti a esame
+	for (; ai != a_end; ai++) {
+		std::cout << *ai << "\t";
+	}
+	*/
+
+
+	// return 0;
+
+
 
 	//// Creazione sottoproblemi
 	Solution* subsol; // Vettore dei sottoproblemi
-	int num_components = getSubProblem(c, &subsol, n, tmax);
-	thread* tred = new thread[num_components]();
+	int num_components = getSubProblem(&c, &subsol, n, tmax);
+	thread **tred = new thread*[num_components];
 	for (i = 0; i < num_components; i++)
-		tred[i] = thread(solver, c, &subsol[i], -666); // implementare tlim
+		tred[i] = new thread(solver, &c, &subsol[i], tlim); // implementare tlim
 	
 	//// Attesa della chiusura dei thread
 	for (i = 0; i < num_components; i++)
-		tred[i].join();
+		tred[i]->join();
 
 	//// Esport della soluzione
 	for (int i = 0; i < num_components; i++)
 		mothersolution.setSolution(subsol[i], true);
 	mothersolution.printSolution(filename);
 
-  
-    /*--------------------------------------------**/
-    /*----------Soluzione tabu search-------------**/    
+
+	/*
+    /*--------------------------------------------** /
+    /*----------Soluzione tabu search-------------** /    
     //int iterations = 201;
     //Tabu tabu(iterations,r.getTmax());
     //tabu.steepestDescent(c, sol);
     //sol.printSolution(filename);
-    
+
     int tollerance=20;
     iteratedLocalSearch(c, mothersolution,tollerance,start,tlim);
     mothersolution.printSolution(filename);
 
-    
+
     double penalita = mothersolution.calculatePenaltyFull(c,studentNum);
     cout << "\n\nPenalita': " <<
     to_string(penalita) << "\n\n";
+	*/
+	
 
 
 	//// Deallocazione memoria
 	// TO-DO (forse): aggiungere deallocazione memoria
 
 
+	double duration = (double)(clock()) / CLOCKS_PER_SEC;
+	string output = "\nTempo impiegato per risolvere il problema: " + to_string(duration) + "\n";
+	cout << output << "tlim = " << tlim;
+
 	return 0;
 }
 
-void solver(G::Graph g, Solution *sol, int tlim) {
-	string output;
+void solver(G::Graph *g, Solution *sol, int tlim) {
+	//string output;
 
 	if (OptimalSolver::problemIsReallySmall(sol)) {
-		OptimalSolver::solveReallySmallProblem(g, sol);
-		output = "Molto piccolo " + to_string(sol->n) + "\n";
-		cout << output;
+		OptimalSolver::solveReallySmallProblem(sol);
+		//output = "Molto piccolo " + to_string(sol->n) + "\n";
+		//cout << output;
 	}
 	else if (OptimalSolver::problemIsSmall(sol, MAX_O)) {
+		//clock_t begin = clock();
 		OptimalSolver::solveSmallProblem(g, sol);
-		output = "Piccolo " + to_string(sol->n) + "\n";
-		cout << output;
+		//double duration = (double)(clock() - begin) / CLOCKS_PER_SEC;
+		//output = "Piccolo " + to_string(sol->n) + "\n\tTempo impiegato per il risolutore ottimo: " + to_string(duration) + "\n";
+		//cout << output;
 	}
 	else { // Il problema non è piccolo
-		InitialSolver::squeakyWheel(g, sol); // Soluzione iniziale
-		
+		InitialSolver::squeakyWheel(*g, sol); // Soluzione iniziale
+
+		NiloSearch::search(g, sol, tlim);
+
 		///////////////
 		//////////////////////////////////////// Euristiche
 		///////////////
 
-		output = "Non piccolo " + to_string(sol->n) + "\n";
-		cout << output;
+		//output = "Non piccolo " + to_string(sol->n) + "\n";
+		//cout << output;
 	}
 }
 
 
-int getSubProblem(G::Graph g, Solution** subsol, int n, int tmax) {
+int getSubProblem(G::Graph *g, Solution** subsol, int n, int tmax) {
 	vector<int> component(n);
-	int num_components = connected_components(g, &component[0]);
+	int num_components = connected_components(*g, &component[0]);
 
 	*subsol = new Solution[num_components];
 	Solution *sol;

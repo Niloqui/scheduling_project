@@ -220,3 +220,4 @@ int swapColorsPenalty(G::Graph& g,Solution& s ,int color1, int color2){
     
     return lastPenalty - initialPenalty;
 }
+

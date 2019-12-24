@@ -6,6 +6,27 @@
 #include "Utility.hpp"
 #include <boost/graph/adjacency_list.hpp>
 
+void InitialSolver::greedy(G::Graph g, Solution* sol) {
+	int i, j, newpen, minpen, jmin;
+
+	sol->sol[0] = 1;
+	for (i = 1; i < sol->n; i++) {
+		minpen = INT32_MAX;
+		jmin = -1;
+
+		for (j = 1; j <= sol->tmax; j++) {
+			sol->sol[i] = j;
+			newpen = Solution::calculatePenalty(g, sol->sol, sol->indexexams, i + 1, sol->tmax);
+			if ((newpen >= 0) && (newpen < minpen)) {
+				minpen = newpen;
+				jmin = j;
+			}
+		}
+
+		sol->sol[i] = jmin;
+	}
+}
+
 void InitialSolver::greedy(G::Graph g, int* res, int* indexvector, int nsub, int tmax) {
 	int i, j, newpen, minpen, jmin;
 
@@ -14,7 +35,7 @@ void InitialSolver::greedy(G::Graph g, int* res, int* indexvector, int nsub, int
 		jmin = -1;
 
 		for (j = 1; j <= tmax; j++) {
-			res[indexvector[i]] = j;
+			res[i] = j;
 			newpen = Solution::calculatePenalty(g, res, indexvector, i + 1, tmax);
 			if ((newpen >= 0) && (newpen < minpen)) {
 				minpen = newpen;
@@ -22,7 +43,7 @@ void InitialSolver::greedy(G::Graph g, int* res, int* indexvector, int nsub, int
 			}
 		}
 
-		res[indexvector[i]] = jmin;
+		res[i] = jmin;
 	}
 }
 
