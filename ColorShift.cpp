@@ -5,7 +5,26 @@
 #include <cstdlib>
 #include "Utility.hpp"
 
-std::pair<int*, int> ColorShift::selectColors(Solution* sol, int ncols) {
+void ColorShift::penaltyByColor(Solution* sol, int* penalty) {
+	// penalty si assume inizializzato a 0
+	// Si assume che la soluzione sia feasible
+	int i, j, dist, pen;
+
+	for (i = 0; i < sol->n; i++) {
+		for (j = i + 1; j < sol->n; j++) {
+			if (sol->mat[i][j] > 0) {
+				dist = sol->distance(i, j);
+				if (dist <= 5) {
+					pen = integerPower(2, 5 - dist) * sol->mat[i][j];
+					penalty[sol->sol[i] - 1] += pen;
+					penalty[sol->sol[j] - 1] += pen;
+				}
+			}
+		}
+	}
+}
+
+std::pair<int*, int> ColorShift::selectColors(Solution* sol, int ncols, bool random_colors) {
 	std::pair<int*, int> coso;
 	if (ncols == -1)
 		// coso.second = (int)( ((float)rand() / RAND_MAX) * ((sol->tmax * 5.0) / 7.0) ) + 2;
@@ -14,19 +33,30 @@ std::pair<int*, int> ColorShift::selectColors(Solution* sol, int ncols) {
 		coso.second = ncols;
 	
 	coso.first = new int[coso.second];
-	int* cols = new int[(int64_t)sol->tmax + 1];
+	// int* cols = new int[(int64_t)sol->tmax + 1];
+	int* cols = new int[sol->tmax];
 	int* colweight = new int[sol->tmax];
 	int i;
 
-	// I colori sono pesati a caso
-	// forse TO-DO: mettere i pesi in base alla penalità
-	for (i = 0; i < sol->tmax; i++) {
-		cols[i] = i + 1;
-		colweight[i] = rand();
+	if (random_colors) {
+		// I colori sono pesati a caso
+		for (i = 0; i < sol->tmax; i++) {
+			cols[i] = i + 1;
+			colweight[i] = rand();
+		}
+		mergeSort(cols, colweight, sol->tmax);
 	}
-	mergeSort(cols, colweight, sol->tmax);
+	else {
+		for (i = 0; i < sol->tmax; i++) {
+			cols[i] = i + 1;
+			colweight[i] = 0;
+		}
 
-	// Per ora i colori vengono scelti casualmente
+		penaltyByColor(sol, colweight);
+		mergeSort(cols, colweight, sol->tmax);
+		reverseVector(cols, coso.second);
+	}
+
 	for (int i = 0; i < coso.second; i++)
 		coso.first[i] = cols[i];
 
@@ -96,13 +126,13 @@ void ColorShift::colorShiftRec(Solution* sol, std::pair<int*, int> cols, int* co
 	*/
 }
 
-void ColorShift::colorShift(Solution* sol, std::pair<int*, int> cols) {
+void ColorShift::colorShift(Solution* sol, std::pair<int*, int> cols, bool random_colors) {
 	srand(time(NULL) + clock());
 
 	bool newcolfirst;
 	if (cols.first == NULL) {
 		newcolfirst = true;
-		cols = selectColors(sol, cols.second);
+		cols = selectColors(sol, cols.second, random_colors);
 	}
 	else {
 		newcolfirst = false;

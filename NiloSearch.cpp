@@ -9,6 +9,11 @@ void NiloSearch::search(G::Graph* g, Solution* sol, clock_t tlim) {
 	// Conversione di tlim da secondi a clock_per_sec
 	// Il meno 1 serve ad avere un secondo di tempo finire l'esecuzione del programma
 
+	std::pair<int*, int> pippo;
+	pippo.second = -1;
+	pippo.first = NULL;
+	int shiftnum, i;
+
 	srand(time(NULL) + clock());
 
 	Solution* temp = new Solution(sol);
@@ -22,10 +27,13 @@ void NiloSearch::search(G::Graph* g, Solution* sol, clock_t tlim) {
 
 		// Perturbazione
 		if (isThereTime(tlim)) {
-			std::pair<int*, int> pippo;
-			pippo.second = -1;
-			pippo.first = NULL;
-			ColorShift::colorShift(temp, pippo);
+			// shiftnum = rand() % 3 + 1;
+			shiftnum = 2;
+			// pippo.second = sol->tmax * 2 / 5;
+			pippo.second = 4;
+			for (i = 0; i < shiftnum; i++) {
+				ColorShift::colorShift(temp, pippo, false);
+			}
 		}
 	}
 
@@ -52,7 +60,7 @@ void NiloSearch::LS(Solution* sol, Solution* temp, clock_t tlim, int attempts) {
 			for (j = i + 1; j <= sol->tmax && isThereTime(tlim) && !first_improvement; j++) {
 				cols.first[0] = (shiftI + i) % sol->tmax + 1;
 				cols.first[1] = (shiftJ + j) % sol->tmax + 1;
-				ColorShift::colorShift(temp, cols);
+				ColorShift::colorShift(temp, cols, true);
 
 				if (temp->calculatePenalty() < sol->penalty) {
 					first_improvement = true;

@@ -129,12 +129,13 @@ int main(int argc, const char * argv[]) {
 	//// Deallocazione memoria
 	// TO-DO (forse): aggiungere deallocazione memoria
 
+	mothersolution.calculatePenalty(c);
 
 	double duration = (double)(clock()) / CLOCKS_PER_SEC;
 	string output = "\nTempo impiegato per risolvere il problema: " + to_string(duration) + "\n";
-	cout << output << "tlim = " << tlim;
+	cout << output << "tlim = " << tlim << "\npenalita' = " << mothersolution.penalty;
 
-	return 0;
+	return mothersolution.penalty;
 }
 
 void solver(G::Graph *g, Solution *sol, int tlim) {
