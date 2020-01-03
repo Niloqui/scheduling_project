@@ -24,7 +24,29 @@ void ColorShift::penaltyByColor(Solution* sol, int* penalty) {
 	}
 }
 
-std::pair<int*, int> ColorShift::selectColors(Solution* sol, int ncols, bool random_colors) {
+void ColorShift::penaltyByColor(Solution* sol, int* penalty_by_color, int* penalty_by_exam) {
+	// penalty e penalty_by_exam si assumono inizializzati a 0
+	// Si assume che la soluzione sia feasible
+	int i, j, dist, pen;
+
+	for (i = 0; i < sol->n; i++) {
+		for (j = i + 1; j < sol->n; j++) {
+			if (sol->mat[i][j] > 0) {
+				dist = sol->distance(i, j);
+				if (dist <= 5) {
+					pen = integerPower(2, 5 - dist) * sol->mat[i][j];
+					penalty_by_color[sol->sol[i] - 1] += pen;
+					penalty_by_color[sol->sol[j] - 1] += pen;
+					penalty_by_exam[i] += pen;
+					penalty_by_exam[j] += pen;
+				}
+			}
+		}
+	}
+
+}
+
+std::pair<int*, int> ColorShift::selectColors(Solution* sol, int ncols, int selection_mode, int *initial_node) {
 	std::pair<int*, int> coso;
 	if (ncols == -1)
 		// coso.second = (int)( ((float)rand() / RAND_MAX) * ((sol->tmax * 5.0) / 7.0) ) + 2;
@@ -38,15 +60,22 @@ std::pair<int*, int> ColorShift::selectColors(Solution* sol, int ncols, bool ran
 	int* colweight = new int[sol->tmax];
 	int i;
 
-	if (random_colors) {
-		// I colori sono pesati a caso
+	switch(selection_mode) {
+	case 0: // I colori sono pesati a caso
 		for (i = 0; i < sol->tmax; i++) {
 			cols[i] = i + 1;
 			colweight[i] = rand();
 		}
 		mergeSort(cols, colweight, sol->tmax);
-	}
-	else {
+
+		for (i = 0; i < coso.second; i++)
+			coso.first[i] = cols[i];
+
+		break;
+
+	case 1:
+		// I colori vengono scelti in base alla penalità
+		// Vengono scelti i colori più pesanti
 		for (i = 0; i < sol->tmax; i++) {
 			cols[i] = i + 1;
 			colweight[i] = 0;
@@ -54,14 +83,54 @@ std::pair<int*, int> ColorShift::selectColors(Solution* sol, int ncols, bool ran
 
 		penaltyByColor(sol, colweight);
 		mergeSort(cols, colweight, sol->tmax);
-		reverseVector(cols, coso.second);
+
+		for (i = 0; i < coso.second; i++)
+			coso.first[i] = cols[sol->tmax - 1 - i];
+
+		break;
+
+	case 2:
+		// I colori vengono scelti in base alla penalità
+		// Vengono scelti i colori più pesanti e i colori più leggeri
+		// Viene anche scelto il colore più pesante
+		int* nodes = new int[sol->n];
+		int* nodeweight = new int[sol->n];
+		for (i = 0; i < sol->tmax; i++) {
+			cols[i] = i + 1;
+			colweight[i] = 0;
+		}
+		for (i = 0; i < sol->n; i++) {
+			nodes[i] = i;
+			nodeweight[i] = 0;
+		}
+		penaltyByColor(sol, colweight, nodeweight);
+		mergeSort(cols, colweight, sol->tmax);
+		mergeSort(nodes, nodeweight, sol->tmax);
+
+		for (i = 0; i < coso.second/2; i++) // Colori più pesanti
+			coso.first[i] = cols[sol->tmax - 1 - i];
+
+		for (i = coso.second / 2; i < coso.second; i++) // Colori più leggeri
+			coso.first[i] = cols[i - coso.second / 2];
+
+		bool colore_nodo_pesante_in_lista = false;
+		for (i = 0; i < coso.second && !colore_nodo_pesante_in_lista; i++) {
+			if (coso.first[i] == sol->sol[nodes[0]]) {
+				colore_nodo_pesante_in_lista = true;
+			}
+		}
+
+		if (!colore_nodo_pesante_in_lista) {
+			coso.first[coso.second - 1] = sol->sol[nodes[0]];
+		}
+
+		delete[] nodeweight;
+		delete[] nodes;
+		break;
 	}
 
-	for (int i = 0; i < coso.second; i++)
-		coso.first[i] = cols[i];
-
-	delete[] cols;
 	delete[] colweight;
+	delete[] cols;
 	return coso;
 }
 
@@ -126,13 +195,14 @@ void ColorShift::colorShiftRec(Solution* sol, std::pair<int*, int> cols, int* co
 	*/
 }
 
-void ColorShift::colorShift(Solution* sol, std::pair<int*, int> cols, bool random_colors) {
+void ColorShift::colorShift(Solution* sol, std::pair<int*, int> cols, int color_selection_mode) {
 	srand(time(NULL) + clock());
 
+	int initial_node = -1;
 	bool newcolfirst;
 	if (cols.first == NULL) {
 		newcolfirst = true;
-		cols = selectColors(sol, cols.second, random_colors);
+		cols = selectColors(sol, cols.second, color_selection_mode, &initial_node);
 	}
 	else {
 		newcolfirst = false;
@@ -163,17 +233,22 @@ void ColorShift::colorShift(Solution* sol, std::pair<int*, int> cols, bool rando
 	colorShiftRec(sol, cols, counters, exams_to_change, nodo_iniziale);
 	*/
 
-	// Ricerca del nodo iniziale da cui far partire la ricorsione
-	shift = rand() % sol->n;
-	bool finito = false;
-	for (i = 0; i < sol->n && !finito; i++) {
-		for (j = 0; j < cols.second && !finito; j++) {
-			if ( cols.first[j] == sol->sol[(i + shift) % sol->n] ) {
-				// La ricorsione parte qui
-				colorShiftRec(sol, cols, counters, exams_to_change, (i + shift) % sol->n);
-				finito = true;
+	if (initial_node == -1) {
+		// Ricerca del nodo iniziale da cui far partire la ricorsione
+		shift = rand() % sol->n;
+		bool finito = false;
+		for (i = 0; i < sol->n && !finito; i++) {
+			for (j = 0; j < cols.second && !finito; j++) {
+				if (cols.first[j] == sol->sol[(i + shift) % sol->n]) {
+					// La ricorsione parte qui
+					colorShiftRec(sol, cols, counters, exams_to_change, (i + shift) % sol->n);
+					finito = true;
+				}
 			}
 		}
+	}
+	else {
+		colorShiftRec(sol, cols, counters, exams_to_change, initial_node);
 	}
 	
 	// Cambiamento colori

@@ -4,10 +4,10 @@
 #include <ctime>
 #include <iostream>
 
-void NiloSearch::search(G::Graph* g, Solution* sol, clock_t tlim) {
-	tlim = (tlim - 1) * CLOCKS_PER_SEC;
+void NiloSearch::search(G::Graph* g, Solution* best, clock_t tlim) {
+	tlim = (((tlim<<1) - 1) * CLOCKS_PER_SEC)>>1;
 	// Conversione di tlim da secondi a clock_per_sec
-	// Il meno 1 serve ad avere un secondo di tempo finire l'esecuzione del programma
+	// Il meno 1 serve ad avere mezzo secondo di tempo finire l'esecuzione del programma
 
 	std::pair<int*, int> pippo;
 	pippo.second = -1;
@@ -16,23 +16,36 @@ void NiloSearch::search(G::Graph* g, Solution* sol, clock_t tlim) {
 
 	srand(time(NULL) + clock());
 
-	Solution* temp = new Solution(sol);
-	temp->mat = sol->buildMatrix(g);
-	temp->penalty = sol->calculatePenalty();
+	Solution* temp = new Solution(best);
+	Solution* sol = new Solution(best);
+	sol->mat = temp->mat = best->buildMatrix(g);
+	sol->penalty = temp->penalty = best->calculatePenalty();
 
 	// used_time = clock() - start;
 	while (isThereTime(tlim)) {
-		// Ricerca della soluzione migliore nel vicinato;
-		LS(sol, temp, tlim, 2);
+		// Ricerca della soluzione migliore nel vicinato
+		// LS(sol, temp, tlim, 2);
+		LS(sol, temp, tlim, 1);
+
+		if (sol->penalty < best->penalty) {
+			best->setSolution(sol, false);
+			best->penalty = sol->penalty;
+		}
 
 		// Perturbazione
 		if (isThereTime(tlim)) {
-			// shiftnum = rand() % 3 + 1;
-			shiftnum = 2;
-			// pippo.second = sol->tmax * 2 / 5;
-			pippo.second = 4;
+			temp->mat = sol->mat;
+			temp->penalty = sol->penalty;
+
+			shiftnum = rand() % 3 + 1;
+			// shiftnum = 2;
+
 			for (i = 0; i < shiftnum; i++) {
-				ColorShift::colorShift(temp, pippo, false);
+				// pippo.second = sol->tmax * 2 / 5;
+				pippo.second = 3 + rand() % 4;
+				// pippo.second = 4;
+
+				ColorShift::colorShift(temp, pippo, 2);
 			}
 		}
 	}
@@ -47,8 +60,8 @@ void NiloSearch::LS(Solution* sol, Solution* temp, clock_t tlim, int attempts) {
 	std::pair<int*, int> cols;
 	cols.second = 2;
 	cols.first = new int[2];
-	int i, j, k = 0;
-	int shiftI, shiftJ; // da implementare
+	int i, j, k = 0, h;
+	int shiftI, shiftJ;
 
 	while (ricerca && isThereTime(tlim)) {
 		first_improvement = false;
@@ -60,12 +73,17 @@ void NiloSearch::LS(Solution* sol, Solution* temp, clock_t tlim, int attempts) {
 			for (j = i + 1; j <= sol->tmax && isThereTime(tlim) && !first_improvement; j++) {
 				cols.first[0] = (shiftI + i) % sol->tmax + 1;
 				cols.first[1] = (shiftJ + j) % sol->tmax + 1;
-				ColorShift::colorShift(temp, cols, true);
+				ColorShift::colorShift(temp, cols, 2);
 
-				if (temp->calculatePenalty() < sol->penalty) {
+				temp->calculatePenalty();
+				if (temp->penalty < sol->penalty) {
 					first_improvement = true;
 					sol->setSolution(temp, false);
-					sol->calculatePenalty();
+					sol->penalty = temp->penalty;
+				}
+				else {
+					for (h = 0; h < sol->n; h++)
+						temp->sol[h] = sol->sol[h];
 				}
 			}
 		}

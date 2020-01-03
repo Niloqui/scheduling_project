@@ -21,6 +21,8 @@
 using namespace std;
 using namespace boost;
 
+int num_studenti;
+
 int getSubProblem(G::Graph *g, Solution **subsol, int n, int tmax);
 // Restituisce il numero di sottoproblemi
 // Viene allocato il vettore sub
@@ -33,7 +35,7 @@ int main(int argc, const char * argv[]) {
 		// In totale si riceveranno 3 parametri
 		// ETPsolver_DMOgroup01.exe instancename -t tlim
 		cout <<"Wrong number of arguments passed.\nPlease call the program with the format:\tETPsolver DMOgroupXX.exe instancename -t tlim" << endl;
-	return -1;
+		return -1;
 	}
 	// Tempo limite
 	// argv[2] è semplicemente -t
@@ -43,10 +45,12 @@ int main(int argc, const char * argv[]) {
 	string filename(argv[1]);
 	filename += "_DMOgroup01.sol";
 
+	srand(time(NULL));
+
 	//// Lettura file
 	Reader r = Reader(argv[1]);
 	G::Graph c = r.read(); // Ritorna la matrice dei conlitti
-	studentNum = r.getStudents();
+	num_studenti = studentNum = r.getStudents();
 	n = r.getExamN();
 	tmax = r.getTmax();
 
@@ -132,28 +136,33 @@ int main(int argc, const char * argv[]) {
 	mothersolution.calculatePenalty(c);
 
 	double duration = (double)(clock()) / CLOCKS_PER_SEC;
-	string output = "\nTempo impiegato per risolvere il problema: " + to_string(duration) + "\n";
-	cout << output << "tlim = " << tlim << "\npenalita' = " << mothersolution.penalty;
+	string output(argv[1]);
+	output = "\n" + output + "\nTempo impiegato per risolvere il problema: " + to_string(duration) + "\n";
+	cout << output << "tlim = " << tlim << "\npenalita' = " << (double)mothersolution.penalty / r.getStudents();
 
 	return mothersolution.penalty;
 }
 
 void solver(G::Graph *g, Solution *sol, int tlim) {
-	//string output;
-
 	if (OptimalSolver::problemIsReallySmall(sol)) {
 		OptimalSolver::solveReallySmallProblem(sol);
-		//output = "Molto piccolo " + to_string(sol->n) + "\n";
+		//string output = "Molto piccolo " + to_string(sol->n) + "\n";
 		//cout << output;
 	}
 	else if (OptimalSolver::problemIsSmall(sol, MAX_O)) {
 		//clock_t begin = clock();
 		OptimalSolver::solveSmallProblem(g, sol);
 		//double duration = (double)(clock() - begin) / CLOCKS_PER_SEC;
-		//output = "Piccolo " + to_string(sol->n) + "\n\tTempo impiegato per il risolutore ottimo: " + to_string(duration) + "\n";
+		//string output = "Piccolo " + to_string(sol->n) + "\n\tTempo impiegato per il risolutore ottimo: " + to_string(duration) + "\n";
 		//cout << output;
 	}
 	else { // Il problema non è piccolo
+		int* weight = new int[sol->n];
+		for (int i = 0; i < sol->n; i++)
+			weight[i] = rand();
+		mergeSort(sol->indexexams, weight, sol->n);
+		delete[] weight;
+
 		InitialSolver::squeakyWheel(*g, sol); // Soluzione iniziale
 
 		NiloSearch::search(g, sol, tlim);
@@ -162,7 +171,7 @@ void solver(G::Graph *g, Solution *sol, int tlim) {
 		//////////////////////////////////////// Euristiche
 		///////////////
 
-		//output = "Non piccolo " + to_string(sol->n) + "\n";
+		//string output = "Non piccolo " + to_string(sol->n) + "\n";
 		//cout << output;
 	}
 }
