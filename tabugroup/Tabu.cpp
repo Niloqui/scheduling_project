@@ -376,13 +376,11 @@ static long** createMatrix(int ROWCOUNT,int COLUMNCOUNT){
 //Deve Venir Passato un grafo già valido, solution deve venir passato solo
 //Per venire aggiornato
 //Inoltre si intende che solution contiene la miglior soluzione globale
-bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int bestGlobalPenalty,clock_t start,int tlim){
-    clock_t current = clock();
+bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int bestGlobalPenalty,clock_t start,int tlim,double margin){
     int initialTeta = this->teta;
     long** bestMatrix = createMatrix(this->exams, this->tmax+1);
-    double margin =  2;
     int bestMove=1; //miglior penalità ottenuta,
-    long bestMovePenalty;
+    long bestMovePenalty,bestDoublePenalty;
     G::Vertex bestVertex;
     int nonImprovingIterations = 0; //conta il numero di iterazioni senza miglioramenti
     Solution neighborhoodBestSolution(s.n,s.tmax);
@@ -404,32 +402,20 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
           (duration = (clock() - start)/(double)CLOCKS_PER_SEC) + margin < tlim ){
         
         
-        //Applichiamo il simple kempe se il numero di esami è minore al numero di
-        //Slot disponibili in quanto in questo caso il simple kempe, per come è implementato
-        //Garantisce una migliore esplorazione dello spazio, in quanto basa i cambiamenti
-        //sui colori tmax e non sui colori degli altri nodi
-        //nel caso di exams>tmax questo problema non c'è in quanto lo squeaky wheel
-        //Si ferma alla prima soluzione fattibile, e quindi ci è garantito che si usano
-        //tutti i colori almeno una volta e quindi il double kempe dovrebbe essere
-        //ottimale
-        if(this->exams < this->tmax){
-            //Vediamo qual è la miglior mossa fra tutte
-            //Bisogna tenere in considerazione la matrice delle mosse ed aggiornarla
-            //Correttamente, in questa maniera i calcoli vengono significativamente ridotti
-            std::pair<long int,int> pairMove = this->bestMove();
-            bestVertex = vertex(pairMove.first,g);
-            bestMove = pairMove.second;
-            bestMovePenalty = this->moveMatrix[bestVertex][bestMove];
+        //Vediamo qual è la miglior mossa fra tutte
+        //Bisogna tenere in considerazione la matrice delle mosse ed aggiornarla
+        //Correttamente, in questa maniera i calcoli vengono significativamente ridotti
+        std::pair<long int,int> pairMove = this->bestMove();
+        bestVertex = vertex(pairMove.first,g);
+        bestMove = pairMove.second;
+        bestMovePenalty = this->moveMatrix[bestVertex][bestMove];
+        //Fra tutte le mosse possibili effettuo la migliore
+        tabuSimpleKempeWrapper(g, bestVertex, bestMove);
+        /*else{
+            std::tuple<long int,long int, int> bestMoveDouble = bestDoubleKempe(g);
+            bestMovePenalty=doubleKempeSwap(g, get<0> (bestMoveDouble), get<1> (bestMoveDouble), get<2> (bestMoveDouble));
+        }*/
 
-            //Fra tutte le mosse possibili effettuo la migliore
-            tabuSimpleKempeWrapper(g, bestVertex, bestMove);
-        }
-        else{
-            std::tuple<long int,long int,int> pairDoubleMove = this->bestDoubleKempe(g);
-            bestMovePenalty= doubleKempeSwap(g,get<0> (pairDoubleMove), get<1> (pairDoubleMove), get <2> (pairDoubleMove));
-            //Dobbiamo anche ritornare best move penalty
-        }
-        
         //Devono venire aggiornate le mosse
         updateMoveMatrix(g);
          
@@ -441,7 +427,6 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
              setSolution(g, neighborhoodBestSolution);
              neighborhoodBestPenalty = neighborhoodBestSolution.calculatePenalty(g);
              matriscopy(bestMatrix, this->moveMatrix, this->exams, (this->tmax+1));
-             //cout << "Migliormento!" << endl;
          }
          else{
              accumulatedPenalty += bestMovePenalty;
@@ -462,10 +447,9 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
     //corrente vicinato è migliore di quella trovata fino ad adesso
     if(neighborhoodBestPenalty < bestGlobalPenalty)
     {
-        colorGraph(g, neighborhoodBestSolution); // <<---THIS IS THE MISTAKE!!!!
+        colorGraph(g, neighborhoodBestSolution);
         setSolution(g, s); //DO NOT DELETE
         matriscopy(this->moveMatrix, bestMatrix, this->exams, (this->tmax+1));
-        
         return true;
     }
     
@@ -505,7 +489,8 @@ void Tabu::tabuPerturbate(G::Graph& g, int q,int eta, int tmax){
     G::Vertex randomVertex;
     for(int j=0; j<eta; j++){
         //Index che sceglie uno dei q più grandi
-        randomNode = rand() % q;
+        //randomNode = rand() % q;
+        randomNode = choiceprob(q, 1);
         //mi segno che la mossa è stata modificata, e i vertici adiacenti
         renderFalseAndAdjacent(g, vertex(randomNode,g));
         //Questa è la maniera in cui scegliamo il colore per rendere più probabile
@@ -525,11 +510,10 @@ void Tabu::tabuPerturbate(G::Graph& g, int q,int eta, int tmax){
 }
 
 
-void Tabu::tabuIteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock_t start,int tlim){
+void Tabu::tabuIteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock_t start,int tlim,double margin){
     clock_t current = clock();
-    double margin = 2;
     int etamin = 15, etamax = 100;
-    int nonImprovingTabus = 5;
+    int nonImprovingTabus = 0;
     int q = min(30,s.n/3); //numero di nodi da perturbare
     int eta=etamin; //intensità della perturbazione
     bool improved=false;
@@ -541,20 +525,19 @@ void Tabu::tabuIteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock
         //L'intensità della perturbazione aumento più tabu ci sono
         //senza miglioramenti
         eta = min(etamin+nonImprovingTabus, etamax);
-        improved = this->tabuSearch(g, s, tollerance, bestGlobalPenalty,start,tlim);
+        improved = this->tabuSearch(g, s, tollerance, bestGlobalPenalty,start,tlim,margin);
         
         if(improved){
             nonImprovingTabus = 0;
             bestGlobalPenalty = s.calculatePenalty(g);
         }
-        else
+        else{
             nonImprovingTabus++;
-            
+        }
         
         //Dopo un numero tollerance di iterazioni del TS
         //si perturba il vicinato e si riparte con un nuovo TS
-        //cout << "Perturbating.."<< endl;
-        setSolution(g, s);
+        
         tabuPerturbate(g, q, eta, s.tmax);
         updateMoveMatrix(g);
         //this->printMatrix();

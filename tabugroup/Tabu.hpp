@@ -8,12 +8,12 @@
 class Tabu{
 public:
     Tabu(int,G::Graph&,Solution&); //Accetta teta, ovvero la grandezza della tabu list
-    void tabuIteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock_t start,int tlim);
+    void tabuIteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock_t start,int tlim,double margin);
     //Max non improving iterations da il numero di mosse massime senza miglioramenti
     //Che sono permesse prima che il tabu search venga perturbato e subentri la
     //fase di iterated local search
     // ritorna True se il vicinato ha trovato un ottimo globale
-    bool tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations, int bestGlobalPenalty,clock_t start,int tlim);
+    bool tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations, int bestGlobalPenalty,clock_t start,int tlim,double margin);
     void printMatrix();
     
 private:
@@ -59,6 +59,9 @@ private:
     
    //Accetta due nodi e il colore al quale devono venir swappati
     int doubleKempeSwap(G::Graph&,long int,long int,int);
+    
+    //Swappa due colori randomici
+    void swapColors(G::Graph& g);
     
     /*-----DATI---**/
     long int** moveMatrix;

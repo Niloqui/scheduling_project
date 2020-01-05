@@ -99,14 +99,14 @@ int main(int argc, const char * argv[]) {
 
 	duration = (double)clock() - (double)start;
 	cout << "\n\nTempo impiegato per leggere lo squeakyWheel: " + to_string(duration / CLOCKS_PER_SEC) + " s\n\n";
-    
+    duration = duration/CLOCKS_PER_SEC;
     /*--------------------------------------------**/
     /*----------Soluzione tabu-------------**/
     
     
     Tabu tab(10,c,sol);
     int tollerance = 5;
-    tab.tabuIteratedLocalSearch(c, sol, tollerance, begin, tlim);
+    tab.tabuIteratedLocalSearch(c, sol, tollerance, begin, tlim,duration*2);
     sol.printSolution(filename);
 
     

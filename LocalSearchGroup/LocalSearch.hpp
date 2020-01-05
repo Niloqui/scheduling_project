@@ -37,6 +37,7 @@ bool firstColorImprovement(G::Graph& g,Solution& s);
 //Effettua un ciclo di first improvement finchè non ci sono
 //Più miglioramenti
 void firstColorImprovementLoop(G::Graph& g,Solution &s,int iterations);
+int choiceprob(int q, int phi);
 
 
 #endif /* LocalSearch_hpp */

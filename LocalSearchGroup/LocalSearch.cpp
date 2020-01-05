@@ -18,7 +18,7 @@ using namespace std;
  Quindi tenere conto di questo per velocizzare l'esplorazione della miglior mossa
  */
 
-static int choiceprob(int q, int phi) {
+int choiceprob(int q, int phi) {
     int choice = 0;
     double select;
     long double prob_max = 0;
