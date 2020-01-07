@@ -50,6 +50,29 @@ Tabu::Tabu(int teta,G::Graph& g,Solution& s,int studentNum):teta(teta),mu(0.6),e
     }
 }
 
+void Tabu::swapColors(G::Graph& g){
+    int iteratedColor;
+    int color1 = rand() % this->tmax + 1;
+    int color2 = rand() % this->tmax + 1;
+            
+    //Iterazione sui vertici
+    G::Graph::vertex_iterator v, vend;
+    for (boost::tie(v, vend) = vertices(g); v != vend; ++v){
+        iteratedColor = get(vertex_color_t(),g,*v);
+        if(iteratedColor == color1){//cambia a colore2
+            put(vertex_color_t(),g,*v,color2);
+            renderFalseMoves(g, *v);
+        }
+        else if(iteratedColor == color2){//cambia a colore 3
+            put(vertex_color_t(),g,*v,color1);
+            renderFalseMoves(g, *v);
+        }
+    }
+    
+    
+    
+}
+
 /*Cerchiamo di scabiare colore con un kempe swap fra due nodi che appartengono
  a catene diverse se si considerano i colori del nodo 1 e del nodo 2*/
 //tuple ritorna vertice1, vertice2, colore
@@ -380,9 +403,10 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
     int initialTeta = this->teta;
     long** bestMatrix = createMatrix(this->exams, this->tmax+1);
     int bestMove=1; //miglior penalità ottenuta,
-    long bestMovePenalty,bestDoublePenalty;
+    long bestMovePenalty;
     G::Vertex bestVertex;
     int nonImprovingIterations = 0; //conta il numero di iterazioni senza miglioramenti
+    double newMargin = 1.5*margin;
     Solution neighborhoodBestSolution(s.n,s.tmax);
     setSolution(g, neighborhoodBestSolution);
     
@@ -399,7 +423,7 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
     //è minore ad un certo parametro (maxNonImprovingIterations) passato
     double duration;
     while(nonImprovingIterations <= maxNonImprovingIterations &&
-          (duration = (clock() - start)/(double)CLOCKS_PER_SEC) + margin < tlim ){
+          (duration = (clock() - start)/(double)CLOCKS_PER_SEC) + newMargin < tlim ){
         
         
         //Vediamo qual è la miglior mossa fra tutte
@@ -541,6 +565,15 @@ void Tabu::tabuIteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock
         //si perturba il vicinato e si riparte con un nuovo TS
         
         tabuPerturbate(g, q, eta, s.tmax);
+        
+        //CODICE NON CONVINCENTE, DA RIMUOVERE SE FA SCHIFO
+        int swapFrequency = 40;
+        if(nonImprovingTabus%swapFrequency == 0 && nonImprovingTabus!=0){
+            swapColors(g);
+            //cout<<"Swapping colors"<<endl;
+            nonImprovingTabus = 0;
+        }
+        
         updateMoveMatrix(g);
         //this->printMatrix();
         this->resetTabuList();
