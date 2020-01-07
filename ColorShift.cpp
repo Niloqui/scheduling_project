@@ -52,7 +52,7 @@ void ColorShift::colorShiftRec(Solution* sol, std::pair<int*, int> cols, int* co
 
 	// Ricorsione sui nodi adiacenti
 	for (i = 0; i < sol->n; i++) {
-		if (sol->mat[node][i] > 0) {
+		if ( edge(node, i, *sol->g).second ) {
 			for (j = 0; j < cols.second; j++) {
 				if (cols.first[j] == sol->sol[i]) {
 					nodo_da_vedere = true;
@@ -71,29 +71,8 @@ void ColorShift::colorShiftRec(Solution* sol, std::pair<int*, int> cols, int* co
 					break;
 				}
 			}
-
 		}
 	}
-
-	/**
-	G::AdjacencyIterator ai, aend;
-	int ex;
-	tie(ai, aend) = boost::adjacent_vertices(sol->indexexams[node], g); // Vertici adiacenti a node
-	for (; ai != aend; *ai++) {
-		for (i = 0, ex = -1; i < sol->n && ex < 0; i++) {
-			if (sol->indexexams[i] == *ai) {
-				ex = i;
-			}
-		}
-
-		for (i = 0; i < cols.second; i++) {
-			if ( cols.first[i] == sol->sol[ex] ){
-				colorShiftRec(sol, cols, counters, exams_to_change, ex, ncols);
-				break;
-			}
-		}
-	}
-	*/
 }
 
 void ColorShift::colorShift(Solution* sol, std::pair<int*, int> cols) {
@@ -116,22 +95,6 @@ void ColorShift::colorShift(Solution* sol, std::pair<int*, int> cols) {
 		counters[i] = 0;
 		exams_to_change[i] = new int[sol->n];
 	}
-
-	/*
-	// Ricerca del nodo iniziale da cui far partire la ricorsione
-	int nodo_iniziale = rand() % sol->n;
-	bool colore_in_lista = false;
-
-	for (j = 0; j < cols.second && !colore_in_lista; j++)
-		if (cols.first[j] == sol->sol[nodo_iniziale])
-			colore_in_lista = true;
-
-	if (!colore_in_lista)
-		cols.first[cols.second - 1] = sol->sol[nodo_iniziale];
-
-	// La ricorsione parte qui
-	colorShiftRec(sol, cols, counters, exams_to_change, nodo_iniziale);
-	*/
 
 	// Ricerca del nodo iniziale da cui far partire la ricorsione
 	shift = rand() % sol->n;
