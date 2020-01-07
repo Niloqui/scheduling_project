@@ -7,13 +7,13 @@
 
 class Tabu{
 public:
-    Tabu(int,G::Graph&,Solution&); //Accetta teta, ovvero la grandezza della tabu list
-    void tabuIteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock_t start,int tlim,double margin);
+    Tabu(int,G::Graph&,Solution&,int); //Accetta teta, ovvero la grandezza della tabu list
+    void tabuIteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock_t start,int tlim,double margin,std::string filename);
     //Max non improving iterations da il numero di mosse massime senza miglioramenti
     //Che sono permesse prima che il tabu search venga perturbato e subentri la
     //fase di iterated local search
     // ritorna True se il vicinato ha trovato un ottimo globale
-    bool tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations, int bestGlobalPenalty,clock_t start,int tlim,double margin);
+    bool tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations, int bestGlobalPenalty,clock_t start,int tlim,double margin,std::string filename);
     void printMatrix();
     
 private:
@@ -75,6 +75,7 @@ private:
     //Lista delle mosse proibite, il primo intero è l'id del vettore
     //Il secondo elemento è il colore al quale non si può muovere
     std::deque<std::pair<long int,int>> tabuList;
+    int studentNum;
     
 
 

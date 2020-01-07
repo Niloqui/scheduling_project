@@ -104,9 +104,9 @@ int main(int argc, const char * argv[]) {
     /*----------Soluzione tabu-------------**/
     
     
-    Tabu tab(10,c,sol);
+    Tabu tab(10,c,sol,studentNum);
     int tollerance = 5;
-    tab.tabuIteratedLocalSearch(c, sol, tollerance, begin, tlim,duration*2);
+    tab.tabuIteratedLocalSearch(c, sol, tollerance, begin, tlim,duration*2,filename);
     sol.printSolution(filename);
 
     
