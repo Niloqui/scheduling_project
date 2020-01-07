@@ -12,11 +12,14 @@
 #include <boost/graph/connected_components.hpp>
 #include <ctime>
 
+
 //Kempe search
 #include "kempegroup/Kempe.hpp"
 
 //Local search
 #include "LocalSearchGroup/LocalSearch.hpp"
+
+#define NUM_CORES 8
 
 using namespace std;
 using namespace boost;
@@ -26,7 +29,10 @@ int num_studenti;
 int getSubProblem(G::Graph *g, Solution **subsol, int n, int tmax);
 // Restituisce il numero di sottoproblemi
 // Viene allocato il vettore sub
-void solver(G::Graph *g, Solution* sol, int tlim);
+
+// void solver(G::Graph* g, Solution* sol, int tlim, Solution* mothersolution);
+// void solver2(G::Graph* g, Solution* sol, int tlim, Solution* mothersolution, Solution* best_sub_problem);
+void solver2(G::Graph* g, Solution* sol, int tlim, Solution* mothersolution);
 
 int main(int argc, const char * argv[]) {
 	int tmax, n, i, tlim, studentNum;
@@ -72,13 +78,15 @@ int main(int argc, const char * argv[]) {
 	*/
 
 	//// Inizio soluzione
-	Solution mothersolution(n, tmax); // Soluzione dell'intera istanza
+	Solution *mothersolution = new Solution(n, tmax); // Soluzione dell'intera istanza
+	mothersolution->filename = filename;
+	mothersolution->num_studenti = num_studenti;
 	// srand(time(NULL) + (unsigned)&c + tlim);
 	// Se serve generare dei valori casuali, è utile usare srand solo una volta e all'inizio
 	// mothersolution.indexexams = new int[n];
 	// for (i = 0; i < n; i++)
 		// mothersolution.indexexams[i] = i;
-
+	
 	/*
 	int esame = 0;
 	G::AdjacencyIterator ai, a_end;
@@ -91,24 +99,45 @@ int main(int argc, const char * argv[]) {
 
 	// return 0;
 
+	
+	//// Creazione sottoproblemi
+	Solution** subsol = new Solution*[NUM_CORES]; // Vettore dei sottoproblemi
+	thread** treds = new thread * [NUM_CORES];
 
+	for (i = 0; i < NUM_CORES; i++) {
+		subsol[i] = new Solution(mothersolution);
+		treds[i] = new thread(solver2, &c, subsol[i], tlim, mothersolution);
+	}
+	
+	//// Attesa della chiusura dei thread
+	for (i = 0; i < NUM_CORES; i++) {
+		treds[i]->join();
+		// mothersolution.setSolutionAndPrint(&c, subsol[i], false);
+	}
+		
+	
 
+	/*
 	//// Creazione sottoproblemi
 	Solution* subsol; // Vettore dei sottoproblemi
 	int num_components = getSubProblem(&c, &subsol, n, tmax);
-	thread **tred = new thread*[num_components];
+	thread **treds = new thread*[num_components];
 	for (i = 0; i < num_components; i++)
-		tred[i] = new thread(solver, &c, &subsol[i], tlim); // implementare tlim
+		treds[i] = new thread(solver, &c, &subsol[i], tlim, &mothersolution); // implementare tlim
 	
 	//// Attesa della chiusura dei thread
 	for (i = 0; i < num_components; i++)
-		tred[i]->join();
+		treds[i]->join();
+	*/
 
+
+
+	/*
 	//// Esport della soluzione
 	for (int i = 0; i < num_components; i++)
 		mothersolution.setSolution(subsol[i], true);
 	mothersolution.printSolution(filename);
-
+	*/
 
 	/*
     /*--------------------------------------------** /
@@ -133,21 +162,65 @@ int main(int argc, const char * argv[]) {
 	//// Deallocazione memoria
 	// TO-DO (forse): aggiungere deallocazione memoria
 
-	mothersolution.calculatePenalty(c);
+	mothersolution->calculatePenalty(c);
 
 	double duration = (double)(clock()) / CLOCKS_PER_SEC;
 	string output(argv[1]);
 	output = "\n" + output + "\nTempo impiegato per risolvere il problema: " + to_string(duration) + "\n";
-	cout << output << "tlim = " << tlim << "\npenalita' = " << (double)mothersolution.penalty / r.getStudents();
+	cout << output << "tlim = " << tlim << "\npenalita' = " << (double)(mothersolution->penalty) / r.getStudents();
 
-	return mothersolution.penalty;
+	return mothersolution->penalty;
 }
 
-void solver(G::Graph *g, Solution *sol, int tlim) {
+
+void solver2(G::Graph* g, Solution* sol, int tlim, Solution* mothersolution) {
+	Solution* temp = new Solution(sol);
+	temp->indexexams = new int[temp->n];
+
+	int* weight = new int[sol->n];
+	for (int i = 0; i < temp->n; i++) {
+		temp->indexexams[i] = i;
+		weight[i] = rand();
+	}
+	mergeSort(temp->indexexams, weight, sol->n);
+	delete[] weight;
+
+	InitialSolver::squeakyWheel(*g, temp); // Soluzione iniziale
+	sol->setSolution(temp, true);
+	sol->calculatePenalty(*g);
+	mothersolution->setSolutionAndPrint(g, sol, false);
+
+	NiloSearch::search(g, sol, tlim, mothersolution);
+}
+
+
+
+/*
+void solver2(G::Graph* g, Solution* sol, int tlim, Solution* mothersolution, Solution* best_sub_problem) {
+	int* weight = new int[sol->n];
+	for (int i = 0; i < sol->n; i++)
+		weight[i] = rand();
+	mergeSort(sol->indexexams, weight, sol->n);
+	delete[] weight;
+
+	InitialSolver::squeakyWheel(*g, sol); // Soluzione iniziale
+	
+	mothersolution->setSolutionAndPrint(g, sol, true);
+	best_sub_problem->penalty = mothersolution->penalty;
+
+	NiloSearch::search(g, sol, tlim, mothersolution, best_sub_problem);
+
+	//string output = "Non piccolo " + to_string(sol->n) + "\n";
+	//cout << output;
+}
+
+void solver(G::Graph *g, Solution *sol, int tlim, Solution *mothersolution) {
 	if (OptimalSolver::problemIsReallySmall(sol)) {
 		OptimalSolver::solveReallySmallProblem(sol);
 		//string output = "Molto piccolo " + to_string(sol->n) + "\n";
 		//cout << output;
+
+		mothersolution->setSolutionAndPrint(g, sol, true);
 	}
 	else if (OptimalSolver::problemIsSmall(sol, MAX_O)) {
 		//clock_t begin = clock();
@@ -155,26 +228,25 @@ void solver(G::Graph *g, Solution *sol, int tlim) {
 		//double duration = (double)(clock() - begin) / CLOCKS_PER_SEC;
 		//string output = "Piccolo " + to_string(sol->n) + "\n\tTempo impiegato per il risolutore ottimo: " + to_string(duration) + "\n";
 		//cout << output;
+
+		mothersolution->setSolutionAndPrint(g, sol, true);
 	}
 	else { // Il problema non è piccolo
-		int* weight = new int[sol->n];
-		for (int i = 0; i < sol->n; i++)
-			weight[i] = rand();
-		mergeSort(sol->indexexams, weight, sol->n);
-		delete[] weight;
+		thread** treds = new thread*[NUM_CORES]; // Numero di core = 4
+		Solution** sols = new Solution*[NUM_CORES];
+		Solution* best_sub_problem = new Solution(sol);
 
-		InitialSolver::squeakyWheel(*g, sol); // Soluzione iniziale
+		for (int i = 0; i < NUM_CORES; i++)
+			sols[i] = new Solution(sol);
+		
+		for (int i = 0; i < NUM_CORES; i++)
+			treds[i] = new thread(solver2, g, sols[i], tlim, mothersolution, best_sub_problem);
 
-		NiloSearch::search(g, sol, tlim);
-
-		///////////////
-		//////////////////////////////////////// Euristiche
-		///////////////
-
-		//string output = "Non piccolo " + to_string(sol->n) + "\n";
-		//cout << output;
+		for (int i = 0; i < NUM_CORES; i++)
+			treds[i]->join();
 	}
 }
+*/
 
 
 int getSubProblem(G::Graph *g, Solution** subsol, int n, int tmax) {

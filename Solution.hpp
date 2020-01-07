@@ -3,6 +3,7 @@
 
 #include "graphw.hpp"
 #include <fstream>
+#include <string>
 
 class Solution{
 public:
@@ -13,7 +14,7 @@ public:
 	 * ex. sol[4] = 7; L'esame 5 (4 = 5 - 1) si trova nel time slot 7
 	 * Il reader diminuisce l'esame di 1, quindi non è necessario eseguire la sottrazione scritta sopra per accedere al vettore
 	 */
-	int n, tmax, penalty = -1;
+	int n, tmax, penalty = -1, num_studenti = -1;
 	// n = lunghezza del vettore
 	int* indexexams = NULL;
 	// indexexams può essere utilizzato in un sottografo per contenere la soluzione di quel sottografo
@@ -24,6 +25,8 @@ public:
 	// In caso di optimum = true, non si eseguiranno nuovi algoritmi per tentare di migliorare la soluzione trovata
 	int** mat = NULL;
 	// Matrice di adiecenze. Si può costruire la matrice di adiacenze al posto di usare il grafo
+	std::string filename;
+
 
 	Solution(); // Costruttore vuoto
 	Solution(int n, int tmax); // Costruttore
@@ -47,7 +50,8 @@ public:
     
     //Calcola la penalità dividendo per il numero di studenti
     double calculatePenaltyFull(G::Graph g,int studentNum);
-    
+
+	std::string printSolution();
 	std::string printSolution(std::string filename);
 	// std::string printSolution(std::ofstream file);
 	// Esporta la soluzione su file e ritorna l'intero output che viene stampato a video
@@ -59,6 +63,9 @@ public:
 	static int distance(int *sol, int i, int j);
 	std::pair<G::Edge, bool> getEdge(int i, int j, G::Graph *g);
 	int **buildMatrix(G::Graph *g);
+
+	void setSolutionAndPrint(G::Graph* g, Solution* sol, bool indexes);
+
 
 
 };

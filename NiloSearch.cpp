@@ -4,7 +4,7 @@
 #include <ctime>
 #include <iostream>
 
-void NiloSearch::search(G::Graph* g, Solution* best, clock_t tlim) {
+void NiloSearch::search(G::Graph* g, Solution* best, clock_t tlim, Solution* mothersolution) {
 	tlim = (((tlim<<1) - 1) * CLOCKS_PER_SEC)>>1;
 	// Conversione di tlim da secondi a clock_per_sec
 	// Il meno 1 serve ad avere mezzo secondo di tempo finire l'esecuzione del programma
@@ -30,6 +30,8 @@ void NiloSearch::search(G::Graph* g, Solution* best, clock_t tlim) {
 		if (sol->penalty < best->penalty) {
 			best->setSolution(sol, false);
 			best->penalty = sol->penalty;
+
+			mothersolution->setSolutionAndPrint(g, sol, false);
 		}
 
 		// Perturbazione
@@ -46,6 +48,17 @@ void NiloSearch::search(G::Graph* g, Solution* best, clock_t tlim) {
 				// pippo.second = 4;
 
 				ColorShift::colorShift(temp, pippo, 2);
+			}
+
+			temp->calculatePenalty();
+			sol->setSolution(temp, false);
+			sol->penalty = temp->penalty;
+
+			if (sol->penalty < best->penalty) {
+				best->setSolution(sol, false);
+				best->penalty = sol->penalty;
+
+				mothersolution->setSolutionAndPrint(g, sol, false);
 			}
 		}
 	}
@@ -108,3 +121,83 @@ bool NiloSearch::isThereTime(clock_t tlim) {
 	return clock() < tlim;
 }
 
+
+
+
+
+
+/*
+void NiloSearch::search(G::Graph* g, Solution* best, clock_t tlim, Solution* mothersolution, Solution* best_sub_problem) {
+	tlim = (((tlim << 1) - 1) * CLOCKS_PER_SEC) >> 1;
+	// Conversione di tlim da secondi a clock_per_sec
+	// Il meno 1 serve ad avere mezzo secondo di tempo finire l'esecuzione del programma
+
+	std::pair<int*, int> pippo;
+	pippo.second = -1;
+	pippo.first = NULL;
+	int shiftnum, i;
+
+	srand(time(NULL) + clock());
+
+	Solution* temp = new Solution(best);
+	Solution* sol = new Solution(best);
+	sol->mat = temp->mat = best->buildMatrix(g);
+	sol->penalty = temp->penalty = best->calculatePenalty();
+
+	// used_time = clock() - start;
+	while (isThereTime(tlim)) {
+		// Ricerca della soluzione migliore nel vicinato
+		// LS(sol, temp, tlim, 2);
+		LS(sol, temp, tlim, 1);
+
+		if (sol->penalty < best->penalty) {
+			best->setSolution(sol, false);
+			best->penalty = sol->penalty;
+
+			if (best->penalty < best_sub_problem->penalty) {
+				best_sub_problem->setSolution(best, false);
+				best_sub_problem->penalty = best->penalty;
+
+				mothersolution->setSolutionAndPrint(g, sol, true);
+			}
+		}
+
+		// Perturbazione
+		if (isThereTime(tlim)) {
+			temp->mat = sol->mat;
+			temp->penalty = sol->penalty;
+
+			shiftnum = rand() % 3 + 1;
+			// shiftnum = 2;
+
+			for (i = 0; i < shiftnum; i++) {
+				// pippo.second = sol->tmax * 2 / 5;
+				pippo.second = 3 + rand() % 4;
+				// pippo.second = 4;
+
+				ColorShift::colorShift(temp, pippo, 2);
+			}
+
+			temp->calculatePenalty();
+			sol->setSolution(temp, false);
+			sol->penalty = temp->penalty;
+
+			if (sol->penalty < best->penalty) {
+				best->setSolution(sol, false);
+				best->penalty = sol->penalty;
+
+				if (best->penalty < best_sub_problem->penalty) {
+					best_sub_problem->setSolution(best, false);
+					best_sub_problem->penalty = best->penalty;
+
+					mothersolution->setSolutionAndPrint(g, sol, true);
+				}
+			}
+		}
+	}
+
+	delete[] temp->indexexams;
+	delete[] temp->sol;
+	delete temp;
+}
+*/

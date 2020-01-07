@@ -3,6 +3,11 @@
 #include <fstream>
 #include "graphw.hpp"
 #include "Utility.hpp"
+#include <iostream>
+#include <mutex>          // std::mutex, std::unique_lock
+
+std::mutex mtx;           // mutex for critical section
+
 
 using namespace std;
 
@@ -38,7 +43,7 @@ Solution::Solution(Solution* sol) {
 	this->mat = sol->mat;
 
 	if (sol->indexexams == NULL) {
-		this->indexexams == NULL;
+		this->indexexams = NULL;
 	}
 	else {
 		this->indexexams = new int[sol->n];
@@ -105,7 +110,8 @@ int Solution::calculatePenalty() {
 				if (dist == 0)
 					pen = -1;
 				else if (dist <= 5)
-					pen += integerPower(2, 5 - dist) * mat[i][j];
+					// pen += integerPower(2, 5 - dist) * mat[i][j];
+					pen += (1 << (5 - dist)) * mat[i][j];
 			}
 		}
 	}
@@ -131,7 +137,8 @@ int Solution::calculatePenalty(G::Graph g) { // Usare adjacency_list per trovare
 				if (dist == 0)
 					pen = -1;
 				else if (dist <= 5)
-					pen += integerPower(2, 5 - dist) * get(edge_weight_t(), g, e.first);
+					// pen += integerPower(2, 5 - dist) * get(edge_weight_t(), g, e.first);
+					pen += (1 << (5 - dist)) * get(edge_weight_t(), g, e.first);
 				// else if (dist > 5) {}
 			}
 		}
@@ -174,7 +181,8 @@ int Solution::calculatePenalty(G::Graph g, int* indexvector, int nsub) {
 				if (dist == 0)
 					pen = -1;
 				else if (dist <= 5)
-					pen += integerPower(2, 5 - dist) * get(edge_weight_t(), g, e.first);
+					// pen += integerPower(2, 5 - dist) * get(edge_weight_t(), g, e.first);
+					pen += (1 << (5 - dist)) * get(edge_weight_t(), g, e.first);
 				// else if (dist > 5) {}
 			}
 		}
@@ -203,7 +211,8 @@ int Solution::calculatePenalty(G::Graph g, bool* mask) {
 						if (dist == 0)
 							pen = -1;
 						else if (dist <= 5)
-							pen += integerPower(2, 5 - dist) * get(edge_weight_t(), g, e.first);
+							// pen += integerPower(2, 5 - dist) * get(edge_weight_t(), g, e.first);
+							pen += (1 << (5 - dist)) * get(edge_weight_t(), g, e.first);
 						// else if (dist > 5) {}
 					}
 				}
@@ -232,7 +241,8 @@ int Solution::calculatePenalty(G::Graph g, int* sol, int* indexvector, int nsub,
 				if (dist == 0)
 					pen = -1;
 				else if (dist <= 5)
-					pen += integerPower(2, 5 - dist) * get(edge_weight_t(), g, e.first);
+					// pen += integerPower(2, 5 - dist) * get(edge_weight_t(), g, e.first);
+					pen += (1 << (5 - dist)) * get(edge_weight_t(), g, e.first);
 				// else if (dist > 5) {}
 			}
 		}
@@ -270,6 +280,21 @@ string Solution::printSolution(ofstream file) {
 	return output;
 }
 */
+
+string Solution::printSolution() {
+	string output = "";
+	for (int i = 0; i < this->n; i++) {
+		output += to_string(i + 1) + " " + to_string(sol[i]);
+		if (i < (this->n - 1))
+			output += "\n";
+	}
+
+	ofstream file(this->filename);
+	file << output;
+	file.close();
+	return output;
+}
+
 
 string Solution::printSolution(std::string filename) {
 	string output = "";
@@ -345,7 +370,16 @@ int** Solution::buildMatrix(G::Graph *g) {
 	return mat;
 }
 
-
+void Solution::setSolutionAndPrint(G::Graph* g, Solution* sol, bool indexes) {
+	mtx.lock();
+	if (this->penalty < 0 || sol->penalty < this->penalty) {
+		this->setSolution(sol, indexes);
+		this->calculatePenalty(*g);
+		this->printSolution();
+		// std::cout << "Penalita' = " << this->penalty / (float)this->num_studenti << "\n";
+	}
+	mtx.unlock();
+}
 
 
 
