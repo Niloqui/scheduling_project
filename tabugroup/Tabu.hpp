@@ -4,17 +4,18 @@
 #include <stdio.h>
 #include "../graphw.hpp"
 #include "../Solution.hpp"
+#include "../TimeController.hpp"
 #include <ctime>
 
 class Tabu{
 public:
     Tabu(int teta, G::Graph& g, Solution& s, int studentNum); //Accetta teta, ovvero la grandezza della tabu list
-    void tabuIteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock_t start,int tlim,double margin, Solution& mothersolution);
+    void tabuIteratedLocalSearch(G::Graph& g, Solution& s, int tollerance, TimeController& tlim, Solution& mothersolution);
     //Max non improving iterations da il numero di mosse massime senza miglioramenti
     //Che sono permesse prima che il tabu search venga perturbato e subentri la
     //fase di iterated local search
     // ritorna True se il vicinato ha trovato un ottimo globale
-    bool tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations, int bestGlobalPenalty,clock_t start,int tlim,double margin, Solution& mothersolution);
+    bool tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations, int bestGlobalPenalty, TimeController& tlim, Solution& mothersolution);
     void printMatrix();
     
 private:

@@ -397,7 +397,7 @@ static long** createMatrix(int ROWCOUNT,int COLUMNCOUNT){
 //Deve Venir Passato un grafo già valido, solution deve venir passato solo
 //Per venire aggiornato
 //Inoltre si intende che solution contiene la miglior soluzione globale
-bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int bestGlobalPenalty,clock_t start,int tlim,double margin, Solution& mothersolution){
+bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int bestGlobalPenalty, TimeController& tlim, Solution& mothersolution){
     int initialTeta = this->teta;
     long** bestMatrix = createMatrix(this->exams, this->tmax+1);
     int bestMove=1; //miglior penalità ottenuta,
@@ -405,7 +405,6 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
     G::Vertex bestVertex;
     bool better = false;
     int nonImprovingIterations = 0; //conta il numero di iterazioni senza miglioramenti
-    double newMargin = 7*margin;
     Solution neighborhoodBestSolution(s.n,s.tmax);
     setSolution(g, neighborhoodBestSolution);
     
@@ -421,8 +420,7 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
     //Si fa una tabu search finche il numero massimo di iterazioni non miglioranti
     //è minore ad un certo parametro (maxNonImprovingIterations) passato
     double duration;
-    while(nonImprovingIterations <= maxNonImprovingIterations &&
-          (duration = (clock() - start)/(double)CLOCKS_PER_SEC) + newMargin < tlim ){
+    while( nonImprovingIterations <= maxNonImprovingIterations && tlim.isThereTime() ){
         
         
         //Vediamo qual è la miglior mossa fra tutte
@@ -537,9 +535,8 @@ void Tabu::tabuPerturbate(G::Graph& g, int q,int eta, int tmax){
 }
 
 
-void Tabu::tabuIteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock_t start,int tlim,double margin, Solution& mothersolution){
+void Tabu::tabuIteratedLocalSearch(G::Graph& g, Solution& s,int tollerance, TimeController& tlim, Solution& mothersolution){
     int etamin = 4, etamax = 15;
-    double newMargin = 7*margin;
     int nonImprovingTabus = 0;
     int q = min(30,s.n/3); //numero di nodi da perturbare
     int eta=etamin; //intensità della perturbazione
@@ -548,11 +545,11 @@ void Tabu::tabuIteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock
     colorGraph(g, s);
     
     
-    while((clock() - start)/CLOCKS_PER_SEC + newMargin < tlim){
+    while( tlim.isThereTime() ){
         //L'intensità della perturbazione aumento più tabu ci sono
         //senza miglioramenti
         eta = min(etamin+nonImprovingTabus, etamax);
-        improved = this->tabuSearch(g, s, tollerance, bestGlobalPenalty,start,tlim,margin, mothersolution);
+        improved = this->tabuSearch(g, s, tollerance, bestGlobalPenalty, tlim, mothersolution);
         
         if(improved){
             nonImprovingTabus = 0;

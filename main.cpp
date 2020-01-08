@@ -6,6 +6,7 @@
 #include "graphw.hpp"
 #include "rd.hpp"
 #include "Solution.hpp"
+#include "TimeController.hpp"
 
 #include "ColorShift.hpp"
 #include "InitialSolver.hpp"
@@ -31,10 +32,10 @@
 using namespace std;
 using namespace boost;
 
-void solver(G::Graph* g, Solution* sol, int tlim, Solution* mothersolution, int studentNum);
+void solver(G::Graph* g, Solution* sol, TimeController* tlim, Solution* mothersolution, int studentNum);
 
 int main(int argc, const char * argv[]) {
-	int tmax, n, i, j, tlim, studentNum;
+	int tmax, n, i, j, studentNum;
 
 	if (argc!=4) {
 		// In totale si riceveranno 3 parametri
@@ -45,7 +46,8 @@ int main(int argc, const char * argv[]) {
 
 	//// Tempo limite
 	// argv[2] è semplicemente -t
-	tlim = atoi(argv[3]);
+	// tlim = atoi(argv[3]);
+	TimeController tlim(atoi(argv[3]));
 
 	//// Nome del file in uscita
 	string filename(argv[1]);
@@ -88,8 +90,8 @@ int main(int argc, const char * argv[]) {
 		graphs[i] = new G::Graph;
 		copy_graph(c, *graphs[i]);
 
-		// void solver(G::Graph* g, Solution* sol, int tlim, Solution* mothersolution, int studentNum)
-		treds[i] = new thread(solver, graphs[i], subsol[i], tlim, mothersolution, studentNum);
+		// void solver(G::Graph* g, Solution* sol, TimeController* tlim, Solution* mothersolution, int studentNum)
+		treds[i] = new thread(solver, graphs[i], subsol[i], &tlim, mothersolution, studentNum);
 	}
 
 	//// Attesa della chiusura dei thread
@@ -112,18 +114,18 @@ int main(int argc, const char * argv[]) {
 	double duration = (double)(clock()) / CLOCKS_PER_SEC;
 	string output(argv[1]);
 	output = "\n" + output + "\nTempo impiegato per risolvere il problema: " + to_string(duration) + "\n";
-	cout << output << "tlim = " << tlim << "\npenalita' = " << (double)(mothersolution->penalty) / studentNum;
+	cout << output << "tlim = " << atoi(argv[3]) << "\npenalita' = " << (double)(mothersolution->penalty) / studentNum;
 
 	return mothersolution->penalty; // La penalità non divisa dal numero di studenti
 }
 
-void solver(G::Graph* g, Solution* sol, int tlim, Solution* mothersolution, int studentNum) {
+void solver(G::Graph* g, Solution* sol, TimeController* tlim, Solution* mothersolution, int studentNum) {
 	mothersolution->checkSetPrintSolution(g, sol);
 
 	int tabu_length = 10, tollerance = 5;
 	Tabu tab(tabu_length, *g, *sol, studentNum);
 
-	tab.tabuIteratedLocalSearch(*g, *sol, tollerance, 0, tlim, double(clock()) * 2.0 / CLOCKS_PER_SEC, *mothersolution);
+	tab.tabuIteratedLocalSearch(*g, *sol, tollerance, *tlim, *mothersolution);
 }
 
 
