@@ -405,6 +405,7 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
     int bestMove=1; //miglior penalità ottenuta,
     long bestMovePenalty;
     G::Vertex bestVertex;
+    bool better = false;
     int nonImprovingIterations = 0; //conta il numero di iterazioni senza miglioramenti
     double newMargin = 7*margin;
     Solution neighborhoodBestSolution(s.n,s.tmax);
@@ -451,6 +452,17 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
              setSolution(g, neighborhoodBestSolution);
              neighborhoodBestPenalty = neighborhoodBestSolution.calculatePenalty(g);
              matriscopy(bestMatrix, this->moveMatrix, this->exams, (this->tmax+1));
+             
+             if(neighborhoodBestPenalty < bestGlobalPenalty)
+             {
+                 colorGraph(g, neighborhoodBestSolution);
+                 setSolution(g, s); //DO NOT DELETE
+                 matriscopy(this->moveMatrix, bestMatrix, this->exams, (this->tmax+1));
+                 s.printSolution(filename);
+                 cout << "Penalità: "  << s.calculatePenaltyFull(g, this->studentNum)<< endl;
+                 better = true;
+                
+             }
          }
          else{
              accumulatedPenalty += bestMovePenalty;
@@ -466,20 +478,7 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
     
     this->teta = initialTeta;
     
-    //Conviene creare un'altra soluzione per il neighborhood, e poi
-    //Alla fine utilizzare setSolution solo se la soluzione migliore del
-    //corrente vicinato è migliore di quella trovata fino ad adesso
-    if(neighborhoodBestPenalty < bestGlobalPenalty)
-    {
-        colorGraph(g, neighborhoodBestSolution);
-        setSolution(g, s); //DO NOT DELETE
-        matriscopy(this->moveMatrix, bestMatrix, this->exams, (this->tmax+1));
-        s.printSolution(filename);
-        //cout << "Penalità: "  << s.calculatePenaltyFull(g, this->studentNum)<< endl;
-        return true;
-    }
-    
-    return false;
+    return better;
     
 }
 
