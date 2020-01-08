@@ -459,7 +459,7 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
                  setSolution(g, s); //DO NOT DELETE
                  matriscopy(this->moveMatrix, bestMatrix, this->exams, (this->tmax+1));
                  s.printSolution(filename);
-                 cout << "Penalità: "  << s.calculatePenaltyFull(g, this->studentNum)<< endl;
+                 //cout << "Penalità: "  << s.calculatePenaltyFull(g, this->studentNum)<< endl;
                  better = true;
                 
              }
