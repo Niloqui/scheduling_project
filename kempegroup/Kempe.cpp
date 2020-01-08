@@ -1,9 +1,9 @@
 #include <iostream>
 #include "Kempe.hpp"
-#include "Solution.hpp"
-#include "graphw.hpp"
+#include "../Solution.hpp"
+#include "../graphw.hpp"
 #include <boost/graph/adjacency_list.hpp>
-#include "Utility.hpp"
+#include "../Utility.hpp"
 #define PREDECESSOR -1
 
 using namespace boost;
@@ -41,8 +41,14 @@ void setSolution(G::Graph& g, Solution& s){
     
 }
 
-void simpleKempe(G::Graph& g ,G::Vertex v, int color){
+
+
+static void simpleKempe(G::Graph& g ,G::Vertex v, int color,unordered_set<long int>& visitedNodes){
     int myColor = get(vertex_color_t(),g,v);
+    long int iteratedId;
+    
+    //Segnare come vertice visitato
+    visitedNodes.insert(get(vertex_index_t(),g,v));
     
     //Bisogna iterare sui vertici adiacenti
     //Ritorna l'iterator range
@@ -54,13 +60,22 @@ void simpleKempe(G::Graph& g ,G::Vertex v, int color){
     put(vertex_color_t(),g,v,PREDECESSOR);
     G::Graph::adjacency_iterator vit, vend;
     for (boost::tie(vit, vend) = adjacent_vertices(v, g); vit != vend; ++vit) {
+        iteratedId = get(vertex_index_t(),g,*vit);
+        
         //Cerco il colore relativo allo swap desiderato
-        if (get(vertex_color_t(),g,*vit) == color){
-            simpleKempe(g,*vit,myColor);
+        if (get(vertex_color_t(),g,*vit) == color &&
+            visitedNodes.count(iteratedId) == 0){
+            simpleKempe(g,*vit,myColor,visitedNodes);
         }
     }
     
     put(vertex_color_t(),g,v,color);
+    return;
+}
+
+void simpleKempeWrapper(G::Graph& g ,G::Vertex v, int color){
+    unordered_set<long int> visitedNodes;
+    simpleKempe(g, v, color,visitedNodes);
     return;
 }
 
@@ -163,3 +178,22 @@ int kempeMovePenaltyWrapper(G::Graph& g, G::Vertex v, int color){
 }
 
 
+int nodeCurrentPenalty(G::Graph& g, G::Vertex v){
+    int originalDistance = 0;
+    int originalColor = get(vertex_color_t(),g,v);
+    int originalCost=0;
+    int iteratedColor;
+    
+    //Iterazione sui nodi adiacenti
+    G::Graph::adjacency_iterator vit,vend;
+    for(boost::tie(vit,vend) = adjacent_vertices(v,g); vit!=vend; ++vit){
+        
+        iteratedColor = get(vertex_color_t(),g,*vit);
+        originalDistance = colorDistance(g, originalColor, *vit);
+        originalCost += penaltyFunction(originalDistance, v, *vit, g);
+        
+    }
+    
+    //Se Negativo vuol dire che la mossa mi migliora la soluzione
+    return originalCost;
+}

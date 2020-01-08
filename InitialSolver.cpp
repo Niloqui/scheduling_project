@@ -6,6 +6,27 @@
 #include "Utility.hpp"
 #include <boost/graph/adjacency_list.hpp>
 
+void InitialSolver::greedy(G::Graph g, Solution* sol) {
+	int i, j, newpen, minpen, jmin;
+
+	sol->sol[0] = 1;
+	for (i = 1; i < sol->n; i++) {
+		minpen = INT32_MAX;
+		jmin = -1;
+
+		for (j = 1; j <= sol->tmax; j++) {
+			sol->sol[i] = j;
+			newpen = Solution::calculatePenalty(g, sol->sol, sol->indexexams, i + 1, sol->tmax);
+			if ((newpen >= 0) && (newpen < minpen)) {
+				minpen = newpen;
+				jmin = j;
+			}
+		}
+
+		sol->sol[i] = jmin;
+	}
+}
+
 void InitialSolver::greedy(G::Graph g, int* res, int* indexvector, int nsub, int tmax) {
 	int i, j, newpen, minpen, jmin;
 
@@ -14,7 +35,7 @@ void InitialSolver::greedy(G::Graph g, int* res, int* indexvector, int nsub, int
 		jmin = -1;
 
 		for (j = 1; j <= tmax; j++) {
-			res[indexvector[i]] = j;
+			res[i] = j;
 			newpen = Solution::calculatePenalty(g, res, indexvector, i + 1, tmax);
 			if ((newpen >= 0) && (newpen < minpen)) {
 				minpen = newpen;
@@ -22,7 +43,7 @@ void InitialSolver::greedy(G::Graph g, int* res, int* indexvector, int nsub, int
 			}
 		}
 
-		res[indexvector[i]] = jmin;
+		res[i] = jmin;
 	}
 }
 
@@ -111,7 +132,7 @@ std::pair<int, bool> InitialSolver::firstPossiblePosition(G::Graph g, int* res, 
 
 std::pair<int, bool> InitialSolver::squeakyWheel(G::Graph g, int* res, int* indexvector, int n, int tmax) {
 	int* blame = new int[n];
-	int i, alpha = 1, beta = tmax/2;
+	int i, alpha = 1, beta = tmax / 2;
 	std::pair<int, bool> temp;
 	temp.second = false;
 
@@ -123,7 +144,7 @@ std::pair<int, bool> InitialSolver::squeakyWheel(G::Graph g, int* res, int* inde
 
 		if (!temp.second) {
 			for (i = 0; i < n; i++) {
-				if (res[i] > tmax * alpha)
+				if (res[i] > tmax* alpha)
 					blame[i] += beta + res[i];
 				else
 					blame[i] += res[i]; // blame[i] += i;
@@ -135,6 +156,45 @@ std::pair<int, bool> InitialSolver::squeakyWheel(G::Graph g, int* res, int* inde
 		}
 	}
 
+	delete[] blame;
+	return temp;
+}
+
+std::pair<int, bool> InitialSolver::squeakyWheel(G::Graph g, Solution* sol) {
+	int* blame = new int[sol->n];
+	int* indexvector = NULL;
+	int i, alpha = 1, beta = sol->tmax / 2;
+	std::pair<int, bool> temp;
+	temp.second = false;
+
+	for (i = 0; i < sol->n; i++)
+		blame[i] = 0;
+
+	if (sol->indexexams == NULL)
+		indexvector = new int[sol->n];
+	else
+		indexvector = sol->indexexams;
+
+	while (!temp.second) {
+		temp = InitialSolver::firstPossiblePosition(g, sol->sol, indexvector, sol->n, sol->tmax);
+
+		if (!temp.second) {
+			for (i = 0; i < sol->n; i++) {
+				if (sol->sol[i] > sol->tmax* alpha)
+					blame[i] += beta + sol->sol[i];
+				else
+					blame[i] += sol->sol[i]; // blame[i] += i;
+			}
+
+			mergeSort(indexvector, blame, sol->n);
+			reverseVector(indexvector, sol->n);
+			reverseVector(blame, sol->n);
+		}
+	}
+
+	if (indexvector != sol->indexexams)
+		delete[] indexvector;
+	delete[] blame;
 	return temp;
 }
 

@@ -1,8 +1,11 @@
 #include "Utility.hpp"
 #include "graphw.hpp"
-#include <boost/graph/connected_components.hpp>
-#include <boost/graph/graphviz.hpp>
 
+
+// #include <boost/graph/connected_components.hpp>
+// #include <boost/graph/graphviz.hpp>
+
+/*
 void printGraphDot(G::Graph g){
     property_map<G::Graph, vertex_index_t>::type idmap = get(vertex_index_t(), g);
     property_map<G::Graph, edge_weight_t>::type weightmap = get(edge_weight_t(), g);
@@ -12,7 +15,7 @@ void printGraphDot(G::Graph g){
     boost::write_graphviz(std::cout, g,
     boost::make_label_writer(colormap),
     boost::make_label_writer(weightmap)
-    );*/
+    );* /
     
     boost::dynamic_properties dp;
     dp.property("node_id", idmap);
@@ -21,7 +24,7 @@ void printGraphDot(G::Graph g){
     write_graphviz_dp(std::cout, g, dp);
     
 }
-
+*/
 
 int integerPower(int arg, int exp) {
 	if (exp < 0)
@@ -32,6 +35,21 @@ int integerPower(int arg, int exp) {
 		res *= arg;
 
 	return res;
+}
+
+int64_t integerPower64(int arg, int exp) {
+	if (exp < 0)
+		return 0;
+
+	int64_t res = 1;
+	for (int i = 0; i < exp; i++)
+		res *= arg;
+
+	return res;
+}
+
+int absoluteDifference(int a, int b) {
+	return a >= b ? a - b : b - a;
 }
 
 void mergeSortFin(int* A, int* B, int n, int a, int b) {

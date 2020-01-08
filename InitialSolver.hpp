@@ -12,6 +12,7 @@ private:
 
 public:
 	static void greedy(G::Graph g, int* res, int* indexvector, int nsub, int tmax);
+	static void greedy(G::Graph g, Solution *sol);
 	// Non sermpre restituisce una soluzione feasible
 
 	static int *recursiveFirstSolution(G::Graph g, int* indexvector, int nsub, int tmax);
@@ -26,11 +27,11 @@ public:
 	// false => la soluzione è infeasible
 
 	static std::pair<int, bool> squeakyWheel(G::Graph g, int* res, int* indexvector, int n, int tmax);
+	static std::pair<int, bool> squeakyWheel(G::Graph g, Solution* sol);
+	// La prima funzione modifica i vettori passati come res e indexvector
+	// La seconda funzione modifica il vettore sol e il vettore indexexams della classe Solution
+	// Se indexexams == NULL, allora viene creato il vettore indexexams
 	
-
-
-
-
 
 };
 

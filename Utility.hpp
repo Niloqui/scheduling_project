@@ -3,9 +3,11 @@
 
 #include "graphw.hpp"
 #include <boost/graph/connected_components.hpp>
-
+#include <cstdint>
 
 int integerPower(int arg, int exp);
+int64_t integerPower64(int arg, int exp);
+int absoluteDifference(int a, int b);
 
 void mergeSortFin(int* A, int* B, int n, int a, int b);
 void mergeSortRec(int* A, int* B, int n, int i, int j);
