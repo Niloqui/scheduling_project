@@ -12,27 +12,24 @@ using namespace std;
 
 Solution::Solution() {}
 
-Solution::Solution(G::Graph* g, int n, int tmax) {
+Solution::Solution(int n, int tmax) {
 	this->n = n;
 	this->tmax = tmax;
 	sol = new int[n];
-	this->g = g;
 
 	for (int i = 0; i < n; i++)
 		sol[i] = -1;
 }
 
-Solution::Solution(G::Graph* g, int n, int tmax, int* newsol) {
+Solution::Solution(int n, int tmax, int* newsol) {
 	this->n = n;
 	this->tmax = tmax;
 	sol = new int[n];
-	this->g = g;
 
 	setSolution(newsol);
 }
 
 Solution::Solution(Solution* sol) {
-	this->g = sol->g;
 	this->n = sol->n;
 	this->tmax = sol->tmax;
 	this->penalty = sol->penalty;
@@ -57,7 +54,35 @@ void Solution::setSolution(int* newsol, int* indexexams, int nsub) {
 		this->sol[indexexams[i]] = newsol[i];
 }
 
-int Solution::calculatePenalty() { // Usare adjacency_list per trovare i nodi adiacenti
+int Solution::calculatePenalty(G::Graph g) {
+	int i, j, dist;
+	pair<G::Edge, bool> e;
+
+	penalty = 0;
+	for (i = 0; i < this->n && penalty >= 0; i++) {
+		if (this->sol[i] < 1 || this->sol[i] > tmax)
+			penalty = -1;
+
+		for (j = i + 1; j < this->n && penalty >= 0; j++) {
+			if (this->sol[j] < 1 || this->sol[j] > tmax)
+				penalty = -1;
+
+			e = edge(i, j, g);
+			if (e.second && penalty >= 0) {
+				dist = distance(i, j);
+				if (dist == 0)
+					penalty = -1;
+				else if (dist <= 5)
+					penalty += (1 << (5 - dist)) * get(edge_weight_t(), g, e.first);
+				// else if (dist > 5) {}
+			}
+		}
+	}
+
+	return penalty;
+}
+
+int Solution::calculatePenalty(G::Graph* g) { // Usare adjacency_list per trovare i nodi adiacenti
 	int i, j, dist;
 	pair<G::Edge, bool> e;
 	
@@ -70,7 +95,7 @@ int Solution::calculatePenalty() { // Usare adjacency_list per trovare i nodi ad
 			if (this->sol[j] < 1 || this->sol[j] > tmax)
 				penalty = -1;
 
-			e = edge(i, j, *this->g);
+			e = edge(i, j, *g);
 			if (e.second && penalty >= 0) {
 				dist = distance(i, j);
 				if (dist == 0)
@@ -85,7 +110,7 @@ int Solution::calculatePenalty() { // Usare adjacency_list per trovare i nodi ad
 	return penalty;
 }
 
-int Solution::calculatePenalty(bool* mask) {
+int Solution::calculatePenalty(G::Graph* g, bool* mask) {
 	int i, j, dist;
 	pair<G::Edge, bool> e;
 
@@ -100,13 +125,13 @@ int Solution::calculatePenalty(bool* mask) {
 					if (this->sol[j] < 1 || this->sol[j] > tmax)
 						penalty = -1;
 
-					e = edge(i, j, *this->g);
+					e = edge(i, j, *g);
 					if (e.second && penalty >= 0){
 						dist = distance(i, j);
 						if (dist == 0)
 							penalty = -1;
 						else if (dist <= 5)
-							penalty += (1 << (5 - dist)) * get(edge_weight_t(), *this->g, e.first);
+							penalty += (1 << (5 - dist)) * get(edge_weight_t(), *g, e.first);
 						// else if (dist > 5) {}
 					}
 				}
@@ -147,8 +172,8 @@ int Solution::calculatePenalty(int* indexvector, int nsub) {
 }
 */
 
-double Solution::calculatePenaltyFull(int studentNum) {
-	return this->calculatePenalty() / double(studentNum);
+double Solution::calculatePenaltyFull(G::Graph* g, int studentNum) {
+	return this->calculatePenalty(g) / double(studentNum);
 }
 
 int Solution::distance(int* sol, int i, int j) {
@@ -195,11 +220,11 @@ string Solution::printSolution(std::string filename) {
 	return output;
 }
 
-void Solution::setSolutionAndPrint(Solution* sol) {
+void Solution::checkSetPrintSolution(G::Graph* g, Solution* sol) {
 	mtx.lock();
 	if (this->penalty < 0 || sol->penalty < this->penalty) {
 		this->setSolution(sol);
-		this->calculatePenalty();
+		this->calculatePenalty(g);
 		this->printSolution();
 		// std::cout << "Penalita' = " << this->penalty / (float)this->num_studenti << "\n";
 	}

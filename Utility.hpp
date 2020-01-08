@@ -19,7 +19,7 @@ void mergeSort(int* A1, int* A2, int n);
 
 void reverseVector(int* vect, int n);
 
-void printGraphDot(G::Graph g);
+// void printGraphDot(G::Graph g);
 
 
 

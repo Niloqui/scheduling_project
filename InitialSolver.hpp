@@ -2,9 +2,9 @@
 #define InitialSolver_hpp
 
 #include <iostream>
+// #include <boost/graph/adjacency_list.hpp>
 #include "graphw.hpp"
 #include "Solution.hpp"
-#include <boost/graph/adjacency_list.hpp>
 
 class InitialSolver{
 public:
@@ -15,11 +15,8 @@ public:
 	// true => la soluzione è feasible
 	// false => la soluzione è infeasible
 
-	// static std::pair<int, bool> squeakyWheel(G::Graph g, int* res, int* indexvector, int n, int tmax);
-	static std::pair<int, bool> squeakyWheel(Solution* sol);
-	// La prima funzione modifica i vettori passati come res e indexvector
-	// La seconda funzione modifica il vettore sol della classe Solution
-	
+	static int squeakyWheel(G::Graph* g, Solution* sol);
+	// La funzione restituisce il numero di timeslot utilizzati
 
 };
 

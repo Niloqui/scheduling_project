@@ -17,11 +17,10 @@ public:
 	int n = -1, tmax = -1, penalty = -1;
 	// n = lunghezza del vettore
 	std::string filename; // File dove stampare il risultato. Utile solo per mothersolution
-	G::Graph *g = NULL;
 
 	Solution(); // Costruttore vuoto
-	Solution(G::Graph* g, int n, int tmax); // Costruttore
-	Solution(G::Graph* g, int n, int tmax, int* newsol); // Costruttore con soluzione iniziale
+	Solution(int n, int tmax); // Costruttore
+	Solution(int n, int tmax, int* newsol); // Costruttore con soluzione iniziale
 	Solution(Solution *sol); // Costruttore che copia da un'altra soluzione
 
 	void setSolution(int* newsol);
@@ -29,13 +28,14 @@ public:
 	void setSolution(Solution* newsol);
 	// Si assume che newsol abbia la stessa lunghezza di this->sol
 
-	int calculatePenalty();
-	int calculatePenalty(bool* mask);
+	int calculatePenalty(G::Graph g);
+	int calculatePenalty(G::Graph* g);
+	int calculatePenalty(G::Graph* g, bool* mask);
 	//int calculatePenalty(int* indexvector, int nsub);
 	// Tutte le funzioni calculatePenalty restituiscono -1 se la soluzione è infeasible
 	// La penalità non viene divisa per il numero di studenti
 
-	double calculatePenaltyFull(int studentNum);
+	double calculatePenaltyFull(G::Graph* g, int studentNum);
 	// Calcola la penalità dividendo per il numero di studenti
 
 	std::string printSolution();
@@ -49,7 +49,7 @@ public:
 	int distance(int i, int j);
 	static int distance(int *sol, int i, int j);
 
-	void setSolutionAndPrint(Solution* sol);
+	void checkSetPrintSolution(G::Graph* g, Solution* sol);
 	// Questa funzione serve per scrivere in mothersolution
 	// Inoltre esegue il controllo per capire se sol è migliore di this
 };

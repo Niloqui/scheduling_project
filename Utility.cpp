@@ -144,7 +144,6 @@ void mergeSort(int* A1, int* A2, int n) {
 	mergeSortRec(A1, A2, B1, B2, n, 0, n - 1);
 }
 
-
 void reverseVector(int* vect, int n) {
 	int* temp = new int[n];
 	int i;
@@ -157,9 +156,4 @@ void reverseVector(int* vect, int n) {
 
 	delete [] temp;
 }
-
-
-
-
-
 

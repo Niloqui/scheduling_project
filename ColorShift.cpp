@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include "Utility.hpp"
 
-void ColorShift::penaltyByColor(Solution* sol, int* penalty) {
+void ColorShift::penaltyByColor(G::Graph* g, Solution* sol, int* penalty) {
 	// penalty si assume inizializzato a 0
 	// Si assume che la soluzione sia feasible
 	int i, j, dist, pen;
@@ -13,9 +13,9 @@ void ColorShift::penaltyByColor(Solution* sol, int* penalty) {
 
 	for (i = 0; i < sol->n; i++) {
 		for (j = i + 1; j < sol->n; j++) {
-			e = edge(i, j, *sol->g);
+			e = edge(i, j, *g);
 			if (e.second) {
-				pen = boost::get(edge_weight_t(), *sol->g, e.first);
+				pen = get(edge_weight_t(), *g, e.first);
 				if (pen > 0) {
 					dist = sol->distance(i, j);
 					if (dist <= 5) {
@@ -29,7 +29,7 @@ void ColorShift::penaltyByColor(Solution* sol, int* penalty) {
 	}
 }
 
-void ColorShift::penaltyByColor(Solution* sol, int* penalty_by_color, int* penalty_by_exam) {
+void ColorShift::penaltyByColor(G::Graph* g, Solution* sol, int* penalty_by_color, int* penalty_by_exam) {
 	// penalty e penalty_by_exam si assumono inizializzati a 0
 	// Si assume che la soluzione sia feasible
 	int i, j, dist, pen;
@@ -37,9 +37,9 @@ void ColorShift::penaltyByColor(Solution* sol, int* penalty_by_color, int* penal
 
 	for (i = 0; i < sol->n; i++) {
 		for (j = i + 1; j < sol->n; j++) {
-			e = edge(i, j, *sol->g);
+			e = edge(i, j, *g);
 			if (e.second) {
-				pen = boost::get(edge_weight_t(), *sol->g, e.first);
+				pen = get(edge_weight_t(), *g, e.first);
 				if (pen > 0) {
 					dist = sol->distance(i, j);
 					if (dist <= 5) {
@@ -56,7 +56,7 @@ void ColorShift::penaltyByColor(Solution* sol, int* penalty_by_color, int* penal
 
 }
 
-std::pair<int*, int> ColorShift::selectColors(Solution* sol, int ncols, int selection_mode, int* initial_node) {
+std::pair<int*, int> ColorShift::selectColors(G::Graph* g, Solution* sol, int ncols, int selection_mode, int* initial_node) {
 	std::pair<int*, int> coso;
 	if (ncols == -1)
 		// coso.second = (int)( ((float)rand() / RAND_MAX) * ((sol->tmax * 5.0) / 7.0) ) + 2;
@@ -91,7 +91,7 @@ std::pair<int*, int> ColorShift::selectColors(Solution* sol, int ncols, int sele
 			colweight[i] = 0;
 		}
 
-		penaltyByColor(sol, colweight);
+		penaltyByColor(g, sol, colweight);
 		mergeSort(cols, colweight, sol->tmax);
 
 		for (i = 0; i < coso.second; i++)
@@ -113,7 +113,7 @@ std::pair<int*, int> ColorShift::selectColors(Solution* sol, int ncols, int sele
 			nodes[i] = i;
 			nodeweight[i] = 0;
 		}
-		penaltyByColor(sol, colweight, nodeweight);
+		penaltyByColor(g, sol, colweight, nodeweight);
 		mergeSort(cols, colweight, sol->tmax);
 		mergeSort(nodes, nodeweight, sol->tmax);
 
@@ -144,7 +144,7 @@ std::pair<int*, int> ColorShift::selectColors(Solution* sol, int ncols, int sele
 	return coso;
 }
 
-void ColorShift::colorShiftRec(Solution* sol, std::pair<int*, int> cols, int* counters, int** exams_to_change, int node) {
+void ColorShift::colorShiftRec(G::Graph* g, Solution* sol, std::pair<int*, int> cols, int* counters, int** exams_to_change, int node) {
 	// Il colore di node = sol->sol[node];
 	int i, j, k, colore = -1;
 	bool nodo_da_vedere;
@@ -161,7 +161,7 @@ void ColorShift::colorShiftRec(Solution* sol, std::pair<int*, int> cols, int* co
 
 	// Ricorsione sui nodi adiacenti
 	for (i = 0; i < sol->n; i++) {
-		if ( edge(node, i, *sol->g).second ) {
+		if ( edge(node, i, *g).second ) {
 			for (j = 0; j < cols.second; j++) {
 				if (cols.first[j] == sol->sol[i]) {
 					nodo_da_vedere = true;
@@ -174,7 +174,7 @@ void ColorShift::colorShiftRec(Solution* sol, std::pair<int*, int> cols, int* co
 					}
 
 					if (nodo_da_vedere) {
-						colorShiftRec(sol, cols, counters, exams_to_change, i);
+						colorShiftRec(g, sol, cols, counters, exams_to_change, i);
 					}
 
 					break;
@@ -184,14 +184,14 @@ void ColorShift::colorShiftRec(Solution* sol, std::pair<int*, int> cols, int* co
 	}
 }
 
-void ColorShift::colorShift(Solution* sol, std::pair<int*, int> cols, int color_selection_mode) {
+void ColorShift::colorShift(G::Graph* g, Solution* sol, std::pair<int*, int> cols, int color_selection_mode) {
 	srand(time(NULL) + clock());
 
 	int initial_node = -1;
 	bool newcolfirst;
 	if (cols.first == NULL) {
 		newcolfirst = true;
-		cols = selectColors(sol, cols.second, color_selection_mode, &initial_node);
+		cols = selectColors(g, sol, cols.second, color_selection_mode, &initial_node);
 	}
 	else {
 		newcolfirst = false;
@@ -214,14 +214,14 @@ void ColorShift::colorShift(Solution* sol, std::pair<int*, int> cols, int color_
 			for (j = 0; j < cols.second && !finito; j++) {
 				if (cols.first[j] == sol->sol[(i + shift) % sol->n]) {
 					// La ricorsione parte qui
-					colorShiftRec(sol, cols, counters, exams_to_change, (i + shift) % sol->n);
+					colorShiftRec(g, sol, cols, counters, exams_to_change, (i + shift) % sol->n);
 					finito = true;
 				}
 			}
 		}
 	}
 	else {
-		colorShiftRec(sol, cols, counters, exams_to_change, initial_node);
+		colorShiftRec(g, sol, cols, counters, exams_to_change, initial_node);
 	}
 
 	// Cambiamento colori
