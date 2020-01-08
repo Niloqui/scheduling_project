@@ -1,18 +1,22 @@
 #include <iostream>
-#include "rd.hpp"
-#include "graphw.hpp"
-#include "Solution.hpp"
-#include "Utility.hpp"
-// #include "tabugroup/Tabu.hpp"
-#include "InitialSolver.hpp"
-// #include "OptimalSolver.hpp"
-// #include "NiloSearch.hpp"
 #include <thread>
-// #include <boost/graph/adjacency_list.hpp>
-// #include <boost/graph/connected_components.hpp>
 #include <ctime>
 
+#include "Utility.hpp"
+#include "graphw.hpp"
+#include "rd.hpp"
+#include "Solution.hpp"
+
 #include "ColorShift.hpp"
+#include "InitialSolver.hpp"
+
+
+// #include "tabugroup/Tabu.hpp"
+// #include <boost/graph/adjacency_list.hpp>
+// #include <boost/graph/connected_components.hpp>
+// #include "OptimalSolver.hpp"
+// #include "NiloSearch.hpp"
+
 
 //Kempe search
 // #include "kempegroup/Kempe.hpp"
@@ -73,8 +77,8 @@ int main(int argc, const char * argv[]) {
 			std::pair<int*, int> cols;
 			cols.first = NULL;
 			for (j = 0; j < NUM_INITIAL_PERTURBATION; j++) {
-				cols.second = 2 + rand() % 4; // minimo 2, massimo 5
-				ColorShift::colorShift(temp, cols);
+				cols.second = 3 + rand() % 4; // minimo 3, massimo 6
+				ColorShift::colorShift(temp, cols, j % 3);
 			}
 		}
 		
@@ -90,8 +94,11 @@ int main(int argc, const char * argv[]) {
 	}
 
 
+
+
 	//// Deallocazione memoria
 	// TO-DO (forse): aggiungere deallocazione memoria
+
 
 
 
@@ -100,9 +107,9 @@ int main(int argc, const char * argv[]) {
 	double duration = (double)(clock()) / CLOCKS_PER_SEC;
 	string output(argv[1]);
 	output = "\n" + output + "\nTempo impiegato per risolvere il problema: " + to_string(duration) + "\n";
-	cout << output << "tlim = " << tlim << "\npenalita' = " << (double)(mothersolution->penalty) / r.getStudents();
+	cout << output << "tlim = " << tlim << "\npenalita' = " << (double)(mothersolution->penalty) / studentNum;
 
-	return mothersolution->penalty;
+	return mothersolution->penalty; // La penalità non divisa dal numero di studenti
 }
 
 void solver(G::Graph* g, Solution* sol, int tlim, Solution* mothersolution) {
