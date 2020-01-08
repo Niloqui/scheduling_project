@@ -15,6 +15,8 @@ void steepestDescent(G::Graph& g, Solution& s, int iterations);
 //Eta è il numero di perturbazioni che subiscono in totale
 void perturbate(G::Graph& g, int q,int eta, int tmax);
 
+bool compare(const std::pair<long int, int>&i, const std::pair<long int, int>&j);
+
 //tollerance specifica il numero di iterazioni durante le quali si tollera
 //il non miglioramento della soluzione
 //se non c'è un miglioramento dopo un numero tollerance di steepestDescent allora
@@ -26,6 +28,16 @@ void swapColors(G::Graph& g,int color1, int color2);
 
 //Calcola quanto potrebbe cambiare la penalità uno swap fra colore1 e colore2
 int swapColorsPenalty(G::Graph& g,Solution& s ,int color1, int color2);
+
+/*Improvement basato sullo swap di colori e non di catene**/
+//Potrebbe essere utile per una prima esplorazione dello spazio
+//Ritorna true se c'è stato un miglioramento
+bool firstColorImprovement(G::Graph& g,Solution& s);
+
+//Effettua un ciclo di first improvement finchè non ci sono
+//Più miglioramenti
+void firstColorImprovementLoop(G::Graph& g,Solution &s,int iterations);
+int choiceprob(int q, int phi);
 
 
 #endif /* LocalSearch_hpp */

@@ -31,7 +31,6 @@ void setSolution(G::Graph& g, Solution& s){
     long int id;
     int color;
         
-    
     G::Graph::vertex_iterator v, vend;
     for (boost::tie(v, vend) = vertices(g); v != vend; ++v) {
         id = get(vertex_index_t(),g,*v);

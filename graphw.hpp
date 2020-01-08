@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/copy.hpp>
 
 using namespace boost;
 

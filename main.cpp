@@ -14,6 +14,9 @@
 //Kempe search
 #include "kempegroup/Kempe.hpp"
 
+//Tabu search
+#include "tabugroup/Tabu.hpp"
+
 //Local search
 #include "LocalSearchGroup/LocalSearch.hpp"
 
@@ -25,8 +28,14 @@ int getSubProblem(G::Graph *g, Solution **subsol, int n, int tmax);
 // Viene allocato il vettore sub
 void solver(G::Graph *g, Solution* sol, int tlim);
 
+clock_t start;
+
 int main(int argc, const char * argv[]) {
-	int tmax, n, i, tlim, studentNum;
+    clock_t begin;
+    double duration;
+	int tmax, n , tlim, studentNum;
+    
+    begin = clock();
 
 	if(argc!=4){
 		// In totale si riceveranno 3 parametri
@@ -67,7 +76,8 @@ int main(int argc, const char * argv[]) {
 	*/
 
 	//// Inizio soluzione
-	Solution mothersolution(n, tmax); // Soluzione dell'intera istanza
+	//Solution mothersolution(n, tmax);
+    // Soluzione dell'intera istanza
 	// srand(time(NULL) + (unsigned)&c + tlim);
 	// Se serve generare dei valori casuali, è utile usare srand solo una volta e all'inizio
 	// mothersolution.indexexams = new int[n];
@@ -84,9 +94,13 @@ int main(int argc, const char * argv[]) {
 	*/
 
 
-	// return 0;
+	vector<int> component(num_vertices(c));
+	cout << "Numero di vertici: " + to_string(num_vertices(c)) + "\n\n";
 
-
+	//////////////////// Inizio soluzione
+	n = r.getExamN();
+	tmax = r.getTmax();
+	Solution master(n, tmax); // Soluzione dell'intera istanza
 
 	//// Creazione sottoproblemi
     /*
@@ -96,6 +110,7 @@ int main(int argc, const char * argv[]) {
 	for (i = 0; i < num_components; i++)
 		tred[i] = new thread(solver, &c, &subsol[i], tlim); // implementare tlim
 	
+<<<<<<< HEAD
 	//// Attesa della chiusura dei thread
 	for (i = 0; i < num_components; i++)
 		tred[i]->join();
@@ -107,33 +122,51 @@ int main(int argc, const char * argv[]) {
 
 
 	
-    /*----------Soluzione tabu search-------------* /
+	start = clock();
+
+	Solution sol(n, tmax);
+	int* res = new int[n];
+	int* indexvector = new int[n];
+	int* pesi = new int[n];
+	for (int i = 0; i < n; i++) {
+		indexvector[i] = i;
+		pesi[i] = 0;
+
+		for (int j = 0; j < n; j++)
+			if (edge(i, j, c).second)
+				pesi[i]++;
+	}
+	mergeSort(indexvector, pesi, n);
+	reverseVector(indexvector, n);
+
+	pair<int, bool> coso = InitialSolver::squeakyWheel(c, res, indexvector, n, tmax);
+    
+    
+	sol.setSolution(res, indexvector, n);
+	cout << "Penalita': " << to_string(sol.calculatePenaltyFull(c,studentNum)) << "\n\n";
+
+	string output = "Numero di time slot utilizzati = " + to_string(coso.first) + "\n";
+	output += "tmax = " + to_string(r.getTmax()) + "\t\tn = " + to_string(r.getExamN()) + "\n";
+	cout << output;
+
+	duration = (double)clock() - (double)start;
+	cout << "\n\nTempo impiegato per leggere lo squeakyWheel: " + to_string(duration / CLOCKS_PER_SEC) + " s\n\n";
+    duration = duration/CLOCKS_PER_SEC;
      
-     /*
-    //int iterations = 201;
-    //Tabu tabu(iterations,r.getTmax());
-    //tabu.steepestDescent(c, sol);
-    //sol.printSolution(filename);
-
-    int tollerance=20;
-    iteratedLocalSearch(c, mothersolution,tollerance,start,tlim);
-    mothersolution.printSolution(filename);
+    /*----------Soluzione tabu-------------**/
+        
+    Tabu tab(10,c,sol,studentNum);
+    int tollerance = 5;
+    tab.tabuIteratedLocalSearch(c, sol, tollerance, begin, tlim,duration*2,filename);
+    sol.printSolution(filename);
 
 
-    double penalita = mothersolution.calculatePenaltyFull(c,studentNum);
-    cout << "\n\nPenalita': " <<
-    to_string(penalita) << "\n\n";
-	*/
-	
-
-
-	//// Deallocazione memoria
-	// TO-DO (forse): aggiungere deallocazione memoria
-
-
-	double duration = (double)(clock()) / CLOCKS_PER_SEC;
-	string output = "\nTempo impiegato per risolvere il problema: " + to_string(duration) + "\n";
-	cout << output << "tlim = " << tlim;
+    double penalita = sol.calculatePenaltyFull(c,studentNum);
+    cout << "\n\nPenalita': " << to_string(penalita) << "\n\n";
+    
+    duration = (double)(clock()) / CLOCKS_PER_SEC;
+    output = "\nTempo impiegato per risolvere il problema: " + to_string(duration) + "\n";
+	cout << output << "tlim = " << tlim << endl;
 
 	return 0;
 }
