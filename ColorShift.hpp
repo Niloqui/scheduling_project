@@ -24,6 +24,10 @@ public:
 	// color_selection_mode == 2: colori misti (metà pesanti e metà leggeri)
 		// Viene messo forzatamente il nodo più pesante
 
+	static void totalColorShift(Solution *sol);
+	// Scambia tutti i colori
+
+
 
 
 };

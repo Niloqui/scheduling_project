@@ -82,6 +82,7 @@ int main(int argc, const char * argv[]) {
 				ColorShift::colorShift(&c, temp, cols, j % 3);
 			}
 		}
+		ColorShift::totalColorShift(temp);
 		subsol[i] = new Solution(temp);
 		
 		graphs[i] = new G::Graph;
@@ -122,7 +123,7 @@ void solver(G::Graph* g, Solution* sol, int tlim, Solution* mothersolution, int 
 	int tabu_length = 10, tollerance = 5;
 	Tabu tab(tabu_length, *g, *sol, studentNum);
 
-	tab.tabuIteratedLocalSearch(*g, *sol, tollerance, 0, tlim, (clock() * 2.0) / CLOCKS_PER_SEC, *mothersolution);
+	tab.tabuIteratedLocalSearch(*g, *sol, tollerance, 0, tlim, double(clock()) * 2.0 / CLOCKS_PER_SEC, *mothersolution);
 }
 
 

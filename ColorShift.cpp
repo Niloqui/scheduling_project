@@ -243,7 +243,23 @@ void ColorShift::colorShift(G::Graph* g, Solution* sol, std::pair<int*, int> col
 		delete[] cols.first;
 }
 
+void ColorShift::totalColorShift(Solution *sol) {
+	srand(time(NULL) + clock());
 
+	int* cols = new int[sol->tmax];
+	int* colweight = new int[sol->tmax];
+	int i;
+
+	for (i = 0; i < sol->tmax; i++) {
+		cols[i] = i + 1;
+		colweight[i] = rand();
+	}
+	mergeSort(cols, colweight, sol->tmax);
+
+	for (i = 0; i < sol->n; i++) {
+		sol->sol[i] = cols[sol->sol[i] - 1];
+	}
+}
 
 
 
