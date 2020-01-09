@@ -236,11 +236,3 @@ void Solution::checkSetPrintSolution(G::Graph* g, Solution* sol) {
 
 
 
-
-
-
-
-
-
-
-

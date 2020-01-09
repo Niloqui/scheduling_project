@@ -25,19 +25,19 @@
 //Local search
 #include "LocalSearchGroup/LocalSearch.hpp"
 
-// #define NUM_CORES (std::thread::hardware_concurrency())
-#define NUM_CORES 8
+#define NUM_CORES (std::thread::hardware_concurrency())
+// #define NUM_CORES 8
 #define NUM_INITIAL_PERTURBATION 10
 
 using namespace std;
-using namespace boost;
+// using namespace boost;
 
 void solver(G::Graph* g, Solution* sol, TimeController* tlim, Solution* mothersolution, int studentNum);
 
 int main(int argc, const char * argv[]) {
-	int tmax, n, i, j, studentNum;
+	int tmax, n, i, j, studentNum, num_cores = NUM_CORES;
 
-	if (argc!=4) {
+	if (argc != 4) {
 		// In totale si riceveranno 3 parametri
 		// ETPsolver_DMOgroup01.exe instancename -t tlim
 		cout <<"Wrong number of arguments passed.\nPlease call the program with the format:\tETPsolver DMOgroupXX.exe instancename -t tlim" << endl;
@@ -70,23 +70,23 @@ int main(int argc, const char * argv[]) {
 	InitialSolver::squeakyWheel(&c, temp);
 
 	//// Creazione thread
-	Solution** subsol = new Solution * [NUM_CORES];
-	G::Graph **graphs = new G::Graph*[NUM_CORES];
-	thread** treds = new thread * [NUM_CORES];
+	Solution** subsol = new Solution * [num_cores];
+	G::Graph **graphs = new G::Graph*[num_cores];
+	thread** treds = new thread * [num_cores];
 
-	for (i = 0; i < NUM_CORES; i++) {
-		if (i != 0) {
-			// Perturbazione temp
+	for (i = 0; i < num_cores; i++) {
+		if (i != 0) { // Perturbazione temp
 			std::pair<int*, int> cols;
 			cols.first = NULL;
 			for (j = 0; j < NUM_INITIAL_PERTURBATION; j++) {
 				cols.second = 3 + rand() % 4; // minimo 3, massimo 6
 				ColorShift::colorShift(&c, temp, cols, j % 3);
 			}
+
+			ColorShift::totalColorShift(temp);
 		}
-		ColorShift::totalColorShift(temp);
 		subsol[i] = new Solution(temp);
-		
+
 		graphs[i] = new G::Graph;
 		copy_graph(c, *graphs[i]);
 
@@ -95,31 +95,32 @@ int main(int argc, const char * argv[]) {
 	}
 
 	//// Attesa della chiusura dei thread
-	for (i = 0; i < NUM_CORES; i++) {
+	for (i = 0; i < num_cores; i++) {
 		treds[i]->join();
-		mothersolution->checkSetPrintSolution(&c, subsol[i]);
+		// mothersolution->checkSetPrintSolution(&c, subsol[i]);
 	}
 
-
-
+	
 
 	//// Deallocazione memoria
 	// TO-DO (forse): aggiungere deallocazione memoria
 
 
 
-
 	mothersolution->calculatePenalty(&c);
 
-	double duration = (double)(clock()) / CLOCKS_PER_SEC;
+	std::chrono::milliseconds time_span =
+		std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - tlim.t0);
+
 	string output(argv[1]);
-	output = "\n" + output + "\nTempo impiegato per risolvere il problema: " + to_string(duration) + "\n";
-	cout << output << "tlim = " << atoi(argv[3]) << "\npenalita' = " << (double)(mothersolution->penalty) / studentNum;
+	output = "\n" + output + "\nTempo impiegato per risolvere il problema: " + to_string(time_span.count() / 1000.0) + "\n";
+	cout << output << "tlim = " << atoi(argv[3]) << "\npenalita' = " << double(mothersolution->penalty) / studentNum;
 
 	return mothersolution->penalty; // La penalità non divisa dal numero di studenti
 }
 
 void solver(G::Graph* g, Solution* sol, TimeController* tlim, Solution* mothersolution, int studentNum) {
+	sol->calculatePenalty(g);
 	mothersolution->checkSetPrintSolution(g, sol);
 
 	int tabu_length = 10, tollerance = 5;
