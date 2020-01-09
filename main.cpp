@@ -40,7 +40,8 @@ int main(int argc, const char * argv[]) {
 	if (argc != 4) {
 		// In totale si riceveranno 3 parametri
 		// ETPsolver_DMOgroup01.exe instancename -t tlim
-		cout <<"Wrong number of arguments passed.\nPlease call the program with the format:\tETPsolver DMOgroupXX.exe instancename -t tlim" << endl;
+		cout << "Wrong number of arguments passed.\nPlease call the program with the following format:\n";
+		cout << "\tETPsolver DMOgroupXX.exe instancename -t tlim\n";
 		return -1;
 	}
 
