@@ -12,9 +12,9 @@ public:
 	 * Gli esami sono sfasati di uno rispetto all'indice nel vettore
 	 * Il valore di un elemento del vettore sol indica il suo time slot
 	 * ex. sol[4] = 7; L'esame 5 (4 = 5 - 1) si trova nel time slot 7
-	 * Il reader diminuisce l'esame di 1, quindi non è necessario eseguire la sottrazione scritta sopra per accedere al vettore
+	 * Il reader diminuisce l'esame di 1, quindi non ï¿½ necessario eseguire la sottrazione scritta sopra per accedere al vettore
 	 */
-	int n = -1, tmax = -1, penalty = -1;
+	int n = -1, tmax = -1, penalty = -1, studentNum;
 	// n = lunghezza del vettore
 	std::string filename; // File dove stampare il risultato. Utile solo per mothersolution
 
@@ -32,11 +32,11 @@ public:
 	int calculatePenalty(G::Graph* g);
 	int calculatePenalty(G::Graph* g, bool* mask);
 	//int calculatePenalty(int* indexvector, int nsub);
-	// Tutte le funzioni calculatePenalty restituiscono -1 se la soluzione è infeasible
-	// La penalità non viene divisa per il numero di studenti
+	// Tutte le funzioni calculatePenalty restituiscono -1 se la soluzione ï¿½ infeasible
+	// La penalitï¿½ non viene divisa per il numero di studenti
 
 	double calculatePenaltyFull(G::Graph* g, int studentNum);
-	// Calcola la penalità dividendo per il numero di studenti
+	// Calcola la penalitï¿½ dividendo per il numero di studenti
 
 	std::string printSolution();
 	std::string printSolution(std::string filename);
@@ -50,8 +50,9 @@ public:
 	static int distance(int *sol, int i, int j);
 
 	void checkSetPrintSolution(G::Graph* g, Solution* sol);
+	//void checkSetPrintSolution(G::Graph* g, Solution* sol, int studentNum);
 	// Questa funzione serve per scrivere in mothersolution
-	// Inoltre esegue il controllo per capire se sol è migliore di this
+	// Inoltre esegue il controllo per capire se sol ï¿½ migliore di this
 };
 	
 	

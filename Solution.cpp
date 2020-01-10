@@ -4,11 +4,14 @@
 #include "graphw.hpp"
 #include "Utility.hpp"
 #include <iostream>
-#include <mutex>          // std::mutex, std::unique_lock
+#include <boost/thread/mutex.hpp>          // std::mutex, std::unique_lock
+#include <boost/thread/locks.hpp>
+#include <boost/thread/lock_types.hpp>
 
-std::mutex mtx;           // mutex for critical section
+boost::mutex mtx;           // mutex for critical section
 
 using namespace std;
+using namespace boost;
 
 Solution::Solution() {}
 
@@ -221,15 +224,56 @@ string Solution::printSolution(std::string filename) {
 }
 
 void Solution::checkSetPrintSolution(G::Graph* g, Solution* sol) {
-	mtx.lock();
+	//mtx.lock();
+	boost::unique_lock<boost::mutex> lock(mtx);
+	//std::cout << "========================================================================\n";
+	//std::cout << "new tolock penalty is trying to write: " << sol->penalty/(float) studentNum << "\n";
+	//std::cout << "previous penalty : " << this->penalty/(float) this->studentNum <<"\n";
+	
+	//std::cout << "new unlocked penalty is trying to write: " << sol->penalty/(float) this->studentNum  << "\n";
+	//std::cout << "new unlocked penalty is trying to write: " << this->calculatePenalty(g)/(float) this->studentNum  << "\n";
+	//std::cout << "previous penalty : " << this->penalty/(float) this->studentNum <<"\n";
 	if (this->penalty < 0 || sol->penalty < this->penalty) {
 		this->setSolution(sol);
 		this->calculatePenalty(g);
 		this->printSolution();
-		// std::cout << "Penalita' = " << this->penalty / (float)this->num_studenti << "\n";
+                //std::cout << "Penalita' = " << this->penalty / (float)this->studentNum << "\n";
 	}
-	mtx.unlock();
+	//mtx.unlock();
 }
+
+
+/*
+void Solution::checkSetPrintSolution(G::Graph* g, Solution* sol, int studentNum) {
+	this->studentNum=studentNum;
+	/*std::cout << "========================================================================\n";
+	//std::cout << "new tolock penalty is trying to write: " << sol->penalty/(float) studentNum << "\n";
+	std::cout << "previous penalty : " << this->penalty/(float) studentNum <<"\n";
+	
+	std::cout << "new unlocked penalty is trying to write: " << sol->penalty/(float) studentNum  << "\n";
+	std::cout << "new unlocked penalty is trying to write: " << this->calculatePenalty(g)/(float) studentNum  << "\n";
+	std::cout << "previous penalty : " << this->penalty/(float) studentNum <<"\n"; //end comment here
+	//boost::unique_lock< boost::shared_mutex > lock(mtx2);
+	boost::unique_lock<boost::mutex> lock(mtx);
+	std::cout << "========================================================================\n";
+	std::cout << "new unlocked penalty is trying to write: " << sol->penalty/(float) studentNum  << "\n";
+	//std::cout << "new unlocked penalty is trying to write: " << this->calculatePenalty(g)/(float) studentNum  << "\n";
+	std::cout << "previous penalty : " << this->penalty/(float) studentNum <<"\n";
+	if (sol->penalty >= 0 && (this->penalty < 0 || sol->penalty/(float) studentNum < this->penalty/(float) studentNum)) {
+		this->setSolution(sol);
+		this->calculatePenaltyFull(g,studentNum);
+		this->printSolution();
+		std::cout << "Penalita' = " << sol->penalty / (float)studentNum << "\n";
+	}
+	//mtx.unlock();
+}
+
+
+
+
+*/
+
+
 
 
 
