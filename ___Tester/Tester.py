@@ -4,18 +4,18 @@ import time
 import shutil
 
 # num_prove = 10
-num_prove = 10
+num_prove = 5
 
 separatore_decimale_numero = ',' # Il mio excel è italiano e ci sono problemi se c'è il punto
 tabulazione = ';' # col il punto e virgola il mio excel funziona bene
 eseguibile_nome = "Project1.exe"
 
 # istanze = [1, 2, 3, 4, 5, 6, 7, 8]
-istanze = [1, 2, 3, 4, 5, 6, 7, 8]
+istanze = [2, 3, 4]
 
 #tlims = [0, 1, 2, 3, 4, 5, 10, 20, 30, 60, 120, 180, 240, 300, 600] # tempo espresso in secondi #### vettore originale
 #tlims = [0, 10, 30, 60, 120, 180, 240, 300, 600] # tempo espresso in secondi
-tlims = [0, 10, 30, 60, 120, 180, 240, 300, 600] # tempo espresso in secondi
+tlims = [0, 10, 30, 60, 120, 180, 240, 300] # tempo espresso in secondi
 studenti = [611, 941, 1125, 4360, 5349, 21266, 2823, 2750]
 benchmark_prof = [157.033, 34.709, 32.627, 7.717, 12.901, 3.045, 10.050, 24.769]
 
@@ -50,7 +50,6 @@ for istanza_numero in istanze: # per ogni istanza che abbiamo
     ### Calcolo delle soluzioni
     for prova in range(num_prove):
         t_da_copiare = []
-        
         # Project1.exe instance01 -t 300
         comando = "start " + eseguibile_nome + " " + istanza_nome + " -t " + str(tlims[-1])
         os.system(comando)
@@ -105,4 +104,3 @@ for istanza_numero in istanze: # per ogni istanza che abbiamo
     file.close()
 # for istanza end
 
-print("\n\nFine.")

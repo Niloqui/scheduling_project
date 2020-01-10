@@ -32,10 +32,10 @@
 using namespace std;
 // using namespace boost;
 
-void solver(G::Graph* g, Solution* sol, TimeController* tlim, Solution* mothersolution, int studentNum);
+void solver(G::Graph* g, Solution* sol, TimeController* tlim, Solution* mothersolution, int studentNum, int tollerance);
 
 int main(int argc, const char * argv[]) {
-	int tmax, n, i, j, studentNum, num_cores = NUM_CORES;
+	int tmax, n, i, j, studentNum, num_cores = NUM_CORES, tollerance = 5;
 
 	if (argc != 4) {
 		// In totale si riceveranno 3 parametri
@@ -91,8 +91,8 @@ int main(int argc, const char * argv[]) {
 		graphs[i] = new G::Graph;
 		copy_graph(c, *graphs[i]);
 
-		// void solver(G::Graph* g, Solution* sol, TimeController* tlim, Solution* mothersolution, int studentNum)
-		treds[i] = new thread(solver, graphs[i], subsol[i], &tlim, mothersolution, studentNum);
+		// void solver(G::Graph* g, Solution* sol, TimeController* tlim, Solution* mothersolution, int studentNum, int tollerance)
+		treds[i] = new thread(solver, graphs[i], subsol[i], &tlim, mothersolution, studentNum, tollerance);
 	}
 
 	//// Attesa della chiusura dei thread
@@ -120,11 +120,11 @@ int main(int argc, const char * argv[]) {
 	return mothersolution->penalty; // La penalità non divisa dal numero di studenti
 }
 
-void solver(G::Graph* g, Solution* sol, TimeController* tlim, Solution* mothersolution, int studentNum) {
+void solver(G::Graph* g, Solution* sol, TimeController* tlim, Solution* mothersolution, int studentNum, int tollerance) {
 	sol->calculatePenalty(g);
 	mothersolution->checkSetPrintSolution(g, sol);
 
-	int tabu_length = 10, tollerance = 5;
+	int tabu_length = 10;
 	Tabu tab(tabu_length, *g, *sol, studentNum);
 
 	tab.tabuIteratedLocalSearch(*g, *sol, tollerance, *tlim, *mothersolution);
