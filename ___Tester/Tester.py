@@ -27,8 +27,8 @@ for i in istanze:
 tempo = tlims[-1] * num_istanze * num_prove / 60.0**2 # tempo è espresso in ore
 minuti = int(tempo * 60) % 60
 ore = int(tempo)
-print("L'esecuzione del programma richiede " + str(ore) + " ore e " + str(minuti) + " minuti. Procedere (Y|N)? ")
 risp = 0
+print("L'esecuzione del programma richiede " + str(ore) + " ore e " + str(minuti) + " minuti. Procedere (Y|N)? ", end='')
 while risp != 'Y' and risp != 'N' and risp != 'y' and risp != 'n':
     risp = input()
 
