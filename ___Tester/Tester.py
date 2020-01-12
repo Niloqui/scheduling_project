@@ -60,7 +60,7 @@ for istanza_numero in istanze: # per ogni istanza che abbiamo
             if os.path.isfile(nome_soluzione):
                 # nome_file_nuovo = "solutions/instance01_tlim10_prova1.sol"
                 nome_nuovo_per_soluzione = parent + "/solutions/" + istanza_nome+ "_prova" + str(prova) + "_tlim" + str(tlims[t])  + ".sol"
-                os.rename(nome_soluzione, nome_nuovo_per_soluzione)
+                os.replace(nome_soluzione, nome_nuovo_per_soluzione)
             else:
                 t_da_copiare.append(t)
         # for t end

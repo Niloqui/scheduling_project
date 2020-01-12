@@ -1,36 +1,16 @@
 #include <iostream>
 #include <thread>
-#include <ctime>
 
-#include "Utility.hpp"
-#include "graphw.hpp"
 #include "rd.hpp"
-#include "Solution.hpp"
-#include "TimeController.hpp"
-
 #include "ColorShift.hpp"
 #include "InitialSolver.hpp"
-#include <boost/graph/connected_components.hpp>
+#include "tabugroup/Tabu.hpp" // Tabu Search
 
-// #include <boost/graph/adjacency_list.hpp>
-// #include "OptimalSolver.hpp"
-// #include "NiloSearch.hpp"
-
-//Tabu search
-#include "tabugroup/Tabu.hpp"
-
-//Kempe search
-#include "kempegroup/Kempe.hpp"
-
-//Local search
-#include "LocalSearchGroup/LocalSearch.hpp"
-
-#define NUM_CORES (std::thread::hardware_concurrency())
 // #define NUM_CORES 8
+#define NUM_CORES (std::thread::hardware_concurrency())
 #define NUM_INITIAL_PERTURBATION 10
 
 using namespace std;
-// using namespace boost;
 
 void solver(G::Graph* g, Solution* sol, TimeController* tlim, Solution* mothersolution, int studentNum, int tollerance);
 
@@ -55,7 +35,7 @@ int main(int argc, const char * argv[]) {
 	filename += "_DMOgroup01.sol";
 
 	//// Random seed. Valido solo per il main
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 
 	//// Lettura file
 	Reader r = Reader(argv[1]);
@@ -69,7 +49,7 @@ int main(int argc, const char * argv[]) {
 	mothersolution->filename = filename;
 	Solution* temp = new Solution(n, tmax);
 	InitialSolver::squeakyWheel(&c, temp);
-
+	
 	//// Creazione thread
 	Solution** subsol = new Solution * [num_cores];
 	G::Graph **graphs = new G::Graph*[num_cores];
@@ -98,40 +78,33 @@ int main(int argc, const char * argv[]) {
 	//// Attesa della chiusura dei thread
 	for (i = 0; i < num_cores; i++) {
 		treds[i]->join();
-		// mothersolution->checkSetPrintSolution(&c, subsol[i]);
 	}
 
-	
-
 	//// Deallocazione memoria
-	// TO-DO (forse): aggiungere deallocazione memoria
+	for (i = 0; i < num_cores; i++){
+		delete[] subsol[i]->sol;
+		graphs[i]->clear();
+	}
+	delete[] treds;
+	delete[] graphs;
+	delete[] subsol;
 
+	i = mothersolution->calculatePenalty(c);
+	c.clear();
+	delete[] temp->sol;
+	delete[] mothersolution->sol;
+	delete temp;
+	delete mothersolution;
 
-
-	mothersolution->calculatePenalty(&c);
-
-	std::chrono::milliseconds time_span =
-		std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - tlim.t0);
-
-	string output(argv[1]);
-	output = "\n" + output + "\nTempo impiegato per risolvere il problema: " + to_string(time_span.count() / 1000.0) + "\n";
-	cout << output << "tlim = " << atoi(argv[3]) << "\npenalita' = " << double(mothersolution->penalty) / studentNum;
-
-	return mothersolution->penalty; // La penalità non divisa dal numero di studenti
+	return i; // La penalità non viene divisa dal numero di studenti
 }
 
 void solver(G::Graph* g, Solution* sol, TimeController* tlim, Solution* mothersolution, int studentNum, int tollerance) {
-	sol->calculatePenalty(g);
-	mothersolution->checkSetPrintSolution(g, sol);
+	sol->calculatePenalty(*g);
+	string pippo = mothersolution->checkSetPrintSolution(g, sol);
 
 	int tabu_length = 10;
 	Tabu tab(tabu_length, *g, *sol, studentNum);
 
 	tab.tabuIteratedLocalSearch(*g, *sol, tollerance, *tlim, *mothersolution);
 }
-
-
-
-
-
-

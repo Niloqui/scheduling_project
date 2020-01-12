@@ -1,12 +1,10 @@
 #include "ColorShift.hpp"
 
 #include <ctime>
-#include <iostream>
-#include <cstdlib>
 #include "Utility.hpp"
 
 void ColorShift::penaltyByColor(G::Graph* g, Solution* sol, int* penalty) {
-	// penalty si assume inizializzato a 0
+	// Il vettore penalty si assume inizializzato a 0
 	// Si assume che la soluzione sia feasible
 	int i, j, dist, pen;
 	std::pair<G::Edge, bool> e;
@@ -30,7 +28,7 @@ void ColorShift::penaltyByColor(G::Graph* g, Solution* sol, int* penalty) {
 }
 
 void ColorShift::penaltyByColor(G::Graph* g, Solution* sol, int* penalty_by_color, int* penalty_by_exam) {
-	// penalty e penalty_by_exam si assumono inizializzati a 0
+	// I vettori penalty_by_color e penalty_by_exam si assumono inizializzati a 0
 	// Si assume che la soluzione sia feasible
 	int i, j, dist, pen;
 	std::pair<G::Edge, bool> e;
@@ -60,12 +58,14 @@ std::pair<int*, int> ColorShift::selectColors(G::Graph* g, Solution* sol, int nc
 	std::pair<int*, int> coso;
 	if (ncols == -1)
 		// coso.second = (int)( ((float)rand() / RAND_MAX) * ((sol->tmax * 5.0) / 7.0) ) + 2;
-		coso.second = (int)(((float)rand() / RAND_MAX) * (sol->tmax * 0.4)) + 2;
+		coso.second = int(((float(rand()) / RAND_MAX) * (sol->tmax * 0.4))) + 2;
 	else
 		coso.second = ncols;
 
+	if (coso.second >= sol->tmax)
+		coso.second = sol->tmax - 1;
+
 	coso.first = new int[coso.second];
-	// int* cols = new int[(int64_t)sol->tmax + 1];
 	int* cols = new int[sol->tmax];
 	int* colweight = new int[sol->tmax];
 	int i;
@@ -185,7 +185,7 @@ void ColorShift::colorShiftRec(G::Graph* g, Solution* sol, std::pair<int*, int> 
 }
 
 void ColorShift::colorShift(G::Graph* g, Solution* sol, std::pair<int*, int> cols, int color_selection_mode) {
-	srand(time(NULL) + clock());
+	srand((unsigned int)time(NULL) + clock());
 
 	int initial_node = -1;
 	bool newcolfirst;
@@ -244,7 +244,7 @@ void ColorShift::colorShift(G::Graph* g, Solution* sol, std::pair<int*, int> col
 }
 
 void ColorShift::totalColorShift(Solution *sol) {
-	srand(time(NULL) + clock());
+	srand((unsigned int)time(NULL) + clock());
 
 	int* cols = new int[sol->tmax];
 	int* colweight = new int[sol->tmax];
@@ -256,19 +256,6 @@ void ColorShift::totalColorShift(Solution *sol) {
 	}
 	mergeSort(cols, colweight, sol->tmax);
 
-	for (i = 0; i < sol->n; i++) {
+	for (i = 0; i < sol->n; i++)
 		sol->sol[i] = cols[sol->sol[i] - 1];
-	}
 }
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,12 +1,6 @@
-#include <iostream>
 #include "Kempe.hpp"
-#include "../Solution.hpp"
-#include "../graphw.hpp"
-#include <boost/graph/adjacency_list.hpp>
-#include "../Utility.hpp"
-#define PREDECESSOR -1
 
-using namespace boost;
+#define PREDECESSOR -1
 
 void colorGraph(G::Graph& g, Solution& s){
     long int id;
@@ -36,7 +30,6 @@ void setSolution(G::Graph& g, Solution& s){
         color = get(vertex_color_t(),g,*v);
         s.sol[id]=color;
     }
-    
 }
 
 static void simpleKempe(G::Graph& g ,G::Vertex v, int color,unordered_set<long int>& visitedNodes){
@@ -66,21 +59,19 @@ static void simpleKempe(G::Graph& g ,G::Vertex v, int color,unordered_set<long i
     }
     
     put(vertex_color_t(),g,v,color);
-    return;
 }
 
 void simpleKempeWrapper(G::Graph& g ,G::Vertex v, int color){
     unordered_set<long int> visitedNodes;
     simpleKempe(g, v, color,visitedNodes);
-    return;
 }
-
 
 //Color, il colore che diventerà il vertice 1
 //V2 è un vertice adiacente
 static int colorDistance(G::Graph& g,int color, G::Vertex v2){
     return abs(color-get(vertex_color_t(),g,v2));
 }
+
 //Overload per calcolare la distanza fra due nodi
 static int colorDistance(G::Graph& g,G::Vertex v1, G::Vertex v2){
     return abs(get(vertex_color_t(),g,v1)-get(vertex_color_t(),g,v2));
@@ -95,19 +86,18 @@ static int penaltyFunction(int distance, G::Vertex v1, G::Vertex v2, G::Graph& g
     
     if (distance <= 5 && p.second){
         int commonStudents = get(edge_weight_t(),g,p.first);
-        penalty = integerPower(2, 5-distance);
+        penalty = (1 << (5 - distance));
         penalty = penalty * commonStudents;
     }
     
     return penalty;
 }
 
-
 //Non si tiene in considerazione la penalità fra elementi della catena
 //In quanto la distanza relativa fra gli esami rimane invariata
 //Per cui non c'è contributo alla delta nella penalità
 int nodeMovePenalty(G::Graph& g, G::Vertex v, int color){
-    int nodePenalty=0;
+    int nodePenalty = 0;
     int distance = 0;
     int originalDistance = 0;
     int originalColor = get(vertex_color_t(),g,v);
@@ -118,10 +108,10 @@ int nodeMovePenalty(G::Graph& g, G::Vertex v, int color){
     //Iterazione sui nodi adiacenti
     G::Graph::adjacency_iterator vit,vend;
     for(boost::tie(vit,vend) = adjacent_vertices(v,g); vit!=vend; ++vit){
-        
         //La mossa non ha effetto nel costo relativo ai nodi
         //Appartenenti alla medesima catena Kempe
         iteratedColor = get(vertex_color_t(),g,*vit);
+
         //Quel PREDECESSOR rappresenta un nodo già visitato e che quindi non deve essere processato
         if(iteratedColor != color && iteratedColor != PREDECESSOR){
             distance = colorDistance(g, color, *vit);
@@ -130,7 +120,6 @@ int nodeMovePenalty(G::Graph& g, G::Vertex v, int color){
             originalDistance = colorDistance(g, originalColor, *vit);
             originalCost += penaltyFunction(originalDistance, v, *vit, g);
         }
-        
     }
     
     //Se Negativo vuol dire che la mossa mi migliora la soluzione
@@ -157,7 +146,7 @@ static int kempeMovePenalty(G::Graph& g, G::Vertex v, int color,  unordered_set<
         //Cerco il colore relativo alla potenziale mossa da effettura
         iteratedColor = get(vertex_color_t(),g,*vit);
         iteratedId = get(vertex_index_t(),g,*vit);
-        if (iteratedColor == color && visitedNodes.count(iteratedId) == 0 ){
+        if (iteratedColor == color && visitedNodes.count(iteratedId) == 0 ) {
             penalty += kempeMovePenalty(g, *vit, originalColor,visitedNodes);
         }
     }
@@ -173,7 +162,6 @@ int kempeMovePenaltyWrapper(G::Graph& g, G::Vertex v, int color){
     return answer;
 }
 
-
 int nodeCurrentPenalty(G::Graph& g, G::Vertex v){
     int originalDistance = 0;
     int originalColor = get(vertex_color_t(),g,v);
@@ -187,7 +175,6 @@ int nodeCurrentPenalty(G::Graph& g, G::Vertex v){
         iteratedColor = get(vertex_color_t(),g,*vit);
         originalDistance = colorDistance(g, originalColor, *vit);
         originalCost += penaltyFunction(originalDistance, v, *vit, g);
-        
     }
     
     //Se Negativo vuol dire che la mossa mi migliora la soluzione

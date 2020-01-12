@@ -1,11 +1,7 @@
 #include "InitialSolver.hpp"
 
-#include <iostream>
-#include "graphw.hpp"
-#include "Solution.hpp"
-#include "Utility.hpp"
-#include <boost/graph/adjacency_list.hpp>
 #include <ctime>
+#include "Utility.hpp"
 
 std::pair<int, bool> InitialSolver::firstPossiblePosition(G::Graph *g, int* res, int* indexexams, int n, int tmax) {
 	int i, j;
@@ -16,9 +12,8 @@ std::pair<int, bool> InitialSolver::firstPossiblePosition(G::Graph *g, int* res,
 	max.second = true;
 
 	for (i = 0; i < n; i++) {
-		for (j = 0; j < n; j++) {
+		for (j = 0; j < n; j++)
 			available[j] = true;
-		}
 
 		for (j = 0; j < i; j++) {
 			e = edge(indexexams[i], indexexams[j], *g);
@@ -41,6 +36,7 @@ std::pair<int, bool> InitialSolver::firstPossiblePosition(G::Graph *g, int* res,
 		}
 	}
 
+	delete[] available;
 	max.first++;
 	return max;
 }
@@ -48,7 +44,7 @@ int InitialSolver::squeakyWheel(G::Graph* g, Solution* sol) {
 	int* blame = new int[sol->n];
 	int* indexexams = new int[sol->n];
 	int* soltemp = new int[sol->n];
-	int i, alpha = 1, beta = sol->tmax / 2;
+	int i, overblame = sol->tmax / 2;
 	std::pair<int, bool> temp;
 	temp.second = false;
 
@@ -69,8 +65,8 @@ int InitialSolver::squeakyWheel(G::Graph* g, Solution* sol) {
 			for (i = 0; i < sol->n; i++) {
 				blame[i] += soltemp[i]; // blame[i] += i;
 
-				if (sol->sol[i] > sol->tmax * alpha)
-					blame[i] += beta;
+				if (sol->sol[i] > sol->tmax)
+					blame[i] += overblame;
 			}
 
 			mergeSort(indexexams, blame, sol->n);
@@ -79,9 +75,8 @@ int InitialSolver::squeakyWheel(G::Graph* g, Solution* sol) {
 		}
 	}
 
-	for (i = 0; i < sol->n; i++) {
+	for (i = 0; i < sol->n; i++)
 		sol->sol[indexexams[i]] = soltemp[i];
-	}
 
 	delete[] soltemp;
 	delete[] indexexams;

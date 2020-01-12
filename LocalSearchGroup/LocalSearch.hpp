@@ -1,10 +1,9 @@
 #ifndef LocalSearch_hpp
 #define LocalSearch_hpp
-#include "../Solution.hpp"
-#include "../graphw.hpp"
+
 #include <ctime>
 
-#include <stdio.h>
+#include "../Solution.hpp"
 
 //Risolutore First improvement
 void solveFI(G::Graph& g, Solution& s,int iterations);

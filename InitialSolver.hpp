@@ -1,8 +1,6 @@
 #ifndef InitialSolver_hpp
 #define InitialSolver_hpp
 
-#include <iostream>
-// #include <boost/graph/adjacency_list.hpp>
 #include "graphw.hpp"
 #include "Solution.hpp"
 

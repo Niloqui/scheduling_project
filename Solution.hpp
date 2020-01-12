@@ -2,8 +2,6 @@
 #define Solution_hpp
 
 #include "graphw.hpp"
-#include <fstream>
-#include <string>
 
 class Solution{
 public:
@@ -18,40 +16,23 @@ public:
 	// n = lunghezza del vettore
 	std::string filename; // File dove stampare il risultato. Utile solo per mothersolution
 
-	Solution(); // Costruttore vuoto
+
 	Solution(int n, int tmax); // Costruttore
-	Solution(int n, int tmax, int* newsol); // Costruttore con soluzione iniziale
 	Solution(Solution *sol); // Costruttore che copia da un'altra soluzione
 
-	void setSolution(int* newsol);
-	void setSolution(int* newsol, int* indexexams, int nsub);
 	void setSolution(Solution* newsol);
 	// Si assume che newsol abbia la stessa lunghezza di this->sol
 
-	int calculatePenalty(G::Graph g);
-	int calculatePenalty(G::Graph* g);
-	int calculatePenalty(G::Graph* g, bool* mask);
-	//int calculatePenalty(int* indexvector, int nsub);
-	// Tutte le funzioni calculatePenalty restituiscono -1 se la soluzione è infeasible
+	int calculatePenalty(G::Graph& g);
+	// Restituiscono -1 se la soluzione è infeasible
 	// La penalità non viene divisa per il numero di studenti
 
-	double calculatePenaltyFull(G::Graph* g, int studentNum);
-	// Calcola la penalità dividendo per il numero di studenti
-
-	std::string printSolution();
-	std::string printSolution(std::string filename);
-	// std::string printSolution(std::ofstream file);
-	// Esporta la soluzione su file e ritorna l'intero output che viene stampato a video
-
-	// ~Solution() { delete[] sol; delete[] indexexams; }
-
-	// Altro
 	int distance(int i, int j);
-	static int distance(int *sol, int i, int j);
 
-	void checkSetPrintSolution(G::Graph* g, Solution* sol);
+	std::string checkSetPrintSolution(G::Graph* g, Solution* sol);
 	// Questa funzione serve per scrivere in mothersolution
 	// Inoltre esegue il controllo per capire se sol è migliore di this
+	// Esporta la soluzione su file e ritorna l'intero output che viene stampato a video
 };
 	
 	

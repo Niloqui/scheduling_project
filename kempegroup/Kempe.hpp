@@ -1,12 +1,7 @@
 #ifndef Kempe_hpp
 #define Kempe_hpp
 
-#include <stdio.h>
-
 #include "../Solution.hpp"
-#include "../graphw.hpp"
-#include <boost/graph/adjacency_list.hpp>
-
     
 //Colora il grafo con il vettore soluzione
 void colorGraph(G::Graph& g,Solution& s);
@@ -22,9 +17,7 @@ void setSolution(G::Graph& g, Solution& s);
 //e cosi via ricorsivamente lungo tutta la catena, effettuando un kempe swap
 //rimanendo comunque nella feasibility, se la soluzione fornita inizialmente
 //era già feasible
-void simpleKempe(G::Graph& g ,G::Vertex v, int color);
-
-
+void simpleKempe(G::Graph& g, G::Vertex v, int color, unordered_set<long int>& visitedNodes);
 
 //Trasforma il colore del vertice v nel colore parametro
 //Questo cambio viene effettuato lungo la catena kempe
@@ -47,7 +40,6 @@ int kempeMovePenaltyWrapper(G::Graph& g, G::Vertex v, int color);
 
 //Calcola la penalità associata al nodo corrente
 int nodeCurrentPenalty(G::Graph& g, G::Vertex v);
-
 
 
 #endif /* Kempe */
