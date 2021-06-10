@@ -1,21 +1,16 @@
 #include "Tabu.hpp"
-#include "../kempegroup/Kempe.hpp"
-#include "../LocalSearchGroup/LocalSearch.hpp"
-#include <algorithm>
+
 #include <iostream>
 
-#include <stdlib.h>     /* srand, rand */
-#include <time.h>       /* time */
-#include <ctime>
-#include <deque>
-#include <cmath>
+#include "../kempegroup/Kempe.hpp"
+#include "../LocalSearchGroup/LocalSearch.hpp"
+
 #define PREDECESSOR -1
 #define OBSOLETE LONG_MAX //Valore che indica che il valore non è più valido
 
+using namespace std;;
 
-using namespace std;
-
-Tabu::Tabu(int teta,G::Graph& g,Solution& s,int studentNum):teta(teta),mu(0.6),exams(s.n),tmax(s.tmax),studentNum(studentNum){
+Tabu::Tabu(int teta, G::Graph& g, Solution& s, int studentNum):teta(teta),mu(0.6),exams(s.n),tmax(s.tmax),studentNum(studentNum){
     this->moveMatrix = new long*[exams];
     this->validityArray = new bool[exams]; //false se le mosse dell esame i val[i]
     //sono non aggiornate
@@ -25,7 +20,7 @@ Tabu::Tabu(int teta,G::Graph& g,Solution& s,int studentNum):teta(teta),mu(0.6),e
 
     //Ogni nodo ha ha tmax - 1 possibili mosse
     for(int i=0; i<exams; i++)
-        this->moveMatrix[i] = new long[tmax+1];
+        this->moveMatrix[i] = new long[int64_t(tmax)+1];
         //+1 semplicemente per poter usare i veri nomi dei colori
         //senza dover stare ad aggiungere o sotrarre dopo
     
@@ -35,16 +30,14 @@ Tabu::Tabu(int teta,G::Graph& g,Solution& s,int studentNum):teta(teta),mu(0.6),e
         for(int j=1; j<=this->tmax; j++)
             this->moveMatrix[i][j] = OBSOLETE;
     }
-        
-        
-    
+
     //Calcolo delle possibili mosse
     G::Graph::vertex_iterator v, vend;
-    long int iteratedId;
+    int iteratedId;
     
     //Calcoliamo il costo per le mosse adesso
     for (boost::tie(v, vend) = vertices(g); v != vend; ++v) {
-        iteratedId = get(vertex_index_t(),g,*v);
+        iteratedId = (int)get(vertex_index_t(),g,*v);
         updateNodePenalties(g, *v);
         this->validityArray[iteratedId] = true;
     }
@@ -76,7 +69,7 @@ void Tabu::swapColors(G::Graph& g){
 /*Cerchiamo di scabiare colore con un kempe swap fra due nodi che appartengono
  a catene diverse se si considerano i colori del nodo 1 e del nodo 2*/
 //tuple ritorna vertice1, vertice2, colore
-std::tuple<long int,long int,int> Tabu::bestDoubleKempe(G::Graph& g){
+std::tuple<int,int,int> Tabu::bestDoubleKempe(G::Graph& g){
     int i,j,x;
     int color1,color2;
     long penalty1, penalty2;
@@ -113,7 +106,7 @@ std::tuple<long int,long int,int> Tabu::bestDoubleKempe(G::Graph& g){
     return bestTuple;
 }
 
-int Tabu::doubleKempeSwap(G::Graph& g,long int id1,long int id2, int color){
+int Tabu::doubleKempeSwap(G::Graph& g,int id1,int id2, int color){
     G::Vertex v1,v2;
     long int penalty;
     v1 = vertex(id1, g);
@@ -159,7 +152,7 @@ void Tabu::updateMoveMatrix(G::Graph& g){
 //Tutte le mosse associate a v sono false e vengono segnate come non aggiornate
 //Ma in quel caso pure i vertici adiacenti sono falsi
 void Tabu::renderFalseMoves(G::Graph& g,G::Vertex v){
-    long int id = get(vertex_index_t(),g,v);
+    int id = (int)get(vertex_index_t(),g,v);
     this->validityArray[id]=false;
     for(int color=1; color<=this->tmax; color++)
         this->moveMatrix[id][color] = OBSOLETE;
@@ -176,15 +169,15 @@ void Tabu::renderFalseAndAdjacent(G::Graph& g, G::Vertex v){
 
 
 //Calcolatore delle penalità associate ad una mossa
-int Tabu::tabuKempeMovePenalty(G::Graph& g, G::Vertex v, int color,  std::unordered_set<long int>& visitedNodes){
+int Tabu::tabuKempeMovePenalty(G::Graph& g, G::Vertex v, int color,  std::unordered_set<int>& visitedNodes){
     int penalty = 0;
     //Colore originale da resettare alla fine della funzione
     int originalColor = get(vertex_color_t(),g,v);
     int iteratedColor;
-    long int iteratedId;
+    int iteratedId;
     
     //Memorizing that the current node has been visited
-    visitedNodes.insert(get(vertex_index_t(),g,v));
+    visitedNodes.insert((int)get(vertex_index_t(),g,v));
     
     penalty += nodeMovePenalty(g, v, color);
     
@@ -194,8 +187,8 @@ int Tabu::tabuKempeMovePenalty(G::Graph& g, G::Vertex v, int color,  std::unorde
     G::Graph::adjacency_iterator vit, vend;
     for (boost::tie(vit, vend) = adjacent_vertices(v, g); vit != vend; ++vit) {
         //Cerco il colore relativo alla potenziale mossa da effettuare
-        iteratedColor = get(vertex_color_t(),g,*vit);
-        iteratedId = get(vertex_index_t(),g,*vit);
+        iteratedColor = (int)get(vertex_color_t(),g,*vit);
+        iteratedId = (int)get(vertex_index_t(),g,*vit);
         if (iteratedColor == color && visitedNodes.count(iteratedId) == 0 ){
             penalty += tabuKempeMovePenalty(g, *vit, originalColor,visitedNodes);
         }
@@ -211,12 +204,12 @@ int Tabu::tabuKempeMovePenalty(G::Graph& g, G::Vertex v, int color,  std::unorde
 //Segna i valori nella matrice della classe tabu relativa alle penalita
 //Color indica il colore verso il quale mi sposto
 //quindi è più che altro una funzione di supporto, che mi aiuta a propagare i cambiamenti
-void Tabu::updatePenalty(G::Graph& g, G::Vertex v, int color, int penalty,std::unordered_set<long int>& visitedNodes){
+void Tabu::updatePenalty(G::Graph& g, G::Vertex v, int color, int penalty,std::unordered_set<int>& visitedNodes){
     int iteratedColor;
     int myColor = get(vertex_color_t(),g,v);
     long int iteratedId;
     //Segno il corrente vertice come già visitato
-    long int myId =get(vertex_index_t(),g,v);
+    int myId = (int)get(vertex_index_t(),g,v);
      visitedNodes.insert(myId);
     
     //aggiorno le informazioni per la mia penalità
@@ -224,8 +217,8 @@ void Tabu::updatePenalty(G::Graph& g, G::Vertex v, int color, int penalty,std::u
 
     G::Graph::adjacency_iterator vit, vend;
     for (boost::tie(vit, vend) = adjacent_vertices(v, g); vit != vend; ++vit){
-        iteratedColor = get(vertex_color_t(),g,*vit);
-        iteratedId = get(vertex_index_t(),g,*vit);
+        iteratedColor = (int)get(vertex_color_t(),g,*vit);
+        iteratedId = (int)get(vertex_index_t(),g,*vit);
         if(iteratedColor == color && visitedNodes.count(iteratedId) == 0){
             updatePenalty(g, *vit, myColor, penalty, visitedNodes);
         }
@@ -234,7 +227,7 @@ void Tabu::updatePenalty(G::Graph& g, G::Vertex v, int color, int penalty,std::u
 }
 
 void Tabu::updatePenaltyWrapper(G::Graph& g, G::Vertex v, int color, int penalty){
-    std::unordered_set<long int>visitedNodes;
+    std::unordered_set<int>visitedNodes;
     updatePenalty(g, v, color, penalty, visitedNodes);
 }
 
@@ -242,7 +235,8 @@ void Tabu::updatePenaltyWrapper(G::Graph& g, G::Vertex v, int color, int penalty
 //Mentre le funzioni di arriva aggiornano le mosse relative solo ad un certo colore
 void Tabu::updateNodePenalties(G::Graph& g,G::Vertex v){
     int penalty;
-    long int index = get(vertex_index_t(),g,v);
+    int index = (int)get(vertex_index_t(),g,v);
+
 
     //Modifico solo chi è obsoleto
     for(int color=1; color<=this->tmax; color++){
@@ -259,13 +253,13 @@ void Tabu::updateNodePenalties(G::Graph& g,G::Vertex v){
 
 //Ho bisogno di un kempeMovePenalty che mi segni le correnti mosse esplorate
 int Tabu::tabuKempeMovePenaltyWrapper(G::Graph& g, G::Vertex v, int color){
-    std::unordered_set<long int> visitedNodes;
+    std::unordered_set<int> visitedNodes;
     int answer = tabuKempeMovePenalty(g, v, color,visitedNodes);
     return answer;
 }
 
 //Ritorna la miglior mossa correntemente disponibile
-std::pair<long int,int> Tabu::bestMove(){
+std::pair<int,int> Tabu::bestMove(){
     int i,j;
     long int id = 0;
     int color = 1;
@@ -286,13 +280,12 @@ std::pair<long int,int> Tabu::bestMove(){
 
 
 
-
 void Tabu::resetTabuList(){
     this->tabuList.clear();
 }
 
 //Cerca la lista Tabu per vedere se una mossa è proibita
-bool Tabu::isTabu(long int id, int color){
+bool Tabu::isTabu(int id, int color){
     for (auto i = this->tabuList.begin(); i != this->tabuList.end(); ++i){
         if(id == (*i).first && color == (*i).second)
             return true;
@@ -301,7 +294,7 @@ bool Tabu::isTabu(long int id, int color){
 }
 
 bool Tabu::isTabu(G::Graph& g, G::Vertex v, int color){
-    return isTabu(get(vertex_index_t(),g,v), color);
+    return isTabu((int)get(vertex_index_t(),g,v), color);
 }
 
 //Inserire mossa nella tabu list
@@ -318,18 +311,17 @@ void Tabu::insertMove(long int id,int color){
 
 //Overload della funzione di sopra
 void Tabu::insertMove(G::Vertex v, G::Graph& g,int color){
-    insertMove(get(vertex_index_t(),g,v), color);
+    insertMove((int)get(vertex_index_t(),g,v), color);
 }
 
 
 //Simple Kempe applicando la tabu list
-void Tabu::tabuSimpleKempe(G::Graph& g ,G::Vertex v, int color, std::unordered_set<long int>& visitedNodes){
-    
+void Tabu::tabuSimpleKempe(G::Graph& g ,G::Vertex v, int color, std::unordered_set<int>& visitedNodes){
     int myColor = get(vertex_color_t(),g,v);
-    long int iteratedId;
+    int iteratedId;
     
     //Segnare come vertice visitato
-    visitedNodes.insert(get(vertex_index_t(),g,v));
+    visitedNodes.insert((int)get(vertex_index_t(),g,v));
     
     //Bisogna iterare sui vertici adiacenti
     //Ritorna l'iterator range
@@ -341,7 +333,7 @@ void Tabu::tabuSimpleKempe(G::Graph& g ,G::Vertex v, int color, std::unordered_s
     put(vertex_color_t(),g,v,PREDECESSOR);
     G::Graph::adjacency_iterator vit, vend;
     for (boost::tie(vit, vend) = adjacent_vertices(v, g); vit != vend; ++vit) {
-        iteratedId = get(vertex_index_t(),g,*vit);
+        iteratedId = (int)get(vertex_index_t(),g,*vit);
         
         //Anche i nodi adiacenti vengono resi falsi nei loro movimenti
         //Bisogna aggiornare anche questi
@@ -363,7 +355,7 @@ void Tabu::tabuSimpleKempe(G::Graph& g ,G::Vertex v, int color, std::unordered_s
 }
 
 void Tabu::tabuSimpleKempeWrapper(G::Graph& g ,G::Vertex v, int color){
-    std::unordered_set<long int> visitedNodes;
+    std::unordered_set<int> visitedNodes;
     tabuSimpleKempe(g, v, color,visitedNodes);
     return;
 }
@@ -399,7 +391,7 @@ static long** createMatrix(int ROWCOUNT,int COLUMNCOUNT){
 //Deve Venir Passato un grafo già valido, solution deve venir passato solo
 //Per venire aggiornato
 //Inoltre si intende che solution contiene la miglior soluzione globale
-bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int bestGlobalPenalty,clock_t start,int tlim,double margin,string filename){
+bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int bestGlobalPenalty, TimeController& tlim, Solution& mothersolution){
     int initialTeta = this->teta;
     long** bestMatrix = createMatrix(this->exams, this->tmax+1);
     int bestMove=1; //miglior penalità ottenuta,
@@ -407,7 +399,6 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
     G::Vertex bestVertex;
     bool better = false;
     int nonImprovingIterations = 0; //conta il numero di iterazioni senza miglioramenti
-    double newMargin = 7*margin;
     Solution neighborhoodBestSolution(s.n,s.tmax);
     setSolution(g, neighborhoodBestSolution);
     
@@ -422,9 +413,7 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
     
     //Si fa una tabu search finche il numero massimo di iterazioni non miglioranti
     //è minore ad un certo parametro (maxNonImprovingIterations) passato
-    double duration;
-    while(nonImprovingIterations <= maxNonImprovingIterations &&
-          (duration = (clock() - start)/(double)CLOCKS_PER_SEC) + newMargin < tlim ){
+    while( nonImprovingIterations <= maxNonImprovingIterations && tlim.isThereTime() ){
         
         
         //Vediamo qual è la miglior mossa fra tutte
@@ -455,13 +444,14 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
              
              if(neighborhoodBestPenalty < bestGlobalPenalty)
              {
+                 bestGlobalPenalty = neighborhoodBestPenalty;
                  colorGraph(g, neighborhoodBestSolution);
                  setSolution(g, s); //DO NOT DELETE
                  matriscopy(this->moveMatrix, bestMatrix, this->exams, (this->tmax+1));
-                 s.printSolution(filename);
-                 //cout << "Penalità: "  << s.calculatePenaltyFull(g, this->studentNum)<< endl;
+                 
+                 s.penalty = neighborhoodBestPenalty;
+                 string pippo = mothersolution.checkSetPrintSolution(&g, &s);
                  better = true;
-                
              }
          }
          else{
@@ -470,8 +460,8 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
              
              //Aumentare la profondita della tabu list se siamo vicini
              //Ad una soluzione ottima globale
-             if(accumulatedPenalty - 2*s.n < 0)
-                 this->teta = (1+this->mu)*this->teta;
+             if (accumulatedPenalty - 2 * s.n < 0)
+                 this->teta = (1 + int(this->mu)) * this->teta;
          }
         
     }
@@ -483,10 +473,10 @@ bool Tabu::tabuSearch(G::Graph& g, Solution& s,int maxNonImprovingIterations,int
 }
 
 void Tabu::tabuPerturbate(G::Graph& g, int q,int eta, int tmax){
-    long int iteratedId;
+    int iteratedId;
     
     //Il primo elemento è l'id, il secondo è la penalità associata
-    long int n = num_vertices(g);
+    int n = (int)num_vertices(g);
     pair<long int,int>* idPenalty  = new pair<long int,int>[n];
     
     if(q>=n){
@@ -497,7 +487,7 @@ void Tabu::tabuPerturbate(G::Graph& g, int q,int eta, int tmax){
     //Bisogna iterare sui vertici
     G::Graph::vertex_iterator v, vend;
     for (boost::tie(v, vend) = vertices(g); v != vend; ++v) {
-        iteratedId = get(vertex_index_t(),g,*v);
+        iteratedId = (int)get(vertex_index_t(),g,*v);
 
         idPenalty[iteratedId].first = iteratedId;
         idPenalty[iteratedId].second = nodeCurrentPenalty(g, *v);
@@ -508,7 +498,6 @@ void Tabu::tabuPerturbate(G::Graph& g, int q,int eta, int tmax){
     
     //Adesso si effettuano eta mosse randomiche sui q più grandi
     //Effettiamo eta mosse randomiche
-     srand (int(time(NULL))); //Seed randomica
     int randomNode;
     int randomColor;
     G::Vertex randomVertex;
@@ -535,22 +524,22 @@ void Tabu::tabuPerturbate(G::Graph& g, int q,int eta, int tmax){
 }
 
 
-void Tabu::tabuIteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock_t start,int tlim,double margin,string filename){
+void Tabu::tabuIteratedLocalSearch(G::Graph& g, Solution& s,int tollerance, TimeController& tlim, Solution& mothersolution){
     int etamin = 4, etamax = 15;
-    double newMargin = 7*margin;
     int nonImprovingTabus = 0;
     int q = min(30,s.n/3); //numero di nodi da perturbare
     int eta=etamin; //intensità della perturbazione
     bool improved=false;
     int bestGlobalPenalty = s.calculatePenalty(g);
     colorGraph(g, s);
+
+    srand(int(time(NULL))); // Random seed
     
-    
-    while((clock() - start)/CLOCKS_PER_SEC + newMargin < tlim){
+    while( tlim.isThereTime() ){
         //L'intensità della perturbazione aumento più tabu ci sono
         //senza miglioramenti
         eta = min(etamin+nonImprovingTabus, etamax);
-        improved = this->tabuSearch(g, s, tollerance, bestGlobalPenalty,start,tlim,margin,filename);
+        improved = this->tabuSearch(g, s, tollerance, bestGlobalPenalty, tlim, mothersolution);
         
         if(improved){
             nonImprovingTabus = 0;

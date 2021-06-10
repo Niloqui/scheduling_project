@@ -1,18 +1,12 @@
 #include "LocalSearch.hpp"
 
-#include "../kempegroup/Kempe.hpp"
 #include <iostream>
-#include "../graphw.hpp"
-#include <ctime>
+#include <random> // For choiceprob
 
-//For choiceprob
-#include<math.h>
-#include<random>
+#include "../kempegroup/Kempe.hpp"
 
 
 using namespace std;
-
-
 
 /*Implicitamente si esplorano i vertici adiacenti se si esplora un vertice
  Quindi tenere conto di questo per velocizzare l'esplorazione della miglior mossa
@@ -25,12 +19,10 @@ int choiceprob(int q, int phi) {
     long double pmf_el;
     vector<long double> pmf;
     vector<long double> prob;
-    for (int i = 0; i < q; ++i)        //build the prob vector
-    {
+    for (int i = 0; i < q; ++i) {       //build the prob vector
         prob.push_back(1 / pow(i + 3, phi));
     }
-    for (int i = 0; i < q; ++i)        //calculate sum of prob to normalize probabilities
-    {
+    for (int i = 0; i < q; ++i) {       //calculate sum of prob to normalize probabilities
         prob_max = prob_max + 1 / pow(i + 3, phi);
     }
 
@@ -39,7 +31,7 @@ int choiceprob(int q, int phi) {
             pmf.push_back(prob[i] / prob_max);
         }
         else {
-            pmf_el = (prob[i] / prob_max) + pmf[i - 1];
+            pmf_el = (prob[i] / prob_max) + pmf[int64_t(i) - 1];
             pmf.push_back(pmf_el);
         }
     }
@@ -56,6 +48,7 @@ int choiceprob(int q, int phi) {
             break;
         }
     }
+
     return choice;
 }
 
@@ -148,16 +141,16 @@ void steepestDescent(G::Graph& g, Solution& s,int iterations){
     setSolution(g, s);
 }
 
-bool compare(const pair<long int, int>&i, const pair<long int, int>&j)
-{
+
+bool compare(const pair<long int, int>&i, const pair<long int, int>&j) {
     return i.second > j.second;
 }
 
 void perturbate(G::Graph& g, int q,int eta, int tmax){
-    long int iteratedId;
+    int iteratedId;
     
     //Il primo elemento è l'id, il secondo è la penalità associata
-    long int n = num_vertices(g);
+    int n = int(num_vertices(g));
     pair<long int,int>* idPenalty  = new pair<long int,int>[n];
     
     if(q>=n){
@@ -168,7 +161,7 @@ void perturbate(G::Graph& g, int q,int eta, int tmax){
     //Bisogna iterare sui vertici
     G::Graph::vertex_iterator v, vend;
     for (boost::tie(v, vend) = vertices(g); v != vend; ++v) {
-        iteratedId = get(vertex_index_t(),g,*v);
+        iteratedId = int(get(vertex_index_t(),g,*v));
 
         idPenalty[iteratedId].first = iteratedId;
         idPenalty[iteratedId].second = nodeCurrentPenalty(g, *v);
@@ -196,7 +189,6 @@ void perturbate(G::Graph& g, int q,int eta, int tmax){
         
         simpleKempeWrapper(g, randomVertex, randomColor);
     }
-    
     
     delete [] idPenalty;
     return;
@@ -236,7 +228,6 @@ void iteratedLocalSearch(G::Graph& g, Solution& s,int tollerance,clock_t start, 
     }
     
 }
-
 
 //Cambia i colori e li segna sul grafo ma non sulla soluzione
 void swapColors(G::Graph& g,int color1, int color2){

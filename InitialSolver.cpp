@@ -1,98 +1,9 @@
 #include "InitialSolver.hpp"
 
-#include <iostream>
-#include "graphw.hpp"
-#include "Solution.hpp"
+#include <ctime>
 #include "Utility.hpp"
-#include <boost/graph/adjacency_list.hpp>
 
-void InitialSolver::greedy(G::Graph g, Solution* sol) {
-	int i, j, newpen, minpen, jmin;
-
-	sol->sol[0] = 1;
-	for (i = 1; i < sol->n; i++) {
-		minpen = INT32_MAX;
-		jmin = -1;
-
-		for (j = 1; j <= sol->tmax; j++) {
-			sol->sol[i] = j;
-			newpen = Solution::calculatePenalty(g, sol->sol, sol->indexexams, i + 1, sol->tmax);
-			if ((newpen >= 0) && (newpen < minpen)) {
-				minpen = newpen;
-				jmin = j;
-			}
-		}
-
-		sol->sol[i] = jmin;
-	}
-}
-
-void InitialSolver::greedy(G::Graph g, int* res, int* indexvector, int nsub, int tmax) {
-	int i, j, newpen, minpen, jmin;
-
-	for (i = 0; i < nsub; i++) {
-		minpen = INT32_MAX;
-		jmin = -1;
-
-		for (j = 1; j <= tmax; j++) {
-			res[i] = j;
-			newpen = Solution::calculatePenalty(g, res, indexvector, i + 1, tmax);
-			if ((newpen >= 0) && (newpen < minpen)) {
-				minpen = newpen;
-				jmin = j;
-			}
-		}
-
-		res[i] = jmin;
-	}
-}
-
-bool InitialSolver::recursiveFirstSolutionRec(G::Graph g, int* res, int* indexvector, int nsub, int tmax, int i) {
-	int j, k;
-	bool* available = new bool[tmax];
-	std::pair<G::Edge, bool> e;
-
-	if (i == nsub)
-		return true;
-
-	for (j = 0; j < tmax; j++)
-		available[j] = true;
-
-	for (k = 0; k < i; k++) {
-		e = edge(indexvector[i], indexvector[k], g);
-		if (e.second)
-			available[res[k] - 1] = false;
-	}
-
-	for (j = 0; j < tmax; j++) {
-		if (available[j]){
-			res[i] = j + 1;
-			if (InitialSolver::recursiveFirstSolutionRec(g, res, indexvector, nsub, tmax, i + 1)) {
-				// Soluzione trovata
-				delete[] available;
-				return true;
-			}
-		}
-	}
-
-	delete[] available;
-	return false;
-}
-
-int* InitialSolver::recursiveFirstSolution(G::Graph g, int* indexvector, int nsub, int tmax) {
-	int* res = new int[nsub];
-
-	for (int i = 0; i < nsub; i++)
-		res[i] = -1;
-
-	if (!InitialSolver::recursiveFirstSolutionRec(g, res, indexvector, nsub, tmax, 0)) {
-		delete[] res;
-		return NULL;
-	}
-	return res;
-}
-
-std::pair<int, bool> InitialSolver::firstPossiblePosition(G::Graph g, int* res, int* indexvector, int n, int tmax) {
+std::pair<int, bool> InitialSolver::firstPossiblePosition(G::Graph *g, int* res, int* indexexams, int n, int tmax) {
 	int i, j;
 	bool* available = new bool[n];
 	std::pair<G::Edge, bool> e;
@@ -101,12 +12,11 @@ std::pair<int, bool> InitialSolver::firstPossiblePosition(G::Graph g, int* res, 
 	max.second = true;
 
 	for (i = 0; i < n; i++) {
-		for (j = 0; j < n; j++) {
+		for (j = 0; j < n; j++)
 			available[j] = true;
-		}
 
 		for (j = 0; j < i; j++) {
-			e = edge(indexvector[i], indexvector[j], g);
+			e = edge(indexexams[i], indexexams[j], *g);
 			if (e.second) {
 				available[res[j] - 1] = false;
 			}
@@ -126,76 +36,52 @@ std::pair<int, bool> InitialSolver::firstPossiblePosition(G::Graph g, int* res, 
 		}
 	}
 
+	delete[] available;
 	max.first++;
 	return max;
 }
-
-std::pair<int, bool> InitialSolver::squeakyWheel(G::Graph g, int* res, int* indexvector, int n, int tmax) {
-	int* blame = new int[n];
-	int i, alpha = 1, beta = tmax / 2;
-	std::pair<int, bool> temp;
-	temp.second = false;
-
-	for (i = 0; i < n; i++)
-		blame[i] = 0;
-
-	while (!temp.second) {
-		temp = InitialSolver::firstPossiblePosition(g, res, indexvector, n, tmax);
-
-		if (!temp.second) {
-			for (i = 0; i < n; i++) {
-				if (res[i] > tmax* alpha)
-					blame[i] += beta + res[i];
-				else
-					blame[i] += res[i]; // blame[i] += i;
-			}
-
-			mergeSort(indexvector, blame, n);
-			reverseVector(indexvector, n);
-			reverseVector(blame, n);
-		}
-	}
-
-	delete[] blame;
-	return temp;
-}
-
-std::pair<int, bool> InitialSolver::squeakyWheel(G::Graph g, Solution* sol) {
+int InitialSolver::squeakyWheel(G::Graph* g, Solution* sol) {
 	int* blame = new int[sol->n];
-	int* indexvector = NULL;
-	int i, alpha = 1, beta = sol->tmax / 2;
+	int* indexexams = new int[sol->n];
+	int* soltemp = new int[sol->n];
+	int i, overblame = sol->tmax / 2;
 	std::pair<int, bool> temp;
 	temp.second = false;
 
-	for (i = 0; i < sol->n; i++)
+	srand(time(NULL));
+	int* weight = new int[sol->n];
+	for (int i = 0; i < sol->n; i++) {
 		blame[i] = 0;
-
-	if (sol->indexexams == NULL)
-		indexvector = new int[sol->n];
-	else
-		indexvector = sol->indexexams;
+		indexexams[i] = i;
+		weight[i] = rand();
+	}
+	mergeSort(indexexams, weight, sol->n);
+	delete[] weight;
 
 	while (!temp.second) {
-		temp = InitialSolver::firstPossiblePosition(g, sol->sol, indexvector, sol->n, sol->tmax);
+		temp = InitialSolver::firstPossiblePosition(g, soltemp, indexexams, sol->n, sol->tmax);
 
 		if (!temp.second) {
 			for (i = 0; i < sol->n; i++) {
-				if (sol->sol[i] > sol->tmax* alpha)
-					blame[i] += beta + sol->sol[i];
-				else
-					blame[i] += sol->sol[i]; // blame[i] += i;
+				blame[i] += soltemp[i]; // blame[i] += i;
+
+				if (sol->sol[i] > sol->tmax)
+					blame[i] += overblame;
 			}
 
-			mergeSort(indexvector, blame, sol->n);
-			reverseVector(indexvector, sol->n);
+			mergeSort(indexexams, blame, sol->n);
+			reverseVector(indexexams, sol->n);
 			reverseVector(blame, sol->n);
 		}
 	}
 
-	if (indexvector != sol->indexexams)
-		delete[] indexvector;
+	for (i = 0; i < sol->n; i++)
+		sol->sol[indexexams[i]] = soltemp[i];
+
+	delete[] soltemp;
+	delete[] indexexams;
 	delete[] blame;
-	return temp;
+	return temp.first;
 }
 
 

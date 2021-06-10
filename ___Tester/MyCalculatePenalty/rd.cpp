@@ -1,18 +1,25 @@
 #include "rd.hpp"
-
 #include <fstream>
+#include <string>
 #include <iostream>
-
-#include "graphw.hpp"
 #include <boost/tokenizer.hpp>
+#include <boost/graph/adjacency_list.hpp>
 
 using namespace std;
+using namespace boost;
+
+typedef property<edge_weight_t, int> EdgeWeightProperty;
+typedef property<vertex_color_t,int> VertexColorProperty;
+typedef adjacency_list<listS, vecS,undirectedS,VertexColorProperty,EdgeWeightProperty> Graph;
+typedef Graph::edge_descriptor Edge;
+typedef Graph::vertex_descriptor Vertex;
 
 pair<int,int> lineConvert(string line);
 
 Reader::Reader (const char* name):fname(name), tmax(-1), exams(0),students(-1){}
 
 int Reader::getExamN(){
+    
     if(this->exams!=0)
         return this->exams;
     
@@ -62,7 +69,7 @@ int Reader::getTmax(){
     return -1;
 }
 
-G::Graph Reader::read(){
+Graph Reader::read(){
     //
     string fName = std::string(this->fname);
     string stuFile = fName + ".stu";
@@ -75,7 +82,7 @@ G::Graph Reader::read(){
     int *stuExams ;
     stuExams = new int[tmax]; //list of exams for the current student
     
-    G::Graph conflicts(exams); //Grafo dei conflitti
+    Graph conflicts(exams); //Grafo dei conflitti
             
     ifstream sturead (stuFile);
     if (sturead.is_open())
@@ -118,7 +125,7 @@ G::Graph Reader::read(){
                   for(int x=y+1; x<i; x++){
                       int exam2 = stuExams[x];
                       
-                      pair<G::Edge, bool> ed = edge(exam1,exam2,conflicts);
+                      pair<Edge, bool> ed = edge(exam1,exam2,conflicts);
                       
                       //Add edge if its not present
                       if(ed.second==0)
