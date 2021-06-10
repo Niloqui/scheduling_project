@@ -5,6 +5,7 @@
 
 #include "../kempegroup/Kempe.hpp"
 
+
 using namespace std;
 
 /*Implicitamente si esplorano i vertici adiacenti se si esplora un vertice
@@ -139,6 +140,7 @@ void steepestDescent(G::Graph& g, Solution& s,int iterations){
     
     setSolution(g, s);
 }
+
 
 bool compare(const pair<long int, int>&i, const pair<long int, int>&j) {
     return i.second > j.second;

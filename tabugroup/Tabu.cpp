@@ -237,6 +237,7 @@ void Tabu::updateNodePenalties(G::Graph& g,G::Vertex v){
     int penalty;
     int index = (int)get(vertex_index_t(),g,v);
 
+
     //Modifico solo chi è obsoleto
     for(int color=1; color<=this->tmax; color++){
         if(this->moveMatrix[index][color]!=OBSOLETE)
@@ -276,7 +277,6 @@ std::pair<int,int> Tabu::bestMove(){
     
     return make_pair(id, color);
 }
-
 
 
 

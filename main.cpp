@@ -14,6 +14,8 @@ using namespace std;
 
 void solver(G::Graph* g, Solution* sol, TimeController* tlim, Solution* mothersolution, int studentNum, int tollerance);
 
+clock_t start;
+
 int main(int argc, const char * argv[]) {
 	int tmax, n, i, j, studentNum, num_cores = NUM_CORES, tollerance = 5;
 
@@ -102,6 +104,7 @@ int main(int argc, const char * argv[]) {
 void solver(G::Graph* g, Solution* sol, TimeController* tlim, Solution* mothersolution, int studentNum, int tollerance) {
 	sol->calculatePenalty(*g);
 	string pippo = mothersolution->checkSetPrintSolution(g, sol);
+
 
 	int tabu_length = 10;
 	Tabu tab(tabu_length, *g, *sol, studentNum);

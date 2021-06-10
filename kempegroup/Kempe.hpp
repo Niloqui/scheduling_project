@@ -19,6 +19,7 @@ void setSolution(G::Graph& g, Solution& s);
 //era già feasible
 void simpleKempe(G::Graph& g, G::Vertex v, int color, unordered_set<long int>& visitedNodes);
 
+
 //Trasforma il colore del vertice v nel colore parametro
 //Questo cambio viene effettuato lungo la catena kempe
 //Ovvero i nodi che sono adiacenti a v e sono di colore color
